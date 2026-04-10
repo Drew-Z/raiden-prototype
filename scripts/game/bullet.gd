@@ -62,4 +62,7 @@ func pop() -> void:
 
 
 func _draw() -> void:
+	var trail_length := radius * 2.4
+	var trail_dir := -velocity.normalized() if velocity.length() > 0.0 else Vector2.UP
+	draw_line(Vector2.ZERO, trail_dir * trail_length, Color(tint.r, tint.g, tint.b, 0.32), max(1.0, radius * 0.85))
 	draw_circle(Vector2.ZERO, radius, tint)

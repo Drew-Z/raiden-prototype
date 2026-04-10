@@ -7,6 +7,7 @@ signal spawn_bullet(bullet)
 signal bomb_activated(center: Vector2)
 signal died
 signal stats_changed(lives: int, bombs: int, fire_level: int)
+signal hurt(position: Vector2, lives_left: int)
 
 const LAYER_PLAYER := 1
 const LAYER_ENEMY := 4
@@ -26,6 +27,12 @@ var alive := true
 var flash_phase := 0.0
 var autopilot_time := 0.0
 var auto_bomb_cooldown := 0.0
+var power_flash_timer := 0.0
+var bomb_flash_timer := 0.0
+var max_fire_level := 5
+var max_bomb_count := 4
+var shot_flash_timer := 0.0
+var hit_flash_timer := 0.0
 
 
 func _init() -> void:
@@ -65,6 +72,10 @@ func _physics_process(delta: float) -> void:
 	fire_timer -= delta
 	invuln_timer = max(invuln_timer - delta, 0.0)
 	auto_bomb_cooldown = max(auto_bomb_cooldown - delta, 0.0)
+	power_flash_timer = max(power_flash_timer - delta, 0.0)
+	bomb_flash_timer = max(bomb_flash_timer - delta, 0.0)
+	shot_flash_timer = max(shot_flash_timer - delta, 0.0)
+	hit_flash_timer = max(hit_flash_timer - delta, 0.0)
 
 	var direction := _get_input_direction(delta)
 	position += direction * speed * delta
@@ -73,7 +84,7 @@ func _physics_process(delta: float) -> void:
 
 	if fire_timer <= 0.0:
 		_shoot()
-		fire_timer = fire_interval
+		fire_timer = _get_fire_interval()
 
 	if Input.is_action_just_pressed("bomb"):
 		trigger_bomb()
@@ -107,6 +118,9 @@ func _get_input_direction(delta: float) -> Vector2:
 
 func _shoot() -> void:
 	var shots: Array[Dictionary] = []
+	var bullet_radius := 4.5 + fire_level * 0.2
+	var bullet_tint := Color(0.45 + fire_level * 0.04, 0.95, 1.0)
+	shot_flash_timer = 0.07
 	match fire_level:
 		1:
 			shots = [{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 16}]
@@ -121,7 +135,7 @@ func _shoot() -> void:
 				{"offset": Vector2(-16, 0), "dir": Vector2(-0.12, -1), "damage": 13},
 				{"offset": Vector2(16, 0), "dir": Vector2(0.12, -1), "damage": 13}
 			]
-		_:
+		4:
 			shots = [
 				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 16},
 				{"offset": Vector2(-18, 0), "dir": Vector2(-0.16, -1), "damage": 13},
@@ -129,9 +143,18 @@ func _shoot() -> void:
 				{"offset": Vector2(-8, -8), "dir": Vector2(-0.05, -1), "damage": 12},
 				{"offset": Vector2(8, -8), "dir": Vector2(0.05, -1), "damage": 12}
 			]
+		_:
+			shots = [
+				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 18},
+				{"offset": Vector2(-22, 0), "dir": Vector2(-0.2, -1), "damage": 14},
+				{"offset": Vector2(22, 0), "dir": Vector2(0.2, -1), "damage": 14},
+				{"offset": Vector2(-10, -10), "dir": Vector2(-0.08, -1), "damage": 13},
+				{"offset": Vector2(10, -10), "dir": Vector2(0.08, -1), "damage": 13},
+				{"offset": Vector2(0, -14), "dir": Vector2(0, -1), "damage": 10}
+			]
 
 	for shot in shots:
-		var bullet = BulletScript.new().configure(position + shot.offset + Vector2(0, -26), shot.dir.normalized() * 560.0, shot.damage, true, 4.5, Color(0.45, 0.95, 1.0), screen_rect)
+		var bullet = BulletScript.new().configure(position + shot.offset + Vector2(0, -26), shot.dir.normalized() * 560.0, shot.damage, true, bullet_radius, bullet_tint, screen_rect)
 		spawn_bullet.emit(bullet)
 
 
@@ -139,7 +162,8 @@ func trigger_bomb() -> void:
 	if not alive or bomb_count <= 0:
 		return
 	bomb_count -= 1
-	invuln_timer = max(invuln_timer, 0.9)
+	invuln_timer = max(invuln_timer, 1.15)
+	bomb_flash_timer = 0.5
 	stats_changed.emit(lives, bomb_count, fire_level)
 	bomb_activated.emit(position)
 
@@ -149,16 +173,29 @@ func apply_damage(amount: int = 1) -> void:
 		return
 	lives -= amount
 	invuln_timer = 1.2
+	hit_flash_timer = 0.32
 	stats_changed.emit(lives, bomb_count, fire_level)
+	hurt.emit(position, lives)
 	if lives <= 0:
 		alive = false
 		died.emit()
 
 
 func add_firepower() -> void:
-	if fire_level < 4:
+	if fire_level < max_fire_level:
 		fire_level += 1
+	power_flash_timer = 0.5
 	stats_changed.emit(lives, bomb_count, fire_level)
+
+
+func add_bomb(amount: int = 1) -> void:
+	bomb_count = min(max_bomb_count, bomb_count + amount)
+	bomb_flash_timer = 0.6
+	stats_changed.emit(lives, bomb_count, fire_level)
+
+
+func _get_fire_interval() -> float:
+	return max(0.07, fire_interval - float(fire_level - 1) * 0.008)
 
 
 func _on_area_entered(area: Area2D) -> void:
@@ -168,11 +205,23 @@ func _on_area_entered(area: Area2D) -> void:
 	elif area.is_in_group("enemies"):
 		apply_damage(1)
 	elif area.collision_layer == LAYER_PICKUP:
+		var kind: String = area.pickup_type
 		area.collect()
-		add_firepower()
+		if kind == "bomb":
+			add_bomb()
+		else:
+			add_firepower()
 
 
 func _draw() -> void:
+	if fire_level >= 3:
+		var aura_alpha := 0.08 + float(fire_level - 2) * 0.04 + power_flash_timer * 0.12
+		draw_circle(Vector2.ZERO, 18.0 + fire_level * 1.5, Color(0.35, 0.85, 1.0, aura_alpha))
+	if bomb_flash_timer > 0.0:
+		draw_circle(Vector2.ZERO, 28.0 + bomb_flash_timer * 18.0, Color(1.0, 0.58, 0.3, 0.14))
+	if hit_flash_timer > 0.0:
+		draw_circle(Vector2.ZERO, 24.0 + hit_flash_timer * 18.0, Color(1.0, 0.38, 0.34, 0.22))
+
 	var body := PackedVector2Array([
 		Vector2(0, -24),
 		Vector2(15, 18),
@@ -190,3 +239,11 @@ func _draw() -> void:
 	draw_colored_polygon(body, Color(0.25, 0.92, 1.0, 0.95))
 	draw_colored_polygon(wings, Color(0.11, 0.54, 0.95, 0.85))
 	draw_circle(Vector2.ZERO, 5.0, Color(1.0, 0.95, 0.8))
+	if shot_flash_timer > 0.0:
+		draw_circle(Vector2(0, -26), 6.0 + shot_flash_timer * 22.0, Color(1.0, 0.96, 0.76, 0.18))
+	var engine_flame := PackedVector2Array([
+		Vector2(-5, 18),
+		Vector2(0, 28 + sin(flash_phase * 30.0) * 2.0),
+		Vector2(5, 18)
+	])
+	draw_colored_polygon(engine_flame, Color(1.0, 0.66, 0.3, 0.78))
