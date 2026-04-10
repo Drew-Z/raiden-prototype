@@ -1,0 +1,6 @@
+.godot/
+.godot-user/
+*.import
+*.uid
+smoke*.log
+
