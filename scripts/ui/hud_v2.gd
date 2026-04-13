@@ -24,6 +24,7 @@ var event_title_label: Label
 var event_detail_label: Label
 var pause_panel: PanelContainer
 var pulse_overlay: ColorRect
+var danger_overlay: ColorRect
 var clear_panel: PanelContainer
 var clear_title_label: Label
 var clear_stats_label: Label
@@ -32,6 +33,8 @@ var left_warning_label: Label
 var right_warning_label: Label
 var left_warning_token := 0
 var right_warning_token := 0
+var cinematic_top_bar: ColorRect
+var cinematic_bottom_bar: ColorRect
 
 
 func _ready() -> void:
@@ -40,11 +43,13 @@ func _ready() -> void:
 	_build_boss_panel()
 	_build_banner()
 	_build_pulse_overlay()
+	_build_danger_overlay()
 	_build_event_panel()
 	_build_pause_panel()
 	_build_hint_label()
 	_build_clear_panel()
 	_build_edge_warnings()
+	_build_cinematic_bars()
 
 
 func _build_status_panel() -> void:
@@ -209,6 +214,14 @@ func _build_pulse_overlay() -> void:
 	add_child(pulse_overlay)
 
 
+func _build_danger_overlay() -> void:
+	danger_overlay = ColorRect.new()
+	danger_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	danger_overlay.color = Color(1.0, 0.26, 0.18, 0.0)
+	danger_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(danger_overlay)
+
+
 func _build_pause_panel() -> void:
 	pause_panel = PanelContainer.new()
 	pause_panel.visible = false
@@ -341,6 +354,20 @@ func _build_edge_warnings() -> void:
 	add_child(right_warning_label)
 
 
+func _build_cinematic_bars() -> void:
+	cinematic_top_bar = ColorRect.new()
+	cinematic_top_bar.color = Color(0.0, 0.0, 0.0, 0.92)
+	cinematic_top_bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	cinematic_top_bar.offset_bottom = 0.0
+	add_child(cinematic_top_bar)
+
+	cinematic_bottom_bar = ColorRect.new()
+	cinematic_bottom_bar.color = Color(0.0, 0.0, 0.0, 0.92)
+	cinematic_bottom_bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	cinematic_bottom_bar.offset_top = 0.0
+	add_child(cinematic_bottom_bar)
+
+
 func _make_label(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -432,6 +459,12 @@ func pulse_screen(color: Color, duration: float = 0.08) -> void:
 	)
 
 
+func set_danger_overlay(strength: float, color: Color = Color(1.0, 0.28, 0.18, 1.0)) -> void:
+	if not is_instance_valid(danger_overlay):
+		return
+	danger_overlay.color = Color(color.r, color.g, color.b, clampf(strength, 0.0, 0.22))
+
+
 func show_clear_summary(title_text: String, detail_text: String, color: Color = Color(1.0, 0.92, 0.62)) -> void:
 	clear_title_label.text = title_text
 	clear_title_label.add_theme_color_override("font_color", color)
@@ -465,6 +498,24 @@ func show_edge_warning(side: String, text: String, duration: float = 0.75, color
 		if active_token == current_token and is_instance_valid(label):
 			label.visible = false
 	)
+
+
+func show_cinematic_bars(height: float = 42.0, duration: float = 0.18) -> void:
+	if not is_instance_valid(cinematic_top_bar) or not is_instance_valid(cinematic_bottom_bar):
+		return
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(cinematic_top_bar, "offset_bottom", height, duration)
+	tween.tween_property(cinematic_bottom_bar, "offset_top", -height, duration)
+
+
+func hide_cinematic_bars(duration: float = 0.18) -> void:
+	if not is_instance_valid(cinematic_top_bar) or not is_instance_valid(cinematic_bottom_bar):
+		return
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(cinematic_top_bar, "offset_bottom", 0.0, duration)
+	tween.tween_property(cinematic_bottom_bar, "offset_top", 0.0, duration)
 
 
 func hide_boss() -> void:

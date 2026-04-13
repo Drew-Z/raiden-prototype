@@ -9,6 +9,9 @@ const StageDataScript := preload("res://scripts/game/stage_data_v2.gd")
 const BombEffectScript := preload("res://scripts/game/bomb_effect.gd")
 const ImpactEffectScript := preload("res://scripts/game/impact_effect.gd")
 const ExplosionEffectScript := preload("res://scripts/game/explosion_effect.gd")
+const BossIntroEffectScript := preload("res://scripts/game/boss_intro_effect.gd")
+const BossBreakEffectScript := preload("res://scripts/game/boss_break_effect.gd")
+const BgmControllerScript := preload("res://scripts/game/bgm_controller.gd")
 const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 
@@ -39,6 +42,7 @@ var shake_strength := 0.0
 var time_stop_timer := 0.0
 var time_stop_scale := 1.0
 var sfx
+var bgm
 
 
 func _ready() -> void:
@@ -77,6 +81,10 @@ func _build_scene() -> void:
 	world_layer.add_child(effects_layer)
 
 	if DisplayServer.get_name() != "headless":
+		bgm = BgmControllerScript.new()
+		add_child(bgm)
+		bgm.play_stage_loop()
+
 		sfx = SfxControllerScript.new()
 		add_child(sfx)
 
@@ -393,9 +401,15 @@ func _spawn_boss() -> void:
 	boss_overdrive_announced = false
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
+	hud.show_cinematic_bars(40.0, 0.16)
 	_play_sfx("boss_warning")
+	if is_instance_valid(bgm):
+		bgm.play_boss_loop()
 	_show_flash(Color(1.0, 0.76, 0.38), 0.32, 0.18)
 	_start_shake(8.0, 0.35)
+	var intro_effect = BossIntroEffectScript.new().configure(Vector2(336.0, 154.0), 1.15, Color(1.0, 0.8, 0.44, 0.92))
+	intro_effect.position = Vector2(playfield_rect.size.x * 0.5, 176.0)
+	effects_layer.call_deferred("add_child", intro_effect)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
 	_queue_banner("WARNING // HX-1 DESCENT", 1.0, Color(1.0, 0.78, 0.4), false)
 	hud.show_event_card_temporarily(
@@ -403,6 +417,10 @@ func _spawn_boss() -> void:
 		"Phase shifts expose the core. Hold one bomb for the late pressure window.",
 		1.55,
 		Color(1.0, 0.82, 0.48)
+	)
+	get_tree().create_timer(1.4).timeout.connect(func() -> void:
+		if is_instance_valid(hud):
+			hud.hide_cinematic_bars(0.2)
 	)
 
 
@@ -438,10 +456,13 @@ func _update_hud_status() -> void:
 	var enemy_bullet_count := get_tree().get_nodes_in_group("enemy_projectiles").size()
 	var hint_text := "BUILD FIREPOWER"
 	var hint_color := Color(0.82, 0.94, 1.0)
+	var danger_strength := 0.0
+	var danger_color := Color(1.0, 0.28, 0.18, 1.0)
 
 	if player.lives <= 1:
 		hint_text = "CRITICAL HULL"
 		hint_color = Color(1.0, 0.56, 0.46)
+		danger_strength = 0.12
 	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 5.5):
 		hint_text = "NO BOMB BUFFER"
 		hint_color = Color(1.0, 0.7, 0.42)
@@ -452,12 +473,16 @@ func _update_hud_status() -> void:
 		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
 			hint_text = "OVERDRIVE // HOLD LINE"
 			hint_color = Color(1.0, 0.56, 0.32)
+			danger_strength = max(danger_strength, 0.16)
+			danger_color = Color(1.0, 0.3, 0.14, 1.0)
 		elif active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
 			hint_text = "CORE EXPOSED // PUSH DAMAGE"
 			hint_color = Color(1.0, 0.88, 0.52)
 		elif boss_phase_seen == 3:
 			hint_text = "FINAL PHASE PRESSURE"
 			hint_color = Color(1.0, 0.62, 0.38)
+			danger_strength = max(danger_strength, 0.1)
+			danger_color = Color(1.0, 0.34, 0.18, 1.0)
 		else:
 			hint_text = "BREAK THE CORE"
 			hint_color = Color(1.0, 0.82, 0.48)
@@ -472,6 +497,7 @@ func _update_hud_status() -> void:
 		hint_color = Color(0.92, 0.9, 1.0)
 
 	hud.set_status_hint(hint_text, hint_color)
+	hud.set_danger_overlay(danger_strength, danger_color)
 
 
 func _get_boss_phase(ratio: float) -> int:
@@ -523,6 +549,11 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 
 func _on_player_died() -> void:
 	_play_sfx("player_die")
+	if is_instance_valid(bgm):
+		bgm.stop_all()
+		bgm.play_fail_sting()
+	if is_instance_valid(hud):
+		hud.show_cinematic_bars(48.0, 0.12)
 	_spawn_explosion(player.position, 1.3, false)
 	_start_shake(12.0, 0.28)
 	_show_flash(Color(1.0, 0.4, 0.36), 0.28, 0.18)
@@ -713,6 +744,8 @@ func _handle_boss_overdrive() -> void:
 	if not is_instance_valid(active_boss):
 		return
 	var overdrive_color := Color(1.0, 0.54, 0.3)
+	if is_instance_valid(bgm):
+		bgm.play_boss_overdrive_loop()
 	_show_flash(overdrive_color, 0.2, 0.12)
 	_start_shake(12.0, 0.28)
 	_queue_banner("OVERDRIVE", 0.9, overdrive_color, false)
@@ -731,8 +764,12 @@ func _play_boss_finish_sequence() -> void:
 	_start_shake(18.0, 0.55)
 	_show_flash(Color(1.0, 0.9, 0.6), 0.24, 0.2)
 	if is_instance_valid(hud):
+		hud.show_cinematic_bars(52.0, 0.14)
 		hud.hide_event_card()
 	var finish_center := Vector2(playfield_rect.size.x * 0.5, 174.0)
+	var break_effect = BossBreakEffectScript.new().configure(232.0, 0.66, Color(1.0, 0.88, 0.56, 0.96))
+	break_effect.position = finish_center
+	effects_layer.call_deferred("add_child", break_effect)
 	var explosion_offsets := [
 		Vector2(-34.0, -18.0),
 		Vector2(36.0, -10.0),
@@ -753,6 +790,9 @@ func _play_boss_finish_sequence() -> void:
 		)
 	get_tree().create_timer(0.22).timeout.connect(func() -> void:
 		_play_sfx("stage_clear")
+		if is_instance_valid(bgm):
+			bgm.stop_all()
+			bgm.play_clear_sting()
 		_queue_banner("CLEAR BONUS", 0.8, Color(1.0, 0.86, 0.46), false)
 	)
 	get_tree().create_timer(0.42).timeout.connect(func() -> void:

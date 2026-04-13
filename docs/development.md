@@ -75,6 +75,12 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
 - 事件卡现在支持带时长的临时提示，关卡事件可以在 `stage_data_v2.gd` 里直接附加 `detail`、`card_duration` 和 `card_color`
 - Boss 相位切换与 overdrive 的战术提示目前仍由 `game_stage2.gd` 触发，因为它们依赖运行中的血量状态，而不是固定时间轴事件
 - 侧入波次的边缘预警目前由 `game_stage2.gd` 在刷波前触发，HUD 只提供左右入口提示接口，不负责解析波次数据
+- Boss 入场锁定特效已拆到 `boss_intro_effect.gd`，命中与爆炸也继续沿用独立效果脚本强化，便于后续统一升级演出层
+- Boss 击破冲击特效已拆到 `boss_break_effect.gd`，炸弹表现仍集中在 `bomb_effect.gd`，方便后续继续补更强的屏幕节拍
+- 现在新增了 `bgm_controller.gd` 作为程序生成的占位音乐层；和音效一样，`headless` 自动验证中不会创建音频节点
+- HUD 现在还承担电影边栏包装，Boss 入场、击破和失败收束都只通过 HUD 接口触发，不直接改场景结构
+- 持续危险压屏也统一走 `hud_v2.gd`，主控只负责传入强度和颜色，不直接操作覆盖节点
+- BGM 现在区分普通战斗、Boss、Boss overdrive、失败和通关收束，仍然保持程序生成占位实现
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
 ## 提交建议

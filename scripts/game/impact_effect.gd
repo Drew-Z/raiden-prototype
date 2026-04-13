@@ -24,6 +24,13 @@ func _draw() -> void:
 	var ratio: float = clampf(elapsed / lifetime, 0.0, 1.0)
 	var radius: float = lerpf(effect_radius * 0.3, effect_radius, ratio)
 	var alpha: float = 1.0 - ratio
-	draw_circle(Vector2.ZERO, radius, Color(effect_color.r, effect_color.g, effect_color.b, 0.16 * alpha))
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 18, Color(effect_color.r, effect_color.g, effect_color.b, 0.92 * alpha), 2.0)
-
+	var pulse := 0.7 + sin(ratio * TAU * 2.0) * 0.18
+	draw_circle(Vector2.ZERO, radius, Color(effect_color.r, effect_color.g, effect_color.b, 0.18 * alpha))
+	draw_circle(Vector2.ZERO, radius * 0.52, Color(1.0, 0.94, 0.7, 0.28 * alpha))
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 18, Color(effect_color.r, effect_color.g, effect_color.b, 0.92 * alpha), 2.0 * pulse)
+	draw_arc(Vector2.ZERO, radius * 0.62, 0.0, TAU, 14, Color(1.0, 0.92, 0.66, 0.7 * alpha), 1.4)
+	for angle_step in range(4):
+		var angle := TAU * float(angle_step) / 4.0 + ratio * 0.55
+		var start := Vector2.RIGHT.rotated(angle) * radius * 0.35
+		var finish := Vector2.RIGHT.rotated(angle) * radius * 1.08
+		draw_line(start, finish, Color(effect_color.r, effect_color.g, effect_color.b, 0.74 * alpha), 1.6)

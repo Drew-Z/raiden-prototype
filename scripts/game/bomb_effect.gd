@@ -34,3 +34,9 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, radius, Color(0.92, 0.97, 1.0, alpha))
 	draw_arc(Vector2.ZERO, radius * 0.82, 0.0, TAU, 72, Color(ring_color.r, ring_color.g, ring_color.b, alpha * 2.4), 10.0)
 	draw_arc(Vector2.ZERO, radius * 0.56, 0.0, TAU, 72, Color(core_color.r, core_color.g, core_color.b, alpha * 2.0), 7.0)
+	draw_arc(Vector2.ZERO, radius * 0.36, 0.0, TAU, 48, Color(1.0, 0.96, 0.78, alpha * 2.2), 4.0)
+	for ray_index in range(8):
+		var angle := TAU * float(ray_index) / 8.0 + ratio * 0.55
+		var inner := Vector2.RIGHT.rotated(angle) * radius * 0.22
+		var outer := Vector2.RIGHT.rotated(angle) * radius * 0.94
+		draw_line(inner, outer, Color(ring_color.r, ring_color.g, ring_color.b, alpha * 1.7), 2.6)
