@@ -4,14 +4,16 @@ var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
 var pulse_glow: ColorRect
+var ending_overlay: CanvasItem
 
 
 func _ready() -> void:
 	_build_ui()
 	_play_intro_motion()
 	_play_reveal_sequence()
+	_play_ending_overlay()
 	if RunState.is_autoplay():
-		get_tree().create_timer(0.7).timeout.connect(func() -> void:
+		get_tree().create_timer(0.9).timeout.connect(func() -> void:
 			get_tree().quit()
 		)
 
@@ -155,6 +157,9 @@ func _build_ui() -> void:
 	)
 	footer_row.add_child(menu_button)
 
+	ending_overlay = _build_ending_overlay()
+	add_child(ending_overlay)
+
 
 func _build_stat_card(title_text: String, value_text: String) -> Control:
 	var panel := PanelContainer.new()
@@ -254,6 +259,50 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 	return panel
 
 
+func _build_ending_overlay() -> CanvasItem:
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	var backdrop := ColorRect.new()
+	backdrop.color = Color(0.0, 0.0, 0.0, 0.0)
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(backdrop)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+
+	var panel := VBoxContainer.new()
+	panel.add_theme_constant_override("separation", 6)
+	panel.modulate.a = 0.0
+	center.add_child(panel)
+
+	var status := Label.new()
+	status.text = "ENDING // STORM FRONT SECURED"
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status.add_theme_font_size_override("font_size", 20)
+	status.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
+	panel.add_child(status)
+
+	var title := Label.new()
+	title.text = "CHAPTER ROUTE LOCKED"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 38)
+	panel.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = RunState.get_chapter_outro_headline()
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.custom_minimum_size = Vector2(620, 0)
+	subtitle.add_theme_font_size_override("font_size", 20)
+	panel.add_child(subtitle)
+
+	overlay.set_meta("backdrop", backdrop)
+	overlay.set_meta("panel", panel)
+	return overlay
+
+
 func _register_reveal(item: CanvasItem) -> void:
 	item.modulate.a = 0.0
 	reveal_nodes.append(item)
@@ -273,6 +322,24 @@ func _play_intro_motion() -> void:
 	var pulse_tween := create_tween().set_loops()
 	pulse_tween.tween_property(pulse_glow, "color:a", 0.16, 0.45)
 	pulse_tween.tween_property(pulse_glow, "color:a", 0.06, 0.6)
+
+
+func _play_ending_overlay() -> void:
+	if not is_instance_valid(ending_overlay):
+		return
+	var backdrop: ColorRect = ending_overlay.get_meta("backdrop")
+	var panel: CanvasItem = ending_overlay.get_meta("panel")
+	if RunState.is_autoplay():
+		backdrop.color.a = 0.18
+		panel.modulate.a = 1.0
+		return
+
+	var tween := create_tween()
+	tween.tween_property(backdrop, "color:a", 0.42, 0.22)
+	tween.parallel().tween_property(panel, "modulate:a", 1.0, 0.22)
+	tween.tween_interval(0.55)
+	tween.tween_property(panel, "modulate:a", 0.0, 0.24)
+	tween.parallel().tween_property(backdrop, "color:a", 0.0, 0.24)
 
 
 func _play_reveal_sequence() -> void:

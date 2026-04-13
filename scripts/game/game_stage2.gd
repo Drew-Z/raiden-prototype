@@ -794,6 +794,7 @@ func _trigger_storm_cross(event: Dictionary) -> void:
 	_play_sfx("boss_phase")
 	_show_flash(Color(0.76, 0.9, 1.0), 0.1, 0.08)
 	hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.08), 0.06)
+	_queue_support_wave(event)
 
 
 func _spawn_storm_strikes(lanes: Array, telegraph_time: float, active_time: float) -> void:
@@ -814,6 +815,20 @@ func _spawn_storm_sweeps(rows: Array, telegraph_time: float, active_time: float)
 				hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.04), 0.04)
 		)
 		hazard_layer.call_deferred("add_child", sweep)
+
+
+func _queue_support_wave(event: Dictionary) -> void:
+	if not event.has("support_wave"):
+		return
+	var support_wave: Dictionary = event.get("support_wave", {})
+	if support_wave.is_empty():
+		return
+	var delay := float(event.get("support_delay", 0.0))
+	get_tree().create_timer(delay).timeout.connect(func() -> void:
+		if run_finished:
+			return
+		_spawn_wave(support_wave)
+	)
 
 
 func _on_pickup_collected(kind: String) -> void:
