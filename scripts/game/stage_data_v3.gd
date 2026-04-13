@@ -61,6 +61,16 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.18
 		},
 		{
+			"time": 8.9,
+			"formation": "carrier",
+			"position_x": playfield_size.x * 0.5,
+			"velocity": Vector2(0, 118),
+			"health": 64,
+			"fire_interval": 1.18,
+			"drop_chance": 1.0,
+			"drop_kind": "power"
+		},
+		{
 			"time": 9.8,
 			"formation": "anchor_column",
 			"count": 2,
@@ -114,8 +124,8 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"start_x": 86.0,
 			"gap": 122.0,
 			"velocity": Vector2(0, 146),
-			"health": 36,
-			"fire_interval": 1.06,
+			"health": 38,
+			"fire_interval": 1.0,
 			"drop_chance": 0.36
 		},
 		{
@@ -151,6 +161,17 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"health": 34,
 			"fire_interval": 0.98,
 			"drop_chance": 0.34
+		},
+		{
+			"time": 22.9,
+			"formation": "sniper_line",
+			"count": 3,
+			"start_x": 110.0,
+			"gap": 160.0,
+			"velocity": Vector2(0, 142),
+			"health": 34,
+			"fire_interval": 1.02,
+			"drop_chance": 0.26
 		},
 		{
 			"time": 23.6,
@@ -194,14 +215,16 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 
 static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 	return [
-		{"time": 0.6, "type": "banner", "text": "STORM FRONT", "duration": 1.2},
+		{"time": 0.6, "type": "banner", "text": "STORM FRONT", "duration": 1.2, "detail": "Stage 02 leans harder on side pressure and carried resources. Keep the route moving.", "card_duration": 1.45},
 		{"time": 3.2, "type": "banner", "text": "SIDE DASH", "duration": 0.8, "detail": "Fast side entries are opening the route. Read the edges before the board closes.", "card_duration": 1.35},
 		{"time": 5.0, "type": "banner", "text": "SCREEN FIRE", "duration": 0.9, "detail": "Screener units are dropping slow lane bullets. Route around the gaps, not through them.", "card_duration": 1.5, "card_color": Color(0.78, 0.92, 1.0)},
+		{"time": 8.9, "type": "banner", "text": "FORWARD SUPPLY", "duration": 0.95, "detail": "Break the center carrier to stabilize growth before the route locks down.", "card_duration": 1.45, "card_color": Color(0.66, 0.94, 1.0)},
 		{"time": 9.6, "type": "banner", "text": "ANCHOR LINE", "duration": 0.9, "detail": "Anchors are pinning the route. Shift early and preserve a center exit.", "card_duration": 1.45},
 		{"time": 13.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -26.0)},
 		{"time": 13.8, "type": "banner", "text": "WEAPON SUPPLY", "duration": 0.9, "detail": "Lock this power route before the mid-board pressure spikes.", "card_duration": 1.4, "card_color": Color(0.62, 0.94, 1.0)},
-		{"time": 16.8, "type": "banner", "text": "SCREEN FIRE", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
+		{"time": 16.8, "type": "banner", "text": "SCREEN WALL", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
 		{"time": 20.8, "type": "banner", "text": "FINAL PRESSURE", "duration": 1.1, "detail": "Dashers and pincer fire will overlap here. Bomb routing is safer than late recovery.", "card_duration": 1.6, "card_color": Color(1.0, 0.78, 0.44)},
+		{"time": 22.8, "type": "banner", "text": "SNIPER CROSS", "duration": 0.85, "detail": "Late snipers are layering on top of the pincer lane. Clear one side before re-centering.", "card_duration": 1.45, "card_color": Color(1.0, 0.84, 0.52)},
 		{"time": 23.6, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -30.0)},
 		{"time": 23.6, "type": "banner", "text": "BOMB REFIT", "duration": 1.0, "detail": "Final bomb stock before boss entry. Cash it into a phase skip if the lane collapses.", "card_duration": 1.55, "card_color": Color(1.0, 0.72, 0.38)},
 		{"time": 28.0, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
@@ -223,6 +246,13 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"boss_anchor_x": playfield_size.x * 0.5,
 		"is_boss": true,
 		"boss_name": "VX-2 STORM GUNSHIP",
+		"boss_style": "storm",
+		"boss_intro_banner": "WARNING // VX-2 LOCK",
+		"boss_intro_title": "TARGET // VX-2 STORM GUNSHIP",
+		"boss_intro_detail": "Storm batteries flood the side lanes. Carry one bomb into overdrive or burst through the core window.",
+		"core_phase_detail": "Outer batteries are resetting. Cut back through center and burn the exposed storm core.",
+		"final_core_phase_detail": "The final storm core is open. Push hard now before the sweep lines accelerate.",
+		"overdrive_detail": "Overdrive is closing the side lanes. Preserve a clean edge, then bomb through the next collapse.",
 		"bullet_speed": 294.0,
 		"drop_chance": 0.0,
 		"tint": Color(0.84, 0.2, 0.18, 0.95),

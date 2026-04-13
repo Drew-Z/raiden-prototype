@@ -275,6 +275,13 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"boss_anchor_x": playfield_size.x * 0.5,
 		"is_boss": true,
 		"boss_name": "HX-1 TEST CARRIER",
+		"boss_style": "carrier",
+		"boss_intro_banner": "WARNING // HX-1 DESCENT",
+		"boss_intro_title": "TARGET // HX-1 TEST CARRIER",
+		"boss_intro_detail": "Phase shifts expose the core. Hold one bomb for the late pressure window.",
+		"core_phase_detail": "The side guns are resetting. Step back in and burn the open core.",
+		"final_core_phase_detail": "Final phase has opened the core. Push damage now before overdrive speed ramps up.",
+		"overdrive_detail": "Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.",
 		"bullet_speed": 276.0,
 		"drop_chance": 0.0,
 		"tint": Color(0.88, 0.18, 0.18, 0.95)

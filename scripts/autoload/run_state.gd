@@ -6,6 +6,7 @@ const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
+var chapter_state: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var selected_stage_id := "stage_1"
 
@@ -13,6 +14,7 @@ var selected_stage_id := "stage_1"
 func _ready() -> void:
 	rng.randomize()
 	_ensure_input_actions()
+	_reset_chapter_state()
 	reset_run()
 
 
@@ -47,8 +49,51 @@ func _register_keys(action_name: String, keycodes: Array[int]) -> void:
 		InputMap.action_add_event(action_name, input_event)
 
 
+func _reset_chapter_state() -> void:
+	chapter_state = {
+		"active": false,
+		"chapter_finished": false,
+		"chapter_victory": false,
+		"stage_order": [],
+		"current_index": 0,
+		"stage_results": [],
+		"total_score": 0,
+		"total_time": 0.0,
+		"total_spawned": 0,
+		"total_destroyed": 0,
+		"highest_fire": 1,
+		"total_bombs_used": 0,
+		"stage_start_state": {
+			"lives": 3,
+			"bombs": 2,
+			"fire_level": 1
+		},
+		"next_stage_start_state": {
+			"lives": 3,
+			"bombs": 2,
+			"fire_level": 1
+		}
+	}
+
+
+func _get_default_start_state() -> Dictionary:
+	return {
+		"lives": 3,
+		"bombs": 2,
+		"fire_level": 1
+	}
+
+
+func _get_stage_start_state_internal() -> Dictionary:
+	if is_chapter_mode():
+		return chapter_state.get("stage_start_state", _get_default_start_state())
+	return _get_default_start_state()
+
+
 func reset_run() -> void:
 	var stage_meta := StageCatalogScript.get_stage_meta(selected_stage_id)
+	var start_state := _get_stage_start_state_internal()
+	var start_fire_level := clampi(int(start_state.get("fire_level", 1)), 1, 5)
 	current_run = {
 		"stage_id": selected_stage_id,
 		"stage_name": stage_meta.get("name", "STAGE 01 // SCRAMBLE"),
@@ -61,23 +106,55 @@ func reset_run() -> void:
 		"efficiency_bonus": 0,
 		"enemies_spawned": 0,
 		"enemies_destroyed": 0,
-		"fire_level": 1,
-		"max_fire_level": 1,
+		"fire_level": start_fire_level,
+		"max_fire_level": start_fire_level,
 		"bombs_used": 0,
 		"bombs_collected": 0,
 		"upgrades_collected": 0,
-		"fire_route": [1],
+		"fire_route": [start_fire_level],
 		"victory": false,
 		"boss_defeated": false,
 		"duration_sec": 0.0,
-		"player_lives": 3,
-		"player_bombs": 2
+		"player_lives": int(start_state.get("lives", 3)),
+		"player_bombs": int(start_state.get("bombs", 2)),
+		"start_lives": int(start_state.get("lives", 3)),
+		"start_bombs": int(start_state.get("bombs", 2)),
+		"start_fire_level": start_fire_level,
+		"chapter_transition_available": false
 	}
 
 
 func start_game(stage_id: String = "") -> void:
 	if stage_id != "":
 		selected_stage_id = stage_id
+	_reset_chapter_state()
+	reset_run()
+	call_deferred("_change_scene", GAME_SCENE)
+
+
+func start_chapter() -> void:
+	_reset_chapter_state()
+	chapter_state.active = true
+	chapter_state.stage_order = StageCatalogScript.get_stage_order()
+	chapter_state.current_index = 0
+	chapter_state.stage_start_state = _get_default_start_state()
+	chapter_state.next_stage_start_state = _get_default_start_state()
+	selected_stage_id = chapter_state.stage_order[0]
+	reset_run()
+	call_deferred("_change_scene", GAME_SCENE)
+
+
+func retry_run() -> void:
+	reset_run()
+	call_deferred("_change_scene", GAME_SCENE)
+
+
+func start_next_chapter_stage() -> void:
+	if not has_next_chapter_stage():
+		return
+	chapter_state.current_index = int(chapter_state.current_index) + 1
+	chapter_state.stage_start_state = chapter_state.get("next_stage_start_state", _get_default_start_state())
+	selected_stage_id = chapter_state.stage_order[chapter_state.current_index]
 	reset_run()
 	call_deferred("_change_scene", GAME_SCENE)
 
@@ -96,6 +173,35 @@ func get_selected_stage_id() -> String:
 
 func get_selected_stage_meta() -> Dictionary:
 	return StageCatalogScript.get_stage_meta(selected_stage_id)
+
+
+func get_stage_start_state() -> Dictionary:
+	return _get_stage_start_state_internal().duplicate(true)
+
+
+func is_chapter_mode() -> bool:
+	return bool(chapter_state.get("active", false))
+
+
+func has_next_chapter_stage() -> bool:
+	if not is_chapter_mode():
+		return false
+	return int(chapter_state.get("current_index", 0)) < chapter_state.get("stage_order", []).size() - 1
+
+
+func is_chapter_transition_pending() -> bool:
+	return bool(current_run.get("chapter_transition_available", false))
+
+
+func is_chapter_complete() -> bool:
+	return is_chapter_mode() and bool(chapter_state.get("chapter_finished", false)) and bool(chapter_state.get("chapter_victory", false))
+
+
+func get_next_stage_meta() -> Dictionary:
+	if not has_next_chapter_stage():
+		return {}
+	var next_stage_id: String = String(chapter_state.stage_order[int(chapter_state.current_index) + 1])
+	return StageCatalogScript.get_stage_meta(next_stage_id)
 
 
 func register_enemy_spawn() -> void:
@@ -146,6 +252,17 @@ func finish_run(victory: bool, duration_sec: float) -> void:
 	current_run.score_before_bonus = current_run.score
 	_apply_end_bonuses()
 	current_run.final_score = current_run.score
+	current_run.chapter_transition_available = false
+
+	if is_chapter_mode():
+		_record_chapter_result()
+		if victory and has_next_chapter_stage():
+			chapter_state.next_stage_start_state = _build_next_carry_state()
+			current_run.chapter_transition_available = true
+		else:
+			chapter_state.chapter_finished = true
+			chapter_state.chapter_victory = victory and not has_next_chapter_stage()
+
 	print("RUN_RESULT victory=%s score=%d kill_rate=%.2f max_fire=%d route=%s bombs_used=%d lives=%d" % [
 		str(victory),
 		int(current_run.final_score),
@@ -155,7 +272,47 @@ func finish_run(victory: bool, duration_sec: float) -> void:
 		int(current_run.bombs_used),
 		int(current_run.player_lives)
 	])
+	if is_chapter_mode() and bool(chapter_state.get("chapter_finished", false)):
+		print("CHAPTER_RESULT victory=%s total_score=%d kill_rate=%.2f stages=%d highest_fire=%d" % [
+			str(bool(chapter_state.get("chapter_victory", false))),
+			int(chapter_state.get("total_score", 0)),
+			get_chapter_kill_rate(),
+			int(chapter_state.get("stage_results", []).size()),
+			int(chapter_state.get("highest_fire", 1))
+		])
 	show_results()
+
+
+func _record_chapter_result() -> void:
+	var stage_result := {
+		"stage_id": current_run.stage_id,
+		"stage_name": current_run.stage_name,
+		"final_score": current_run.final_score,
+		"kill_rate": get_kill_rate(),
+		"max_fire_level": current_run.max_fire_level,
+		"bombs_used": current_run.bombs_used,
+		"player_lives": current_run.player_lives,
+		"duration_sec": current_run.duration_sec,
+		"victory": current_run.victory,
+		"fire_route": get_fire_route_text()
+	}
+	var stage_results: Array = chapter_state.get("stage_results", [])
+	stage_results.append(stage_result)
+	chapter_state.stage_results = stage_results
+	chapter_state.total_score = int(chapter_state.get("total_score", 0)) + int(current_run.final_score)
+	chapter_state.total_time = float(chapter_state.get("total_time", 0.0)) + float(current_run.duration_sec)
+	chapter_state.total_spawned = int(chapter_state.get("total_spawned", 0)) + int(current_run.enemies_spawned)
+	chapter_state.total_destroyed = int(chapter_state.get("total_destroyed", 0)) + int(current_run.enemies_destroyed)
+	chapter_state.highest_fire = max(int(chapter_state.get("highest_fire", 1)), int(current_run.max_fire_level))
+	chapter_state.total_bombs_used = int(chapter_state.get("total_bombs_used", 0)) + int(current_run.bombs_used)
+
+
+func _build_next_carry_state() -> Dictionary:
+	return {
+		"lives": max(1, int(current_run.player_lives)),
+		"bombs": clampi(max(int(current_run.player_bombs), 1) + 1, 1, 4),
+		"fire_level": clampi(max(int(current_run.fire_level), 3), 1, 5)
+	}
 
 
 func _apply_end_bonuses() -> void:
@@ -195,6 +352,12 @@ func get_kill_rate() -> float:
 	return float(current_run.enemies_destroyed) / float(current_run.enemies_spawned) * 100.0
 
 
+func get_chapter_kill_rate() -> float:
+	if int(chapter_state.get("total_spawned", 0)) <= 0:
+		return 0.0
+	return float(chapter_state.get("total_destroyed", 0)) / float(chapter_state.get("total_spawned", 0)) * 100.0
+
+
 func get_fire_route_text() -> String:
 	var parts: Array[String] = []
 	for value in current_run.fire_route:
@@ -203,7 +366,17 @@ func get_fire_route_text() -> String:
 
 
 func get_lives_lost() -> int:
-	return max(0, 3 - int(current_run.player_lives))
+	return max(0, int(current_run.start_lives) - int(current_run.player_lives))
+
+
+func get_result_title() -> String:
+	if is_chapter_transition_pending():
+		return "%s CLEAR" % String(current_run.stage_name)
+	if is_chapter_complete():
+		return "CHAPTER CLEAR"
+	if is_chapter_mode() and not current_run.victory:
+		return "CHAPTER FAILED"
+	return "%s CLEAR" % String(current_run.stage_name) if current_run.victory else "MISSION FAILED"
 
 
 func get_performance_grade() -> String:
@@ -218,9 +391,9 @@ func get_performance_grade() -> String:
 		points += 2
 	elif current_run.max_fire_level >= 4:
 		points += 1
-	if current_run.player_lives >= 3:
+	if get_lives_lost() == 0:
 		points += 2
-	elif current_run.player_lives >= 2:
+	elif get_lives_lost() <= 1:
 		points += 1
 	if current_run.bombs_used <= 1:
 		points += 1
@@ -235,7 +408,17 @@ func get_performance_grade() -> String:
 
 
 func get_result_flavor() -> String:
-	if current_run.victory and current_run.player_lives >= 3 and current_run.max_fire_level >= 5:
+	if is_chapter_transition_pending():
+		var next_meta := get_next_stage_meta()
+		return "%s secured. Route carries forward into %s with retained resources." % [
+			String(current_run.stage_name),
+			String(next_meta.get("menu_label", "next stage"))
+		]
+	if is_chapter_complete():
+		return "Two-stage chapter secured. Growth, bomb routing and boss control all held across the full chain."
+	if is_chapter_mode() and not current_run.victory:
+		return "Chapter pressure broke the route. The handoff into the next segment still needs a safer resource plan."
+	if current_run.victory and get_lives_lost() == 0 and current_run.max_fire_level >= 5:
 		return "%s secured with strong tempo and resource control." % String(current_run.stage_name)
 	if current_run.victory:
 		return "%s secured. Pressure curve held to the end." % String(current_run.stage_name)
@@ -259,13 +442,17 @@ func get_score_breakdown_text() -> String:
 
 func get_result_tags() -> Array[String]:
 	var tags: Array[String] = []
+	if is_chapter_transition_pending():
+		tags.append("STAGE ADVANCE")
+	if is_chapter_complete():
+		tags.append("CHAPTER CLEAR")
 	if current_run.victory:
 		tags.append("CLEAR")
 	if get_kill_rate() >= 85.0:
 		tags.append("HIGH KILL")
 	if current_run.max_fire_level >= 5:
 		tags.append("MAX FIRE")
-	if current_run.player_lives >= 3:
+	if get_lives_lost() == 0:
 		tags.append("NO MISS")
 	if current_run.bombs_used >= 2:
 		tags.append("BOMB ROUTE")
@@ -275,6 +462,15 @@ func get_result_tags() -> Array[String]:
 
 
 func get_next_focus() -> String:
+	if is_chapter_transition_pending():
+		var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
+		return "Stage handoff locked. Next start state: Hull %d, Bomb %d, Fire Lv%d." % [
+			int(carry_state.get("lives", 3)),
+			int(carry_state.get("bombs", 2)),
+			int(carry_state.get("fire_level", 1))
+		]
+	if is_chapter_complete():
+		return "Chapter route is stable. The next gains come from cleaning Stage 02 kill pace and using bombs for faster storm boss breaks."
 	if not current_run.victory:
 		if current_run.max_fire_level < 4:
 			return "Prioritize early power pickups to hit Lv4 before the final push."
@@ -287,6 +483,8 @@ func get_next_focus() -> String:
 
 
 func get_offense_summary() -> String:
+	if is_chapter_complete():
+		return "Chapter offense held together. Growth and stage handoff stayed online through both boss segments."
 	if get_kill_rate() >= 85.0 and current_run.max_fire_level >= 5:
 		return "Offense locked in. Fire route reached max output and held board control."
 	if current_run.max_fire_level < 4:
@@ -295,7 +493,7 @@ func get_offense_summary() -> String:
 
 
 func get_survival_summary() -> String:
-	if current_run.player_lives >= 3:
+	if get_lives_lost() == 0:
 		return "Hull integrity held all the way through. Spacing and threat reads stayed clean."
 	if current_run.victory:
 		return "The run survived the peak, but late pressure still forced a recovery line."
@@ -303,6 +501,8 @@ func get_survival_summary() -> String:
 
 
 func get_resource_summary() -> String:
+	if is_chapter_transition_pending():
+		return "Chapter carry-over is active. Stage clear granted a one-bomb resupply and preserved your fire route."
 	if current_run.bombs_used >= 3:
 		return "Bomb routing is active and intentional. Resources are being spent to hold tempo."
 	if current_run.bombs_used <= 0 and current_run.victory:
@@ -310,8 +510,55 @@ func get_resource_summary() -> String:
 	return "Resource usage is conservative. The next gains come from cleaner bomb timing."
 
 
+func get_chapter_progress_text() -> String:
+	if not is_chapter_mode():
+		return ""
+	var current_stage_number: int = min(int(chapter_state.get("current_index", 0)) + 1, chapter_state.get("stage_order", []).size())
+	return "Chapter Run %d / %d\nTotal Score %06d    Chapter Kill %.0f%%" % [
+		current_stage_number,
+		chapter_state.get("stage_order", []).size(),
+		int(chapter_state.get("total_score", 0)),
+		get_chapter_kill_rate()
+	]
+
+
+func get_chapter_stage_breakdown_text() -> String:
+	if not is_chapter_mode():
+		return ""
+	var lines: Array[String] = []
+	var stage_results: Array = chapter_state.get("stage_results", [])
+	for stage_result in stage_results:
+		lines.append("%s  %s  %06d  Kill %.0f%%  Fire Lv%d" % [
+			String(stage_result.get("stage_name", "")),
+			"CLEAR" if bool(stage_result.get("victory", false)) else "FAIL",
+			int(stage_result.get("final_score", 0)),
+			float(stage_result.get("kill_rate", 0.0)),
+			int(stage_result.get("max_fire_level", 1))
+		])
+	if lines.is_empty():
+		lines.append("Chapter route not started yet.")
+	return "\n".join(lines)
+
+
+func get_chapter_transition_text() -> String:
+	if not is_chapter_transition_pending():
+		return ""
+	var next_meta := get_next_stage_meta()
+	var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
+	return "Next: %s\nStart Hull %d    Start Bomb %d    Start Fire Lv%d" % [
+		String(next_meta.get("name", "NEXT STAGE")),
+		int(carry_state.get("lives", 3)),
+		int(carry_state.get("bombs", 2)),
+		int(carry_state.get("fire_level", 1))
+	]
+
+
 func is_autoplay() -> bool:
 	return OS.get_cmdline_args().has("--autoplay") or OS.get_cmdline_user_args().has("--autoplay")
+
+
+func wants_autoplay_chapter() -> bool:
+	return OS.get_cmdline_args().has("--chapter") or OS.get_cmdline_user_args().has("--chapter")
 
 
 func get_requested_autoplay_stage() -> String:

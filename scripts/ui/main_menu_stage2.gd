@@ -45,10 +45,16 @@ func _build_ui() -> void:
 	column.add_child(tag)
 
 	var summary := Label.new()
-	summary.text = "Stage 01 is the polished showcase route.\nStage 02 is the expansion skeleton for chapter growth validation."
+	summary.text = "Stage 01 is the polished opener.\nStage 02 now supports direct chapter carry-over and a heavier storm boss route."
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.add_theme_font_size_override("font_size", 22)
 	column.add_child(summary)
+
+	var chapter_button := Button.new()
+	chapter_button.text = "Chapter Run\nStage 01 -> Stage 02"
+	chapter_button.custom_minimum_size = Vector2(320, 74)
+	chapter_button.pressed.connect(RunState.start_chapter)
+	column.add_child(chapter_button)
 
 	var stage_button_row := HBoxContainer.new()
 	stage_button_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -64,7 +70,7 @@ func _build_ui() -> void:
 		stage_button_row.add_child(button)
 
 	var features := Label.new()
-	features.text = "Current builds:\n- Stage 01: showcase route with clearer pacing and boss presentation\n- Stage 02: expansion skeleton with denser side pressure and new screener enemies"
+	features.text = "Current builds:\n- Stage 01: showcase opener with cleaner pacing and chapter handoff\n- Stage 02: denser side pressure, screen-fire routing and a storm-pattern boss\n- Chapter Run: carries lives, bombs and fire growth into Stage 02"
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.add_theme_font_size_override("font_size", 18)
 	column.add_child(features)
@@ -89,4 +95,7 @@ func _build_ui() -> void:
 
 
 func _auto_start() -> void:
-	RunState.start_game(RunState.get_requested_autoplay_stage())
+	if RunState.wants_autoplay_chapter():
+		RunState.start_chapter()
+	else:
+		RunState.start_game(RunState.get_requested_autoplay_stage())

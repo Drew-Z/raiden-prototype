@@ -55,9 +55,12 @@ func _ready() -> void:
 	stats_changed.emit(lives, bomb_count, fire_level)
 
 
-func configure(bounds: Rect2, enable_autoplay: bool):
+func configure(bounds: Rect2, enable_autoplay: bool, start_state: Dictionary = {}):
 	screen_rect = bounds
 	autopilot = enable_autoplay
+	lives = int(start_state.get("lives", lives))
+	bomb_count = int(start_state.get("bombs", bomb_count))
+	fire_level = clampi(int(start_state.get("fire_level", fire_level)), 1, max_fire_level)
 	return self
 
 

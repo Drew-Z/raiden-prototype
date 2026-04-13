@@ -50,6 +50,7 @@ var core_exposed_timer := 0.0
 var core_exposed_duration := 2.2
 var core_damage_multiplier := 1.65
 var overdrive_threshold := 0.18
+var boss_style := "carrier"
 
 
 func _init() -> void:
@@ -107,6 +108,7 @@ func configure(config: Dictionary):
 	core_exposed_duration = config.get("core_exposed_duration", 2.2)
 	core_damage_multiplier = config.get("core_damage_multiplier", 1.65)
 	overdrive_threshold = config.get("overdrive_threshold", 0.18)
+	boss_style = config.get("boss_style", "carrier")
 	return self
 
 
@@ -190,6 +192,10 @@ func _fire() -> void:
 
 
 func _fire_boss_pattern() -> void:
+	if boss_style == "storm":
+		_fire_storm_boss_pattern()
+		return
+
 	var ratio := float(health) / float(max_health)
 	if ratio > 0.66:
 		for offset in [-0.42, -0.21, 0.0, 0.21, 0.42]:
@@ -219,6 +225,35 @@ func _fire_boss_pattern() -> void:
 			if volley_index % 2 == 0:
 				for offset in [-0.12, 0.12]:
 					_spawn_boss_bullet(offset + sweep * 0.5, 6.8, Color(1.0, 0.72, 0.3), 1.4)
+
+
+func _fire_storm_boss_pattern() -> void:
+	var ratio := float(health) / float(max_health)
+	if ratio > 0.66:
+		for offset in [-0.58, -0.3, 0.0, 0.3, 0.58]:
+			_spawn_boss_bullet(offset, 6.1, Color(1.0, 0.58, 0.36), 1.04)
+		if volley_index % 2 == 0:
+			for aim_offset in [-0.22, 0.22]:
+				_spawn_targeted_bullet(aim_offset, 5.8, Color(1.0, 0.88, 0.6), 1.14)
+	elif ratio > 0.33:
+		for offset in [-0.82, -0.52, -0.24, 0.0, 0.24, 0.52, 0.82]:
+			_spawn_boss_bullet(offset, 6.5, Color(1.0, 0.52, 0.3), 1.08)
+		for offset in [-0.34, 0.34]:
+			_spawn_boss_bullet(offset, 7.0, Color(1.0, 0.74, 0.44), 1.24)
+		for aim_offset in [-0.28, 0.28]:
+			_spawn_targeted_bullet(aim_offset, 5.8, Color(1.0, 0.94, 0.68), 1.18)
+	else:
+		var sweep := sin(elapsed * 2.1) * 0.24
+		for offset in [-0.92, -0.62, -0.34, -0.08, 0.08, 0.34, 0.62, 0.92]:
+			_spawn_boss_bullet(offset + sweep, 6.7, Color(1.0, 0.48, 0.24), 1.12)
+		for aim_offset in [-0.3, 0.0, 0.3]:
+			_spawn_targeted_bullet(aim_offset, 5.9, Color(1.0, 0.96, 0.72), 1.28)
+		if volley_index % 2 == 1:
+			for offset in [-0.48, 0.48]:
+				_spawn_boss_bullet(offset - sweep * 0.4, 7.2, Color(1.0, 0.74, 0.38), 1.34)
+		if ratio <= overdrive_threshold:
+			for aim_offset in [-0.42, -0.16, 0.16, 0.42]:
+				_spawn_targeted_bullet(aim_offset, 5.4, Color(1.0, 0.98, 0.76), 1.48)
 
 
 func _fire_standard_pattern() -> void:
@@ -373,11 +408,33 @@ func _draw() -> void:
 		var exposed_alpha := clampf(core_exposed_timer / max(core_exposed_duration, 0.01), 0.0, 1.0)
 		var core_alpha := 0.72 + (1.0 - ratio) * 0.18 + impact_flash_timer * 1.2 + exposed_alpha * 0.22
 		draw_circle(Vector2.ZERO, 50.0, Color(0.24, 0.1, 0.1, 0.96))
-		draw_rect(Rect2(Vector2(-58, -30), Vector2(116, 60)), base_tint.lightened(impact_flash_timer * 0.8), true)
-		draw_rect(Rect2(Vector2(-28, -54), Vector2(56, 26)), Color(1.0, 0.78, 0.3, 0.95), true)
-		draw_rect(Rect2(Vector2(-86, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
-		draw_rect(Rect2(Vector2(58, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
-		draw_rect(Rect2(Vector2(-38, 18), Vector2(76, 20)), Color(0.42, 0.12, 0.12, 0.94), true)
+		if boss_style == "storm":
+			var left_wing := PackedVector2Array([
+				Vector2(-76, -8),
+				Vector2(-112, 2),
+				Vector2(-78, 20),
+				Vector2(-54, 10)
+			])
+			var right_wing := PackedVector2Array([
+				Vector2(76, -8),
+				Vector2(112, 2),
+				Vector2(78, 20),
+				Vector2(54, 10)
+			])
+			draw_colored_polygon(left_wing, base_tint.darkened(0.12).lightened(impact_flash_timer * 0.8))
+			draw_colored_polygon(right_wing, base_tint.darkened(0.12).lightened(impact_flash_timer * 0.8))
+			draw_rect(Rect2(Vector2(-60, -26), Vector2(120, 56)), base_tint.lightened(impact_flash_timer * 0.8), true)
+			draw_rect(Rect2(Vector2(-26, -56), Vector2(52, 24)), Color(0.82, 0.94, 1.0, 0.92), true)
+			draw_rect(Rect2(Vector2(-94, -12), Vector2(26, 28)), Color(0.5, 0.12, 0.12, 0.95), true)
+			draw_rect(Rect2(Vector2(68, -12), Vector2(26, 28)), Color(0.5, 0.12, 0.12, 0.95), true)
+			draw_rect(Rect2(Vector2(-44, 18), Vector2(88, 18)), Color(0.38, 0.12, 0.12, 0.94), true)
+			draw_arc(Vector2.ZERO, 32.0, 0.0, TAU, 32, Color(0.74, 0.92, 1.0, 0.18 + exposed_alpha * 0.24), 3.0)
+		else:
+			draw_rect(Rect2(Vector2(-58, -30), Vector2(116, 60)), base_tint.lightened(impact_flash_timer * 0.8), true)
+			draw_rect(Rect2(Vector2(-28, -54), Vector2(56, 26)), Color(1.0, 0.78, 0.3, 0.95), true)
+			draw_rect(Rect2(Vector2(-86, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
+			draw_rect(Rect2(Vector2(58, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
+			draw_rect(Rect2(Vector2(-38, 18), Vector2(76, 20)), Color(0.42, 0.12, 0.12, 0.94), true)
 		if is_core_exposed():
 			draw_arc(Vector2.ZERO, 24.0 + exposed_alpha * 6.0, 0.0, TAU, 32, Color(1.0, 0.92, 0.64, 0.48 + exposed_alpha * 0.26), 3.0)
 			draw_line(Vector2(-30.0, -8.0), Vector2(-16.0, -2.0), Color(1.0, 0.82, 0.46, 0.72), 2.0)

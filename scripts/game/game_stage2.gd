@@ -52,6 +52,22 @@ func _ready() -> void:
 	_setup_stage()
 	_build_scene()
 
+	if RunState.is_chapter_mode():
+		var stage_order := StageCatalogScript.get_stage_order()
+		var current_index := StageCatalogScript.get_stage_index(RunState.get_selected_stage_id()) + 1
+		_queue_banner("CHAPTER RUN %d / %d" % [current_index, stage_order.size()], 1.0, Color(0.9, 0.96, 1.0), false)
+		if RunState.current_run.start_fire_level > 1 or RunState.current_run.start_bombs > 2:
+			hud.show_event_card_temporarily(
+				"CARRY LOADOUT",
+				"Start Hull %d   Bomb %d   Fire Lv%d" % [
+					int(RunState.current_run.start_lives),
+					int(RunState.current_run.start_bombs),
+					int(RunState.current_run.start_fire_level)
+				],
+				1.4,
+				Color(0.72, 0.94, 1.0)
+			)
+
 	if RunState.is_autoplay():
 		_queue_banner("AUTO PLAY", 1.2, Color(0.8, 0.95, 1.0), false)
 	else:
@@ -99,7 +115,7 @@ func _build_scene() -> void:
 	hud.set_status_hint("BUILD FIREPOWER", Color(0.82, 0.94, 1.0))
 	hud.update_player(3, 1, 2, RunState.current_run.score)
 
-	player = PlayerScript.new().configure(playfield_rect, RunState.is_autoplay())
+	player = PlayerScript.new().configure(playfield_rect, RunState.is_autoplay(), RunState.get_stage_start_state())
 	player.position = Vector2(playfield_rect.size.x * 0.5, playfield_rect.size.y - 120.0)
 	player.spawn_bullet.connect(_on_player_bullet_spawned)
 	player.bomb_activated.connect(_on_player_bomb_activated)
@@ -430,10 +446,13 @@ func _spawn_boss() -> void:
 	intro_effect.position = Vector2(playfield_rect.size.x * 0.5, 176.0)
 	effects_layer.call_deferred("add_child", intro_effect)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
-	_queue_banner("WARNING // HX-1 DESCENT", 1.0, Color(1.0, 0.78, 0.4), false)
+	var intro_banner_text := String(boss_config.get("boss_intro_banner", "WARNING // %s" % active_boss.boss_name))
+	var intro_title_text := String(boss_config.get("boss_intro_title", "TARGET // %s" % active_boss.boss_name))
+	var intro_detail_text := String(boss_config.get("boss_intro_detail", "Phase shifts expose the core. Hold one bomb for the late pressure window."))
+	_queue_banner(intro_banner_text, 1.0, Color(1.0, 0.78, 0.4), false)
 	hud.show_event_card_temporarily(
-		"TARGET // HX-1 TEST CARRIER",
-		"Phase shifts expose the core. Hold one bomb for the late pressure window.",
+		intro_title_text,
+		intro_detail_text,
 		1.55,
 		Color(1.0, 0.82, 0.48)
 	)
@@ -711,7 +730,7 @@ func _resume_run() -> void:
 
 func _restart_run() -> void:
 	get_tree().paused = false
-	RunState.start_game()
+	RunState.retry_run()
 
 
 func _return_to_menu() -> void:
@@ -752,9 +771,9 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_queue_banner(label_text, 0.85, label_color, false)
 	hud.set_status_hint(label_text, label_color)
 	hud.pulse_screen(Color(label_color.r, label_color.g, label_color.b, 0.14), 0.08)
-	var phase_detail := "The side guns are resetting. Step back in and burn the open core."
+	var phase_detail := String(boss_config.get("core_phase_detail", "The side guns are resetting. Step back in and burn the open core."))
 	if phase_index == 3:
-		phase_detail = "Final phase has opened the core. Push damage now before overdrive speed ramps up."
+		phase_detail = String(boss_config.get("final_core_phase_detail", "Final phase has opened the core. Push damage now before overdrive speed ramps up."))
 	hud.show_event_card_temporarily(label_text, phase_detail, 1.4, label_color)
 	_play_sfx("boss_phase")
 
@@ -772,7 +791,7 @@ func _handle_boss_overdrive() -> void:
 	hud.pulse_screen(Color(overdrive_color.r, overdrive_color.g, overdrive_color.b, 0.16), 0.1)
 	hud.show_event_card_temporarily(
 		"OVERDRIVE",
-		"Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.",
+		String(boss_config.get("overdrive_detail", "Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.")),
 		1.5,
 		overdrive_color
 	)
@@ -816,8 +835,10 @@ func _play_boss_finish_sequence() -> void:
 	)
 	get_tree().create_timer(0.42).timeout.connect(func() -> void:
 		if is_instance_valid(hud):
+			var has_chapter_link := RunState.is_chapter_mode() and StageCatalogScript.get_next_stage_id(RunState.get_selected_stage_id()) != ""
+			var clear_title := "STAGE LINK SECURED" if has_chapter_link else "AREA SECURED"
 			hud.show_clear_summary(
-				"AREA SECURED",
+				clear_title,
 				"Battle %06d   Kill %.0f%%   Fire Lv%d" % [
 					int(RunState.current_run.score),
 					RunState.get_kill_rate(),

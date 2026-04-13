@@ -8,13 +8,18 @@ func _ready() -> void:
 	_play_reveal_sequence()
 	if RunState.is_autoplay():
 		get_tree().create_timer(0.4).timeout.connect(func() -> void:
-			get_tree().quit()
+			if RunState.is_chapter_transition_pending():
+				RunState.start_next_chapter_stage()
+			else:
+				get_tree().quit()
 		)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("restart_game") and not event.is_echo():
-		RunState.start_game()
+	if event.is_action_pressed("ui_accept") and not event.is_echo() and RunState.is_chapter_transition_pending():
+		RunState.start_next_chapter_stage()
+	elif event.is_action_pressed("restart_game") and not event.is_echo():
+		RunState.retry_run()
 	elif event.is_action_pressed("ui_cancel") and not event.is_echo():
 		RunState.go_to_menu()
 
@@ -62,7 +67,7 @@ func _build_ui() -> void:
 	_register_reveal(hero_box)
 
 	var title := Label.new()
-	title.text = "%s CLEAR" % String(RunState.current_run.stage_name) if RunState.current_run.victory else "MISSION FAILED"
+	title.text = RunState.get_result_title()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 36)
 	hero_box.add_child(title)
@@ -87,13 +92,48 @@ func _build_ui() -> void:
 	tags.add_theme_font_size_override("font_size", 16)
 	hero_box.add_child(tags)
 
+	if RunState.is_chapter_mode():
+		var chapter_panel := PanelContainer.new()
+		column.add_child(chapter_panel)
+		_register_reveal(chapter_panel)
+		var chapter_margin := MarginContainer.new()
+		chapter_margin.add_theme_constant_override("margin_left", 12)
+		chapter_margin.add_theme_constant_override("margin_top", 10)
+		chapter_margin.add_theme_constant_override("margin_right", 12)
+		chapter_margin.add_theme_constant_override("margin_bottom", 10)
+		chapter_panel.add_child(chapter_margin)
+		var chapter_label := Label.new()
+		chapter_label.text = "%s\n%s" % [RunState.get_chapter_progress_text(), RunState.get_chapter_stage_breakdown_text()]
+		chapter_label.add_theme_font_size_override("font_size", 18)
+		chapter_margin.add_child(chapter_label)
+
+	if RunState.is_chapter_transition_pending():
+		var transition_panel := PanelContainer.new()
+		column.add_child(transition_panel)
+		_register_reveal(transition_panel)
+		var transition_margin := MarginContainer.new()
+		transition_margin.add_theme_constant_override("margin_left", 12)
+		transition_margin.add_theme_constant_override("margin_top", 10)
+		transition_margin.add_theme_constant_override("margin_right", 12)
+		transition_margin.add_theme_constant_override("margin_bottom", 10)
+		transition_panel.add_child(transition_margin)
+		var transition_label := Label.new()
+		transition_label.text = "CHAPTER ADVANCE\n%s" % RunState.get_chapter_transition_text()
+		transition_label.add_theme_font_size_override("font_size", 20)
+		transition_margin.add_child(transition_label)
+
 	var stat_row := HBoxContainer.new()
 	stat_row.add_theme_constant_override("separation", 10)
 	column.add_child(stat_row)
 	_register_reveal(stat_row)
-	stat_row.add_child(_build_stat_card("FINAL SCORE", "%06d" % int(RunState.current_run.final_score)))
-	stat_row.add_child(_build_stat_card("KILL RATE", "%.0f%%" % RunState.get_kill_rate()))
-	stat_row.add_child(_build_stat_card("MAX FIRE", "Lv%d" % int(RunState.current_run.max_fire_level)))
+	if RunState.is_chapter_complete():
+		stat_row.add_child(_build_stat_card("CHAPTER SCORE", "%06d" % int(RunState.chapter_state.get("total_score", 0))))
+		stat_row.add_child(_build_stat_card("CHAPTER KILL", "%.0f%%" % RunState.get_chapter_kill_rate()))
+		stat_row.add_child(_build_stat_card("HIGH FIRE", "Lv%d" % int(RunState.chapter_state.get("highest_fire", 1))))
+	else:
+		stat_row.add_child(_build_stat_card("FINAL SCORE", "%06d" % int(RunState.current_run.final_score)))
+		stat_row.add_child(_build_stat_card("KILL RATE", "%.0f%%" % RunState.get_kill_rate()))
+		stat_row.add_child(_build_stat_card("MAX FIRE", "Lv%d" % int(RunState.current_run.max_fire_level)))
 
 	var route_panel := PanelContainer.new()
 	column.add_child(route_panel)
@@ -136,7 +176,10 @@ func _build_ui() -> void:
 	breakdown_column.add_child(score_breakdown)
 
 	var detail := Label.new()
-	detail.text = "Bombs Used: %d    Bombs Picked: %d\nPower Pickups: %d    Lives Lost: %d\nBoss Defeated: %s    Run Time: %.1f sec" % [
+	detail.text = "Start Hull: %d    Start Bomb: %d    Start Fire: Lv%d\nBombs Used: %d    Bombs Picked: %d\nPower Pickups: %d    Lives Lost: %d\nBoss Defeated: %s    Run Time: %.1f sec" % [
+		RunState.current_run.start_lives,
+		RunState.current_run.start_bombs,
+		RunState.current_run.start_fire_level,
 		RunState.current_run.bombs_used,
 		RunState.current_run.bombs_collected,
 		RunState.current_run.upgrades_collected,
@@ -168,7 +211,7 @@ func _build_ui() -> void:
 	_register_reveal(footer_box)
 
 	var footer := Label.new()
-	footer.text = "R Retry    Esc Main Menu"
+	footer.text = "Enter Next Stage    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else "R Retry    Esc Main Menu"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_box.add_child(footer)
@@ -178,11 +221,20 @@ func _build_ui() -> void:
 	button_row.add_theme_constant_override("separation", 12)
 	footer_box.add_child(button_row)
 
+	if RunState.is_chapter_transition_pending():
+		var next_button := Button.new()
+		next_button.text = "Next Stage"
+		next_button.custom_minimum_size = Vector2(170, 52)
+		next_button.pressed.connect(func() -> void:
+			RunState.start_next_chapter_stage()
+		)
+		button_row.add_child(next_button)
+
 	var again_button := Button.new()
 	again_button.text = "Retry"
 	again_button.custom_minimum_size = Vector2(170, 52)
 	again_button.pressed.connect(func() -> void:
-		RunState.start_game()
+		RunState.retry_run()
 	)
 	button_row.add_child(again_button)
 
