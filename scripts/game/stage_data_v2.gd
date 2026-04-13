@@ -245,17 +245,17 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 	return [
 		{"time": 0.6, "type": "banner", "text": "OPENING SWEEP", "duration": 1.4},
 		{"time": 4.8, "type": "banner", "text": "KEEP FIRE ROUTE", "duration": 0.8},
-		{"time": 9.3, "type": "banner", "text": "MID ASSAULT", "duration": 1.2},
-		{"time": 11.7, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
+		{"time": 9.3, "type": "banner", "text": "MID ASSAULT", "duration": 1.2, "detail": "Snipers are online. Clear lanes early before the field slows down.", "card_duration": 1.55},
+		{"time": 11.7, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9, "detail": "Anchor units hold space and seal lanes. Shift early, not late.", "card_duration": 1.45},
 		{"time": 14.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -28.0)},
-		{"time": 14.8, "type": "banner", "text": "WEAPON CAPSULE", "duration": 0.9},
-		{"time": 17.0, "type": "banner", "text": "PINCER LOCK", "duration": 0.8},
+		{"time": 14.8, "type": "banner", "text": "WEAPON CAPSULE", "duration": 0.9, "detail": "Secure the power drop and push toward Lv4 before the final block.", "card_duration": 1.45, "card_color": Color(0.62, 0.94, 1.0)},
+		{"time": 17.0, "type": "banner", "text": "PINCER LOCK", "duration": 0.8, "detail": "Crossfire units are closing the lane. Commit to a full side-step.", "card_duration": 1.35, "card_color": Color(1.0, 0.74, 0.42)},
 		{"time": 18.0, "type": "banner", "text": "FINAL PUSH", "duration": 1.2},
-		{"time": 21.9, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
-		{"time": 22.7, "type": "banner", "text": "ARMORED CARRIER", "duration": 0.9},
+		{"time": 21.9, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9, "detail": "The board is tightening. Hold bomb stock if the route collapses.", "card_duration": 1.45},
+		{"time": 22.7, "type": "banner", "text": "ARMORED CARRIER", "duration": 0.9, "detail": "Carrier inbound. Break it for the supply route before boss setup.", "card_duration": 1.5, "card_color": Color(1.0, 0.82, 0.48)},
 		{"time": 25.4, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -32.0)},
-		{"time": 25.4, "type": "banner", "text": "BOMB SUPPLY INBOUND", "duration": 1.1},
-		{"time": 25.9, "type": "banner", "text": "PINCER LOCK", "duration": 0.8},
+		{"time": 25.4, "type": "banner", "text": "BOMB SUPPLY INBOUND", "duration": 1.1, "detail": "One last bomb stock before the boss. Convert it into a safe phase skip.", "card_duration": 1.6, "card_color": Color(1.0, 0.7, 0.36)},
+		{"time": 25.9, "type": "banner", "text": "PINCER LOCK", "duration": 0.8, "detail": "Late crossfire ahead. Do not get trapped under the wall sweep.", "card_duration": 1.35, "card_color": Color(1.0, 0.74, 0.42)},
 		{"time": 28.1, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
 	]
 

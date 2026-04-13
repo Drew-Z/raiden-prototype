@@ -33,6 +33,7 @@ var drop_fail_streak := 0
 var last_fire_level := 1
 var last_bomb_count := 2
 var boss_phase_seen := 1
+var boss_overdrive_announced := false
 var shake_timer := 0.0
 var shake_strength := 0.0
 var time_stop_timer := 0.0
@@ -156,6 +157,13 @@ func _process_stage_events() -> void:
 				elif event.text == "BOSS WARNING":
 					hud.set_stage_text("BOSS ENGAGE")
 				_queue_banner(event.text, event.get("duration", 1.0), _get_banner_color(event.text), false)
+				if event.has("detail"):
+					hud.show_event_card_temporarily(
+						event.text,
+						event.detail,
+						event.get("card_duration", event.get("duration", 1.0) + 0.45),
+						event.get("card_color", _get_banner_color(event.text))
+					)
 			"pickup":
 				_spawn_pickup(event.position, event.pickup_type)
 		event_index += 1
@@ -190,6 +198,7 @@ func _spawn_due_waves() -> void:
 
 
 func _spawn_wave(wave: Dictionary) -> void:
+	_warn_wave_entry(wave)
 	match wave.formation:
 		"line":
 			for index in range(wave.count):
@@ -342,6 +351,23 @@ func _spawn_wave(wave: Dictionary) -> void:
 				})
 
 
+func _warn_wave_entry(wave: Dictionary) -> void:
+	if not is_instance_valid(hud):
+		return
+
+	match wave.formation:
+		"angled_left":
+			hud.show_edge_warning("left", "SWEEP", 0.7, Color(1.0, 0.72, 0.4))
+		"angled_right":
+			hud.show_edge_warning("right", "SWEEP", 0.7, Color(1.0, 0.72, 0.4))
+		"dash_pair":
+			hud.show_edge_warning("left", "DASH", 0.75, Color(1.0, 0.64, 0.34))
+			hud.show_edge_warning("right", "DASH", 0.75, Color(1.0, 0.64, 0.34))
+		"escort":
+			hud.show_edge_warning("left", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
+			hud.show_edge_warning("right", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
+
+
 func _spawn_enemy(config: Dictionary) -> void:
 	var enemy = EnemyScript.new().configure(config)
 	enemy.spawn_bullet.connect(_on_enemy_bullet_spawned)
@@ -364,6 +390,7 @@ func _spawn_boss() -> void:
 	enemy_layer.add_child(active_boss)
 	RunState.register_enemy_spawn()
 	boss_phase_seen = 1
+	boss_overdrive_announced = false
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
 	_play_sfx("boss_warning")
@@ -371,6 +398,12 @@ func _spawn_boss() -> void:
 	_start_shake(8.0, 0.35)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
 	_queue_banner("WARNING // HX-1 DESCENT", 1.0, Color(1.0, 0.78, 0.4), false)
+	hud.show_event_card_temporarily(
+		"TARGET // HX-1 TEST CARRIER",
+		"Phase shifts expose the core. Hold one bomb for the late pressure window.",
+		1.55,
+		Color(1.0, 0.82, 0.48)
+	)
 
 
 func _update_boss_state() -> void:
@@ -383,6 +416,9 @@ func _update_boss_state() -> void:
 	if phase_index != boss_phase_seen:
 		boss_phase_seen = phase_index
 		_handle_boss_phase_shift(phase_index)
+	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and not boss_overdrive_announced:
+		boss_overdrive_announced = true
+		_handle_boss_overdrive()
 
 	var phase_text := "PHASE %d" % phase_index
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
@@ -666,12 +702,36 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_queue_banner(label_text, 0.85, label_color, false)
 	hud.set_status_hint(label_text, label_color)
 	hud.pulse_screen(Color(label_color.r, label_color.g, label_color.b, 0.14), 0.08)
+	var phase_detail := "The side guns are resetting. Step back in and burn the open core."
+	if phase_index == 3:
+		phase_detail = "Final phase has opened the core. Push damage now before overdrive speed ramps up."
+	hud.show_event_card_temporarily(label_text, phase_detail, 1.4, label_color)
+	_play_sfx("boss_phase")
+
+
+func _handle_boss_overdrive() -> void:
+	if not is_instance_valid(active_boss):
+		return
+	var overdrive_color := Color(1.0, 0.54, 0.3)
+	_show_flash(overdrive_color, 0.2, 0.12)
+	_start_shake(12.0, 0.28)
+	_queue_banner("OVERDRIVE", 0.9, overdrive_color, false)
+	hud.set_status_hint("OVERDRIVE // HOLD LINE", overdrive_color)
+	hud.pulse_screen(Color(overdrive_color.r, overdrive_color.g, overdrive_color.b, 0.16), 0.1)
+	hud.show_event_card_temporarily(
+		"OVERDRIVE",
+		"Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.",
+		1.5,
+		overdrive_color
+	)
 	_play_sfx("boss_phase")
 
 
 func _play_boss_finish_sequence() -> void:
 	_start_shake(18.0, 0.55)
 	_show_flash(Color(1.0, 0.9, 0.6), 0.24, 0.2)
+	if is_instance_valid(hud):
+		hud.hide_event_card()
 	var finish_center := Vector2(playfield_rect.size.x * 0.5, 174.0)
 	var explosion_offsets := [
 		Vector2(-34.0, -18.0),
@@ -695,7 +755,20 @@ func _play_boss_finish_sequence() -> void:
 		_play_sfx("stage_clear")
 		_queue_banner("CLEAR BONUS", 0.8, Color(1.0, 0.86, 0.46), false)
 	)
-	_finish_after_delay(true, 1.9)
+	get_tree().create_timer(0.42).timeout.connect(func() -> void:
+		if is_instance_valid(hud):
+			hud.show_clear_summary(
+				"AREA SECURED",
+				"Battle %06d   Kill %.0f%%   Fire Lv%d" % [
+					int(RunState.current_run.score),
+					RunState.get_kill_rate(),
+					int(RunState.current_run.max_fire_level)
+				],
+				Color(1.0, 0.9, 0.58)
+			)
+			hud.pulse_screen(Color(1.0, 0.92, 0.68, 0.12), 0.14)
+	)
+	_finish_after_delay(true, 2.25)
 
 
 func _clear_enemy_projectiles() -> int:

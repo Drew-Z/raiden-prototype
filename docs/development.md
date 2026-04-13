@@ -69,6 +69,12 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
   - `res://scripts/game/sfx_controller.gd`
 - 当前有一套程序生成的占位音效，正常游玩会启用；`headless` 自动验证中会跳过音效节点，以保证日志更干净
 - Boss 现在带有相位切换后的“核心暴露”短窗口，相关状态仍集中在 `enemy.gd` 与 `game_stage2.gd`，便于后续继续扩展弱点或破甲机制
+- 结果页已改为脚本构建的展示面板，统计、战绩摘要和下一步建议仍统一从 `run_state.gd` 取数，便于后续继续补动画或更多复盘指标
+- Boss 击破后的战场清场总结卡由 `hud_v2.gd` 承担，只在收束阶段短暂显示，结果页仍负责最终复盘
+- Boss 入场提示也已拆到 `hud_v2.gd` 的事件卡接口里，主控只负责在刷 Boss 时触发，不直接拼 UI
+- 事件卡现在支持带时长的临时提示，关卡事件可以在 `stage_data_v2.gd` 里直接附加 `detail`、`card_duration` 和 `card_color`
+- Boss 相位切换与 overdrive 的战术提示目前仍由 `game_stage2.gd` 触发，因为它们依赖运行中的血量状态，而不是固定时间轴事件
+- 侧入波次的边缘预警目前由 `game_stage2.gd` 在刷波前触发，HUD 只提供左右入口提示接口，不负责解析波次数据
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
 ## 提交建议

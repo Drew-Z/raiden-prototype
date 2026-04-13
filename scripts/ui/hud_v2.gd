@@ -19,8 +19,19 @@ var boss_panel: PanelContainer
 var boss_name_label: Label
 var boss_phase_label: Label
 var boss_bar: ProgressBar
+var event_panel: PanelContainer
+var event_title_label: Label
+var event_detail_label: Label
 var pause_panel: PanelContainer
 var pulse_overlay: ColorRect
+var clear_panel: PanelContainer
+var clear_title_label: Label
+var clear_stats_label: Label
+var event_card_token := 0
+var left_warning_label: Label
+var right_warning_label: Label
+var left_warning_token := 0
+var right_warning_token := 0
 
 
 func _ready() -> void:
@@ -29,8 +40,11 @@ func _ready() -> void:
 	_build_boss_panel()
 	_build_banner()
 	_build_pulse_overlay()
+	_build_event_panel()
 	_build_pause_panel()
 	_build_hint_label()
+	_build_clear_panel()
+	_build_edge_warnings()
 
 
 func _build_status_panel() -> void:
@@ -155,6 +169,39 @@ func _build_banner() -> void:
 	add_child(banner_label)
 
 
+func _build_event_panel() -> void:
+	event_panel = PanelContainer.new()
+	event_panel.visible = false
+	event_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	event_panel.offset_left = -220.0
+	event_panel.offset_top = 300.0
+	event_panel.offset_right = 220.0
+	event_panel.offset_bottom = 388.0
+	add_child(event_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	event_panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 5)
+	margin.add_child(column)
+
+	event_title_label = Label.new()
+	event_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	event_title_label.add_theme_font_size_override("font_size", 24)
+	column.add_child(event_title_label)
+
+	event_detail_label = Label.new()
+	event_detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	event_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	event_detail_label.add_theme_font_size_override("font_size", 16)
+	column.add_child(event_detail_label)
+
+
 func _build_pulse_overlay() -> void:
 	pulse_overlay = ColorRect.new()
 	pulse_overlay.visible = false
@@ -222,6 +269,39 @@ func _build_pause_panel() -> void:
 	column.add_child(menu_button)
 
 
+func _build_clear_panel() -> void:
+	clear_panel = PanelContainer.new()
+	clear_panel.visible = false
+	clear_panel.set_anchors_preset(Control.PRESET_CENTER)
+	clear_panel.offset_left = -210.0
+	clear_panel.offset_top = -96.0
+	clear_panel.offset_right = 210.0
+	clear_panel.offset_bottom = 96.0
+	add_child(clear_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 14)
+	clear_panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	margin.add_child(column)
+
+	clear_title_label = Label.new()
+	clear_title_label.text = "AREA SECURED"
+	clear_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	clear_title_label.add_theme_font_size_override("font_size", 28)
+	column.add_child(clear_title_label)
+
+	clear_stats_label = Label.new()
+	clear_stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	clear_stats_label.add_theme_font_size_override("font_size", 18)
+	column.add_child(clear_stats_label)
+
+
 func _build_hint_label() -> void:
 	var hint := Label.new()
 	hint.text = "ESC Pause   R Restart   Space Bomb"
@@ -233,6 +313,32 @@ func _build_hint_label() -> void:
 	hint.offset_top = -30.0
 	hint.offset_bottom = -6.0
 	add_child(hint)
+
+
+func _build_edge_warnings() -> void:
+	left_warning_label = Label.new()
+	left_warning_label.visible = false
+	left_warning_label.text = "<< INBOUND"
+	left_warning_label.rotation = -PI * 0.5
+	left_warning_label.add_theme_font_size_override("font_size", 22)
+	left_warning_label.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+	left_warning_label.offset_left = -34.0
+	left_warning_label.offset_right = 46.0
+	left_warning_label.offset_top = 330.0
+	left_warning_label.offset_bottom = 520.0
+	add_child(left_warning_label)
+
+	right_warning_label = Label.new()
+	right_warning_label.visible = false
+	right_warning_label.text = "INBOUND >>"
+	right_warning_label.rotation = PI * 0.5
+	right_warning_label.add_theme_font_size_override("font_size", 22)
+	right_warning_label.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	right_warning_label.offset_left = -46.0
+	right_warning_label.offset_right = 34.0
+	right_warning_label.offset_top = 330.0
+	right_warning_label.offset_bottom = 520.0
+	add_child(right_warning_label)
 
 
 func _make_label(text: String) -> Label:
@@ -282,6 +388,27 @@ func show_banner(text: String, color: Color = Color(1.0, 1.0, 1.0)) -> void:
 	banner_label.visible = true
 
 
+func show_event_card(title_text: String, detail_text: String, color: Color = Color(1.0, 0.86, 0.54)) -> void:
+	event_card_token += 1
+	event_title_label.text = title_text
+	event_title_label.add_theme_color_override("font_color", color)
+	event_detail_label.text = detail_text
+	event_panel.visible = true
+
+
+func show_event_card_temporarily(title_text: String, detail_text: String, duration: float, color: Color = Color(1.0, 0.86, 0.54)) -> void:
+	show_event_card(title_text, detail_text, color)
+	var current_token := event_card_token
+	get_tree().create_timer(duration).timeout.connect(func() -> void:
+		if current_token == event_card_token:
+			hide_event_card()
+	)
+
+
+func hide_event_card() -> void:
+	event_panel.visible = false
+
+
 func hide_banner() -> void:
 	banner_label.visible = false
 
@@ -302,6 +429,41 @@ func pulse_screen(color: Color, duration: float = 0.08) -> void:
 	get_tree().create_timer(duration).timeout.connect(func() -> void:
 		if is_instance_valid(pulse_overlay):
 			pulse_overlay.visible = false
+	)
+
+
+func show_clear_summary(title_text: String, detail_text: String, color: Color = Color(1.0, 0.92, 0.62)) -> void:
+	clear_title_label.text = title_text
+	clear_title_label.add_theme_color_override("font_color", color)
+	clear_stats_label.text = detail_text
+	clear_panel.visible = true
+
+
+func hide_clear_summary() -> void:
+	clear_panel.visible = false
+
+
+func show_edge_warning(side: String, text: String, duration: float = 0.75, color: Color = Color(1.0, 0.76, 0.4)) -> void:
+	var label := left_warning_label
+	if side == "right":
+		label = right_warning_label
+	if not is_instance_valid(label):
+		return
+
+	if side == "right":
+		right_warning_token += 1
+		label.text = "%s >>" % text
+	else:
+		left_warning_token += 1
+		label.text = "<< %s" % text
+	label.add_theme_color_override("font_color", color)
+	label.visible = true
+
+	var current_token := right_warning_token if side == "right" else left_warning_token
+	get_tree().create_timer(duration).timeout.connect(func() -> void:
+		var active_token := right_warning_token if side == "right" else left_warning_token
+		if active_token == current_token and is_instance_valid(label):
+			label.visible = false
 	)
 
 

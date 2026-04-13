@@ -271,5 +271,29 @@ func get_next_focus() -> String:
 	return "The core loop is stable. Next gains come from cleaner routing and efficiency."
 
 
+func get_offense_summary() -> String:
+	if get_kill_rate() >= 85.0 and current_run.max_fire_level >= 5:
+		return "Offense locked in. Fire route reached max output and held board control."
+	if current_run.max_fire_level < 4:
+		return "Fire growth came online too late. Early pickup routing still matters most."
+	return "Damage pace is stable, but a few side waves are still slipping past the route."
+
+
+func get_survival_summary() -> String:
+	if current_run.player_lives >= 3:
+		return "Hull integrity held all the way through. Spacing and threat reads stayed clean."
+	if current_run.victory:
+		return "The run survived the peak, but late pressure still forced a recovery line."
+	return "The route breaks under pressure. Re-enter boss space with wider safety margins."
+
+
+func get_resource_summary() -> String:
+	if current_run.bombs_used >= 3:
+		return "Bomb routing is active and intentional. Resources are being spent to hold tempo."
+	if current_run.bombs_used <= 0 and current_run.victory:
+		return "Bomb stock stayed untouched. There is room to convert resources into faster clears."
+	return "Resource usage is conservative. The next gains come from cleaner bomb timing."
+
+
 func is_autoplay() -> bool:
 	return OS.get_cmdline_args().has("--autoplay") or OS.get_cmdline_user_args().has("--autoplay")
