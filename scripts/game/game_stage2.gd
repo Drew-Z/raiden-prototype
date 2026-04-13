@@ -15,6 +15,7 @@ const BgmControllerScript := preload("res://scripts/game/bgm_controller.gd")
 const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 const StormStrikeScript := preload("res://scripts/game/storm_strike.gd")
+const StormSweepScript := preload("res://scripts/game/storm_sweep.gd")
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960))
 var player
@@ -213,6 +214,8 @@ func _process_stage_events() -> void:
 				_spawn_pickup(event.position, event.pickup_type)
 			"storm_strike":
 				_trigger_storm_strike(event)
+			"storm_cross":
+				_trigger_storm_cross(event)
 		event_index += 1
 
 
@@ -752,15 +755,65 @@ func _trigger_storm_strike(event: Dictionary) -> void:
 		Color(0.82, 0.94, 1.0)
 	)
 	_queue_banner(String(event.get("banner", "STORM STRIKE")), 0.75, Color(0.82, 0.94, 1.0), false)
+	_spawn_storm_strikes(
+		lanes,
+		float(event.get("telegraph", 0.92)),
+		float(event.get("active", 0.42))
+	)
+	_play_sfx("boss_phase")
+	_show_flash(Color(0.76, 0.9, 1.0), 0.08, 0.06)
+
+
+func _trigger_storm_cross(event: Dictionary) -> void:
+	if String(stage_meta.get("id", "")) != "stage_2":
+		return
+	var lanes: Array = event.get("lanes", [])
+	var rows: Array = event.get("rows", [])
+	if lanes.is_empty() and rows.is_empty():
+		return
+	var effect_color := Color(0.82, 0.94, 1.0)
+	hud.show_event_card_temporarily(
+		String(event.get("title", "STORM CROSS")),
+		String(event.get("detail", "Vertical strikes and lateral sweep are collapsing the route. Commit to the gap early.")),
+		float(event.get("card_duration", 1.35)),
+		effect_color
+	)
+	_queue_banner(String(event.get("banner", "STORM CROSS")), 0.82, effect_color, false)
+	if not lanes.is_empty():
+		_spawn_storm_strikes(
+			lanes,
+			float(event.get("telegraph", 0.95)),
+			float(event.get("active", 0.34))
+		)
+	if not rows.is_empty():
+		_spawn_storm_sweeps(
+			rows,
+			float(event.get("telegraph", 0.95)),
+			float(event.get("active", 0.34))
+		)
+	_play_sfx("boss_phase")
+	_show_flash(Color(0.76, 0.9, 1.0), 0.1, 0.08)
+	hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.08), 0.06)
+
+
+func _spawn_storm_strikes(lanes: Array, telegraph_time: float, active_time: float) -> void:
 	for lane_x in lanes:
-		var strike = StormStrikeScript.new().configure(float(lane_x), playfield_rect, float(event.get("telegraph", 0.92)), float(event.get("active", 0.42)))
+		var strike = StormStrikeScript.new().configure(float(lane_x), playfield_rect, telegraph_time, active_time)
 		strike.finished.connect(func() -> void:
 			if is_instance_valid(hud):
 				hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.05), 0.05)
 		)
 		hazard_layer.call_deferred("add_child", strike)
-	_play_sfx("boss_phase")
-	_show_flash(Color(0.76, 0.9, 1.0), 0.08, 0.06)
+
+
+func _spawn_storm_sweeps(rows: Array, telegraph_time: float, active_time: float) -> void:
+	for row_y in rows:
+		var sweep = StormSweepScript.new().configure(float(row_y), playfield_rect, telegraph_time, active_time)
+		sweep.finished.connect(func() -> void:
+			if is_instance_valid(hud):
+				hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.04), 0.04)
+		)
+		hazard_layer.call_deferred("add_child", sweep)
 
 
 func _on_pickup_collected(kind: String) -> void:

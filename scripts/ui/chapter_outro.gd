@@ -91,6 +91,13 @@ func _build_ui() -> void:
 	headline.add_theme_font_size_override("font_size", 20)
 	hero.add_child(headline)
 
+	var timeline_row := HBoxContainer.new()
+	timeline_row.add_theme_constant_override("separation", 12)
+	root.add_child(timeline_row)
+	_register_reveal(timeline_row)
+	for card_data in RunState.get_chapter_timeline():
+		timeline_row.add_child(_build_stage_card(card_data))
+
 	var summary_row := HBoxContainer.new()
 	summary_row.add_theme_constant_override("separation", 12)
 	root.add_child(summary_row)
@@ -201,6 +208,48 @@ func _build_panel(title_text: String, body_text: String) -> Control:
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.add_theme_font_size_override("font_size", 18)
 	column.add_child(body)
+
+	return panel
+
+
+func _build_stage_card(card_data: Dictionary) -> Control:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	margin.add_child(column)
+
+	var title := Label.new()
+	title.text = String(card_data.get("label", "STAGE"))
+	title.add_theme_font_size_override("font_size", 16)
+	column.add_child(title)
+
+	var status := Label.new()
+	if bool(card_data.get("completed", false)):
+		status.text = "CLEAR  GRADE %s" % String(card_data.get("grade", "--"))
+		status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
+	elif bool(card_data.get("active", false)):
+		status.text = "ACTIVE"
+		status.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
+	else:
+		status.text = "PENDING"
+		status.add_theme_color_override("font_color", Color(0.7, 0.74, 0.8))
+	status.add_theme_font_size_override("font_size", 15)
+	column.add_child(status)
+
+	var summary := Label.new()
+	summary.text = String(card_data.get("summary", ""))
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary.add_theme_font_size_override("font_size", 14)
+	column.add_child(summary)
 
 	return panel
 

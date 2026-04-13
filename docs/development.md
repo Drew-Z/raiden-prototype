@@ -21,6 +21,7 @@
 - `res://scripts/game/stage_catalog.gd`
 - `res://scripts/game/stage_data_v2.gd`
 - `res://scripts/game/stage_data_v3.gd`
+- `res://scripts/game/storm_sweep.gd`
 - `res://scripts/entities/player.gd`
 - `res://scripts/entities/enemy.gd`
 - `res://scripts/entities/pickup.gd`
@@ -51,15 +52,15 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 ```cmd
 set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
-"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 11600 --log-file stage11_chapter.log -- --autoplay --chapter
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 12200 --log-file stage12b_chapter.log -- --autoplay --chapter
 ```
 
 输出中会打印类似：
 
 ```text
-RUN_RESULT victory=true score=23442 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=2 lives=2
-RUN_RESULT victory=true score=26129 kill_rate=95.95 max_fire=5 route=Lv5 bombs_used=2 lives=2
-CHAPTER_RESULT victory=true total_score=49571 kill_rate=90.51 stages=2 highest_fire=5
+RUN_RESULT victory=true score=22180 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=2 lives=2
+RUN_RESULT victory=true score=25579 kill_rate=95.95 max_fire=5 route=Lv5 bombs_used=2 lives=2
+CHAPTER_RESULT victory=true total_score=47759 kill_rate=89.24 stages=2 highest_fire=5
 ```
 
 ## 当前验证结论
@@ -75,6 +76,7 @@ CHAPTER_RESULT victory=true total_score=49571 kill_rate=90.51 stages=2 highest_f
 - 结果页会显示奖励拆分、成绩标签、章节交接与下一步建议
 - `Stage 01 -> Stage 02` 会正确继承生命、炸弹与火力，并在结果页承接下一关
 - `Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterOutro` 这条链路已经可以完整跑通
+- 第二关新的 `storm_cross` 十字封线事件可以与章节链路共存，不会打断 `--autoplay --chapter`
 
 ## 当前结构说明
 
@@ -95,6 +97,7 @@ CHAPTER_RESULT victory=true total_score=49571 kill_rate=90.51 stages=2 highest_f
 - `Stage 02` Boss 已拆出独立 `storm` 风格，仍然复用通用 Boss 管线，但火力节奏、外观和文案已可单独配置
 - 第二关新增的 `suppressor` 敌机职责使用宽扇面火力做路线封锁，和 `screener`、`pincer` 的作用已经明确区分
 - 第二关新增的 `storm_strike` 互动点由独立脚本 `storm_strike.gd` 管理，通过时间轴事件触发，不和常规敌机逻辑混在一起
+- 第二关新增的 `storm_sweep` 互动点由独立脚本 `storm_sweep.gd` 管理，并可通过 `storm_cross` 事件与 `storm_strike` 组合
 - `starfield.gd` 现在支持按关卡主题切换背景视觉，第二关会使用更明显的风暴主题层
 - 结果页已改为脚本构建的展示面板，统计、战绩摘要和下一步建议仍统一从 `run_state.gd` 取数，便于后续继续补动画或更多复盘指标
 - Boss 击破后的战场清场总结卡由 `hud_v2.gd` 承担，只在收束阶段短暂显示，结果页仍负责最终复盘
@@ -105,6 +108,7 @@ CHAPTER_RESULT victory=true total_score=49571 kill_rate=90.51 stages=2 highest_f
 - `RunState` 现在既负责单关统计，也负责双关章节模式、阶段交接资源和章节总计
 - `RunState` 现在还负责章节总评、章节交接文案和双关结束后的总成绩摘要
 - 结果页在章节模式下现在只负责阶段结算与跳转，不再单独承接完整章节尾声
+- `ChapterBriefing` 和 `ChapterOutro` 现在都会展示章节卡片，让双关路线在中场和尾声里更容易阅读
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 

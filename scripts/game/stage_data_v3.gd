@@ -245,14 +245,14 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 		{"time": 12.5, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Suppressor units spread a wide fan across the board. Pre-position before the cone closes.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
 		{"time": 13.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -26.0)},
 		{"time": 13.8, "type": "banner", "text": "WEAPON SUPPLY", "duration": 0.9, "detail": "Lock this power route before the mid-board pressure spikes.", "card_duration": 1.4, "card_color": Color(0.62, 0.94, 1.0)},
-		{"time": 16.1, "type": "storm_strike", "lanes": [108.0, 432.0], "telegraph": 1.0, "active": 0.34, "banner": "STORM LANE", "title": "STORM STRIKE", "detail": "Storm batteries are bracketing fixed lanes. Shift through the safe gap before the strike lands.", "card_duration": 1.35},
+		{"time": 16.1, "type": "storm_cross", "lanes": [108.0, 432.0], "rows": [438.0], "telegraph": 1.0, "active": 0.34, "banner": "STORM CROSS", "title": "STORM CROSS", "detail": "Vertical strikes and a lateral sweep are collapsing together. Commit to the center gap before the cross locks in.", "card_duration": 1.45},
 		{"time": 16.8, "type": "banner", "text": "SCREEN WALL", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
 		{"time": 20.8, "type": "banner", "text": "FINAL PRESSURE", "duration": 1.1, "detail": "Dashers and pincer fire will overlap here. Bomb routing is safer than late recovery.", "card_duration": 1.6, "card_color": Color(1.0, 0.78, 0.44)},
 		{"time": 22.8, "type": "banner", "text": "SNIPER CROSS", "duration": 0.85, "detail": "Late snipers are layering on top of the pincer lane. Clear one side before re-centering.", "card_duration": 1.45, "card_color": Color(1.0, 0.84, 0.52)},
 		{"time": 23.6, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -30.0)},
 		{"time": 23.6, "type": "banner", "text": "BOMB REFIT", "duration": 1.0, "detail": "Final bomb stock before boss entry. Cash it into a phase skip if the lane collapses.", "card_duration": 1.55, "card_color": Color(1.0, 0.72, 0.38)},
 		{"time": 25.6, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Late suppressors are pinning the board before the wall drop. Choose one side and break through.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
-		{"time": 27.0, "type": "storm_strike", "lanes": [124.0, 416.0], "telegraph": 0.96, "active": 0.34, "banner": "FINAL STORM", "title": "STORM STRIKE", "detail": "Final lane strike before boss entry. Use the gap to reset the route, not to chase damage.", "card_duration": 1.35},
+		{"time": 27.0, "type": "storm_cross", "lanes": [124.0, 416.0], "rows": [332.0, 604.0], "telegraph": 0.96, "active": 0.34, "banner": "FINAL STORM", "title": "STORM CROSS", "detail": "Final crossfire before boss entry. Slide through one clean lane and save the rest of the board for the boss reset.", "card_duration": 1.5},
 		{"time": 28.0, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
 	]
 
