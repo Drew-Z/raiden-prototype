@@ -9,6 +9,7 @@ const StageDataScript := preload("res://scripts/game/stage_data_v2.gd")
 const BombEffectScript := preload("res://scripts/game/bomb_effect.gd")
 const ImpactEffectScript := preload("res://scripts/game/impact_effect.gd")
 const ExplosionEffectScript := preload("res://scripts/game/explosion_effect.gd")
+const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960))
 var player
@@ -401,6 +402,7 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 	var cleared_bullets := _clear_enemy_projectiles()
 	if cleared_bullets > 0:
 		RunState.add_score(cleared_bullets * 8)
+		_spawn_score_popup(center + Vector2(0.0, -26.0), "+%d" % int(cleared_bullets * 8), Color(1.0, 0.82, 0.42), 0.95)
 
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if enemy.has_method("apply_damage"):
@@ -478,6 +480,10 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 
 	if by_player:
 		RunState.register_enemy_destroyed(enemy.score_value, enemy.is_boss)
+		var popup_text := "+%d" % int(enemy.score_value)
+		var popup_color := Color(1.0, 0.84, 0.52) if enemy.is_boss else Color(1.0, 0.88, 0.66)
+		var popup_scale := 1.18 if enemy.is_boss else 0.88
+		_spawn_score_popup(enemy.position + Vector2(0.0, -18.0), popup_text, popup_color, popup_scale)
 		if enemy.can_drop_upgrade and _should_spawn_upgrade(enemy.drop_chance):
 			_spawn_pickup(enemy.position, enemy.drop_kind)
 
@@ -516,9 +522,11 @@ func _on_pickup_collected(kind: String) -> void:
 	if kind == "bomb":
 		RunState.register_bomb_pickup()
 		RunState.add_score(300)
+		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "BOMB +300", Color(1.0, 0.74, 0.44), 0.92)
 	else:
 		RunState.register_upgrade_pickup()
 		RunState.add_score(150)
+		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "POWER +150", Color(0.62, 0.94, 1.0), 0.92)
 
 
 func _pause_run() -> void:
@@ -624,6 +632,12 @@ func _spawn_explosion(position_value: Vector2, scale: float = 1.0, is_boss_effec
 	var effect = ExplosionEffectScript.new().configure(scale, color)
 	effect.position = position_value
 	effects_layer.call_deferred("add_child", effect)
+
+
+func _spawn_score_popup(position_value: Vector2, text_value: String, color: Color, scale_value: float = 1.0) -> void:
+	var popup = ScorePopupScript.new().configure(text_value, color, scale_value)
+	popup.position = position_value
+	effects_layer.call_deferred("add_child", popup)
 
 
 func _show_flash(color: Color, alpha: float, duration: float) -> void:

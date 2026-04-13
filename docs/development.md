@@ -56,6 +56,7 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
 - 炸弹能触发清弹、压制 Boss 并形成资源提示
 - 通关后会触发 Boss 击破收束并进入结果页
 - 结果页会显示奖励拆分、成绩标签和下一步建议
+- 战斗中会显示得分弹字、拾取奖励和危急状态强化提示
 
 ## 当前结构说明
 

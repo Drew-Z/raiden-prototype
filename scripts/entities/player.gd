@@ -214,6 +214,9 @@ func _on_area_entered(area: Area2D) -> void:
 
 
 func _draw() -> void:
+	if lives <= 1:
+		var warning_alpha: float = 0.08 + abs(sin(flash_phase * 6.0)) * 0.12
+		draw_circle(Vector2.ZERO, 24.0 + abs(sin(flash_phase * 8.0)) * 4.0, Color(1.0, 0.42, 0.36, warning_alpha))
 	if fire_level >= 3:
 		var aura_alpha := 0.08 + float(fire_level - 2) * 0.04 + power_flash_timer * 0.12
 		draw_circle(Vector2.ZERO, 18.0 + fire_level * 1.5, Color(0.35, 0.85, 1.0, aura_alpha))
@@ -239,6 +242,8 @@ func _draw() -> void:
 	draw_colored_polygon(body, Color(0.25, 0.92, 1.0, 0.95))
 	draw_colored_polygon(wings, Color(0.11, 0.54, 0.95, 0.85))
 	draw_circle(Vector2.ZERO, 5.0, Color(1.0, 0.95, 0.8))
+	if bomb_count <= 0:
+		draw_arc(Vector2.ZERO, 20.0, PI * 0.15, PI * 0.85, 18, Color(1.0, 0.56, 0.4, 0.24), 2.0)
 	if shot_flash_timer > 0.0:
 		draw_circle(Vector2(0, -26), 6.0 + shot_flash_timer * 22.0, Color(1.0, 0.96, 0.76, 0.18))
 	var engine_flame := PackedVector2Array([
