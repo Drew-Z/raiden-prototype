@@ -112,6 +112,17 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.0
 		},
 		{
+			"time": 17.2,
+			"formation": "pincer_line",
+			"count": 3,
+			"start_x": 110.0,
+			"gap": 160.0,
+			"velocity": Vector2(0, 142),
+			"health": 30,
+			"fire_interval": 1.2,
+			"drop_chance": 0.32
+		},
+		{
 			"time": 18.5,
 			"formation": "escort",
 			"count": 6,
@@ -206,6 +217,17 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.0
 		},
 		{
+			"time": 26.0,
+			"formation": "pincer_line",
+			"count": 4,
+			"start_x": 88.0,
+			"gap": 122.0,
+			"velocity": Vector2(0, 154),
+			"health": 34,
+			"fire_interval": 1.0,
+			"drop_chance": 0.34
+		},
+		{
 			"time": 26.6,
 			"formation": "wall",
 			"count": 5,
@@ -227,11 +249,13 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 		{"time": 11.7, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
 		{"time": 14.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -28.0)},
 		{"time": 14.8, "type": "banner", "text": "WEAPON CAPSULE", "duration": 0.9},
+		{"time": 17.0, "type": "banner", "text": "PINCER LOCK", "duration": 0.8},
 		{"time": 18.0, "type": "banner", "text": "FINAL PUSH", "duration": 1.2},
 		{"time": 21.9, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
 		{"time": 22.7, "type": "banner", "text": "ARMORED CARRIER", "duration": 0.9},
 		{"time": 25.4, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -32.0)},
 		{"time": 25.4, "type": "banner", "text": "BOMB SUPPLY INBOUND", "duration": 1.1},
+		{"time": 25.9, "type": "banner", "text": "PINCER LOCK", "duration": 0.8},
 		{"time": 28.1, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
 	]
 

@@ -275,6 +275,19 @@ func _spawn_wave(wave: Dictionary) -> void:
 					"role": "sniper",
 					"tint": Color(0.92, 0.74, 0.24)
 				})
+		"pincer_line":
+			for index in range(wave.count):
+				_spawn_enemy({
+					"position": Vector2(wave.start_x + index * wave.gap, -58.0 - index * 24.0),
+					"velocity": wave.velocity,
+					"health": wave.health,
+					"fire_interval": wave.fire_interval + index * 0.06,
+					"drop_chance": wave.drop_chance,
+					"screen_rect": playfield_rect,
+					"score_value": 210,
+					"role": "pincer",
+					"tint": Color(1.0, 0.64, 0.24)
+				})
 		"dash_pair":
 			for index in range(wave.count):
 				var side := -1.0 if index % 2 == 0 else 1.0

@@ -172,6 +172,8 @@ func _fire() -> void:
 				_fire_sweeper_pattern()
 			"anchor":
 				_fire_anchor_pattern()
+			"pincer":
+				_fire_pincer_pattern()
 			_:
 				_fire_standard_pattern()
 	volley_index += 1
@@ -253,6 +255,13 @@ func _fire_anchor_pattern() -> void:
 			screen_rect
 		)
 		spawn_bullet.emit(bullet)
+
+
+func _fire_pincer_pattern() -> void:
+	for aim_offset in [-0.24, 0.24]:
+		_spawn_targeted_bullet(aim_offset, 5.8, Color(1.0, 0.78, 0.4), 1.18)
+	if volley_index % 2 == 1:
+		_spawn_targeted_bullet(0.0, 5.2, Color(1.0, 0.9, 0.62), 1.08)
 
 
 func _spawn_boss_bullet(horizontal: float, bullet_radius: float, bullet_color: Color, speed_scale: float = 1.0) -> void:
@@ -394,6 +403,20 @@ func _draw() -> void:
 				draw_rect(Rect2(Vector2(-8, 8), Vector2(16, 6)), Color(1.0, 0.54, 0.28), true)
 				if fire_timer <= telegraph_window:
 					draw_arc(Vector2.ZERO, 30.0, PI * 0.16, PI * 0.84, 14, Color(1.0, 0.68, 0.38, 0.5), 3.0)
+			"pincer":
+				var pincer_points := PackedVector2Array([
+					Vector2(0, -18),
+					Vector2(20, -2),
+					Vector2(12, 16),
+					Vector2(-12, 16),
+					Vector2(-20, -2)
+				])
+				draw_colored_polygon(pincer_points, base_tint.lightened(impact_flash_timer * 0.8))
+				draw_rect(Rect2(Vector2(-18, -2), Vector2(36, 6)), Color(1.0, 0.84, 0.52), true)
+				draw_line(Vector2(-10, 10), Vector2(-20, 20), Color(1.0, 0.66, 0.32, 0.92), 2.0)
+				draw_line(Vector2(10, 10), Vector2(20, 20), Color(1.0, 0.66, 0.32, 0.92), 2.0)
+				if fire_timer <= telegraph_window:
+					_draw_pincer_telegraph(Color(1.0, 0.82, 0.48, 0.52), 2.0)
 			_:
 				var points := PackedVector2Array([
 					Vector2(0, -18),
@@ -410,6 +433,15 @@ func _draw_target_telegraph(color: Color, width: float) -> void:
 	var end_point := direction * 78.0
 	draw_line(Vector2.ZERO, end_point, color, width)
 	draw_circle(end_point, 4.0, Color(color.r, color.g, color.b, min(0.9, color.a + 0.2)))
+
+
+func _draw_pincer_telegraph(color: Color, width: float) -> void:
+	var base_direction := _get_player_direction()
+	for horizontal_bias in [-0.26, 0.26]:
+		var direction := (base_direction + Vector2(horizontal_bias, 0.0)).normalized()
+		var end_point := direction * 84.0
+		draw_line(Vector2.ZERO, end_point, color, width)
+		draw_circle(end_point, 3.5, Color(color.r, color.g, color.b, min(0.88, color.a + 0.18)))
 
 
 func _draw_boss_telegraph(ratio: float) -> void:
