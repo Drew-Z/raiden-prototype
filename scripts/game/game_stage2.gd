@@ -385,7 +385,9 @@ func _update_boss_state() -> void:
 		_handle_boss_phase_shift(phase_index)
 
 	var phase_text := "PHASE %d" % phase_index
-	if active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
+	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
+		phase_text += " // OVERDRIVE"
+	elif active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
 		phase_text += " // CORE OPEN"
 	hud.set_boss_info(active_boss.boss_name, ratio, phase_text)
 
@@ -411,7 +413,10 @@ func _update_hud_status() -> void:
 		hint_text = "BOMB WINDOW OPEN"
 		hint_color = Color(1.0, 0.76, 0.34)
 	elif boss_spawned:
-		if active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
+		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
+			hint_text = "OVERDRIVE // HOLD LINE"
+			hint_color = Color(1.0, 0.56, 0.32)
+		elif active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
 			hint_text = "CORE EXPOSED // PUSH DAMAGE"
 			hint_color = Color(1.0, 0.88, 0.52)
 		elif boss_phase_seen == 3:

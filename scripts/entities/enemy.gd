@@ -49,6 +49,7 @@ var release_speed := 170.0
 var core_exposed_timer := 0.0
 var core_exposed_duration := 2.2
 var core_damage_multiplier := 1.65
+var overdrive_threshold := 0.18
 
 
 func _init() -> void:
@@ -105,6 +106,7 @@ func configure(config: Dictionary):
 	release_speed = config.get("release_speed", 170.0)
 	core_exposed_duration = config.get("core_exposed_duration", 2.2)
 	core_damage_multiplier = config.get("core_damage_multiplier", 1.65)
+	overdrive_threshold = config.get("overdrive_threshold", 0.18)
 	return self
 
 
@@ -140,10 +142,16 @@ func _physics_process(delta: float) -> void:
 				position.y += release_speed * delta
 				position.x = spawn_x + sin(elapsed * frequency + phase) * hover_amplitude * 0.55
 		"boss":
+			var boss_ratio := float(health) / float(max_health)
+			var move_amplitude := amplitude
+			var move_frequency := frequency
+			if boss_ratio <= overdrive_threshold:
+				move_amplitude *= 1.18
+				move_frequency *= 1.26
 			if position.y < target_y:
 				position.y = min(target_y, position.y + 110.0 * delta)
 			else:
-				position.x = boss_anchor_x + sin(elapsed * frequency) * amplitude
+				position.x = boss_anchor_x + sin(elapsed * move_frequency) * move_amplitude
 
 	if screen_rect.has_point(position):
 		entered_screen = true
@@ -203,6 +211,12 @@ func _fire_boss_pattern() -> void:
 		if volley_index % 2 == 1:
 			for offset in [-0.3, 0.3]:
 				_spawn_boss_bullet(offset - sweep * 0.6, 6.4, Color(1.0, 0.68, 0.36), 1.34)
+		if ratio <= overdrive_threshold:
+			for aim_offset in [-0.34, 0.34]:
+				_spawn_targeted_bullet(aim_offset, 6.2, Color(1.0, 0.96, 0.72), 1.42)
+			if volley_index % 2 == 0:
+				for offset in [-0.12, 0.12]:
+					_spawn_boss_bullet(offset + sweep * 0.5, 6.8, Color(1.0, 0.72, 0.3), 1.4)
 
 
 func _fire_standard_pattern() -> void:
@@ -309,6 +323,10 @@ func expose_core(duration: float = -1.0) -> void:
 
 func is_core_exposed() -> bool:
 	return core_exposed_timer > 0.0
+
+
+func is_overdrive() -> bool:
+	return is_boss and float(health) / float(max_health) <= overdrive_threshold
 
 
 func apply_damage(amount: int, by_player: bool = true) -> void:
