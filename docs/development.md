@@ -85,6 +85,7 @@ CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_f
 - 当前有一套程序生成的占位音效和占位音乐；正常游玩会启用，`headless` 自动验证中不会创建音频节点，以保证日志更干净
 - Boss 现在带有相位切换后的“核心暴露”短窗口，相关状态仍集中在 `enemy.gd` 与 `game_stage2.gd`，便于后续继续扩展弱点或破甲机制
 - `Stage 02` Boss 已拆出独立 `storm` 风格，仍然复用通用 Boss 管线，但火力节奏、外观和文案已可单独配置
+- 第二关新增的 `suppressor` 敌机职责使用宽扇面火力做路线封锁，和 `screener`、`pincer` 的作用已经明确区分
 - 结果页已改为脚本构建的展示面板，统计、战绩摘要和下一步建议仍统一从 `run_state.gd` 取数，便于后续继续补动画或更多复盘指标
 - Boss 击破后的战场清场总结卡由 `hud_v2.gd` 承担，只在收束阶段短暂显示，结果页仍负责最终复盘
 - 事件卡现在支持带时长的临时提示，关卡事件可以在 `stage_data_v2.gd` 和 `stage_data_v3.gd` 里直接附加 `detail`、`card_duration` 和 `card_color`
@@ -93,7 +94,7 @@ CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_f
 - 新增的 `screener` 敌机职责已经接入通用敌人脚本；第二关主要用它来验证“屏障火力”在关卡中的可读性和成本
 - `RunState` 现在既负责单关统计，也负责双关章节模式、阶段交接资源和章节总计
 - `RunState` 现在还负责章节总评、章节交接文案和双关结束后的总成绩摘要
-- 第二关新增 `suppressor` 敌机职责，已经接入通用敌人脚本与第二关时间轴
+- 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
 ## 提交建议

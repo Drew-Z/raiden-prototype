@@ -447,6 +447,7 @@ func get_result_tags() -> Array[String]:
 		tags.append("STAGE ADVANCE")
 	if is_chapter_complete():
 		tags.append("CHAPTER CLEAR")
+		tags.append("CHAPTER %s" % get_chapter_grade())
 	if current_run.victory:
 		tags.append("CLEAR")
 	if get_kill_rate() >= 85.0:
@@ -496,7 +497,7 @@ func get_next_focus() -> String:
 			int(carry_state.get("fire_level", 1))
 		]
 	if is_chapter_complete():
-		return "Chapter route is stable. The next gains come from cleaning Stage 02 kill pace and using bombs for faster storm boss breaks."
+		return "Chapter route is stable. The next gains come from cleaning Stage 02 kill pace, tightening suppressor routing and sharpening the final boss break."
 	if not current_run.victory:
 		if current_run.max_fire_level < 4:
 			return "Prioritize early power pickups to hit Lv4 before the final push."
@@ -554,9 +555,10 @@ func get_chapter_stage_breakdown_text() -> String:
 	var lines: Array[String] = []
 	var stage_results: Array = chapter_state.get("stage_results", [])
 	for stage_result in stage_results:
-		lines.append("%s  %s  %06d  Kill %.0f%%  Fire Lv%d" % [
+		lines.append("%s  %s  GRADE %s  %06d  Kill %.0f%%  Fire Lv%d" % [
 			String(stage_result.get("stage_name", "")),
 			"CLEAR" if bool(stage_result.get("victory", false)) else "FAIL",
+			String(stage_result.get("grade", "C")),
 			int(stage_result.get("final_score", 0)),
 			float(stage_result.get("kill_rate", 0.0)),
 			int(stage_result.get("max_fire_level", 1))
@@ -580,7 +582,8 @@ func get_chapter_carry_summary() -> String:
 func get_chapter_clear_summary() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "Two-stage route secured with %06d total score, %.0f%% chapter kill and Lv%d peak fire." % [
+	return "Two-stage route secured with grade %s, %06d total score, %.0f%% chapter kill and Lv%d peak fire." % [
+		get_chapter_grade(),
 		int(chapter_state.get("total_score", 0)),
 		get_chapter_kill_rate(),
 		int(chapter_state.get("highest_fire", 1))

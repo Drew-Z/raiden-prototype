@@ -19,7 +19,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not event.is_echo() and RunState.is_chapter_transition_pending():
 		RunState.start_next_chapter_stage()
 	elif event.is_action_pressed("restart_game") and not event.is_echo():
-		RunState.retry_run()
+		if RunState.is_chapter_complete():
+			RunState.start_chapter()
+		else:
+			RunState.retry_run()
 	elif event.is_action_pressed("ui_cancel") and not event.is_echo():
 		RunState.go_to_menu()
 
@@ -227,7 +230,7 @@ func _build_ui() -> void:
 	_register_reveal(footer_box)
 
 	var footer := Label.new()
-	footer.text = "Enter Next Stage    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else "R Retry    Esc Main Menu"
+	footer.text = "Enter Next Stage    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else ("R Retry Chapter    Esc Main Menu" if RunState.is_chapter_complete() else "R Retry    Esc Main Menu")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_box.add_child(footer)
@@ -247,10 +250,13 @@ func _build_ui() -> void:
 		button_row.add_child(next_button)
 
 	var again_button := Button.new()
-	again_button.text = "Retry"
+	again_button.text = "Retry Chapter" if RunState.is_chapter_complete() else "Retry"
 	again_button.custom_minimum_size = Vector2(170, 52)
 	again_button.pressed.connect(func() -> void:
-		RunState.retry_run()
+		if RunState.is_chapter_complete():
+			RunState.start_chapter()
+		else:
+			RunState.retry_run()
 	)
 	button_row.add_child(again_button)
 

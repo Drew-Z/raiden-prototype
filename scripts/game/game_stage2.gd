@@ -864,17 +864,34 @@ func _play_boss_finish_sequence() -> void:
 	get_tree().create_timer(0.42).timeout.connect(func() -> void:
 		if is_instance_valid(hud):
 			var has_chapter_link := RunState.is_chapter_mode() and StageCatalogScript.get_next_stage_id(RunState.get_selected_stage_id()) != ""
-			var clear_title := "STAGE LINK SECURED" if has_chapter_link else "AREA SECURED"
+			var is_chapter_final := RunState.is_chapter_mode() and not has_chapter_link
+			var clear_title := "CHAPTER SECURED" if is_chapter_final else ("STAGE LINK SECURED" if has_chapter_link else "AREA SECURED")
 			hud.show_clear_summary(
 				clear_title,
-				"Battle %06d   Kill %.0f%%   Fire Lv%d" % [
-					int(RunState.current_run.score),
-					RunState.get_kill_rate(),
-					int(RunState.current_run.max_fire_level)
-				],
+				(
+					"Battle %06d   Kill %.0f%%   Fire Lv%d" % [
+						int(RunState.current_run.score),
+						RunState.get_kill_rate(),
+						int(RunState.current_run.max_fire_level)
+					]
+					if not is_chapter_final
+					else
+					"Chapter finale secured   Battle %06d   Kill %.0f%%   Fire Lv%d" % [
+						int(RunState.current_run.score),
+						RunState.get_kill_rate(),
+						int(RunState.current_run.max_fire_level)
+					]
+				),
 				Color(1.0, 0.9, 0.58)
 			)
 			hud.pulse_screen(Color(1.0, 0.92, 0.68, 0.12), 0.14)
+			if is_chapter_final:
+				hud.show_event_card_temporarily(
+					"CHAPTER COMPLETE",
+					"Storm Front collapsed. The full two-stage route is secured and ready for final review.",
+					1.35,
+					Color(1.0, 0.9, 0.62)
+				)
 	)
 	_finish_after_delay(true, 2.25)
 
