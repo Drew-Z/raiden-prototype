@@ -56,6 +56,18 @@ func _ready() -> void:
 		var stage_order := StageCatalogScript.get_stage_order()
 		var current_index := StageCatalogScript.get_stage_index(RunState.get_selected_stage_id()) + 1
 		_queue_banner("CHAPTER RUN %d / %d" % [current_index, stage_order.size()], 1.0, Color(0.9, 0.96, 1.0), false)
+		if RunState.get_selected_stage_id() == "stage_2":
+			hud.show_cinematic_bars(34.0, 0.14)
+			hud.show_event_card_temporarily(
+				"LEG 2 // STORM FRONT",
+				"Carry the Stage 01 route forward. Side pressure rises fast, so spend bombs before recovery space disappears.",
+				1.6,
+				Color(0.82, 0.94, 1.0)
+			)
+			get_tree().create_timer(1.45).timeout.connect(func() -> void:
+				if is_instance_valid(hud):
+					hud.hide_cinematic_bars(0.18)
+			)
 		if RunState.current_run.start_fire_level > 1 or RunState.current_run.start_bombs > 2:
 			hud.show_event_card_temporarily(
 				"CARRY LOADOUT",
@@ -337,6 +349,19 @@ func _spawn_wave(wave: Dictionary) -> void:
 					"role": "screener",
 					"tint": Color(0.46, 0.8, 1.0)
 				})
+		"suppressor_line":
+			for index in range(wave.count):
+				_spawn_enemy({
+					"position": Vector2(wave.start_x + index * wave.gap, -58.0 - index * 26.0),
+					"velocity": wave.velocity,
+					"health": wave.health,
+					"fire_interval": wave.fire_interval + index * 0.05,
+					"drop_chance": wave.drop_chance,
+					"screen_rect": playfield_rect,
+					"score_value": 220,
+					"role": "suppressor",
+					"tint": Color(1.0, 0.66, 0.3)
+				})
 		"dash_pair":
 			for index in range(wave.count):
 				var side := -1.0 if index % 2 == 0 else 1.0
@@ -409,6 +434,9 @@ func _warn_wave_entry(wave: Dictionary) -> void:
 		"screener_line":
 			hud.show_edge_warning("left", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
 			hud.show_edge_warning("right", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
+		"suppressor_line":
+			hud.show_edge_warning("left", "SUPPRESS", 0.8, Color(1.0, 0.76, 0.4))
+			hud.show_edge_warning("right", "SUPPRESS", 0.8, Color(1.0, 0.76, 0.4))
 
 
 func _spawn_enemy(config: Dictionary) -> void:

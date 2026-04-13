@@ -294,7 +294,8 @@ func _record_chapter_result() -> void:
 		"player_lives": current_run.player_lives,
 		"duration_sec": current_run.duration_sec,
 		"victory": current_run.victory,
-		"fire_route": get_fire_route_text()
+		"fire_route": get_fire_route_text(),
+		"grade": get_performance_grade()
 	}
 	var stage_results: Array = chapter_state.get("stage_results", [])
 	stage_results.append(stage_result)
@@ -461,6 +462,31 @@ func get_result_tags() -> Array[String]:
 	return tags
 
 
+func get_chapter_grade() -> String:
+	if not is_chapter_mode():
+		return get_performance_grade()
+	var points := 0
+	if bool(chapter_state.get("chapter_victory", false)):
+		points += 3
+	if get_chapter_kill_rate() >= 90.0:
+		points += 2
+	elif get_chapter_kill_rate() >= 82.0:
+		points += 1
+	if int(chapter_state.get("highest_fire", 1)) >= 5:
+		points += 2
+	if int(chapter_state.get("total_bombs_used", 0)) <= 3:
+		points += 1
+	if int(current_run.get("player_lives", 0)) >= 1:
+		points += 1
+	if points >= 8:
+		return "S"
+	if points >= 6:
+		return "A"
+	if points >= 4:
+		return "B"
+	return "C"
+
+
 func get_next_focus() -> String:
 	if is_chapter_transition_pending():
 		var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
@@ -538,6 +564,27 @@ func get_chapter_stage_breakdown_text() -> String:
 	if lines.is_empty():
 		lines.append("Chapter route not started yet.")
 	return "\n".join(lines)
+
+
+func get_chapter_carry_summary() -> String:
+	if not is_chapter_transition_pending():
+		return ""
+	var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
+	return "Carry Loadout\nHull %d    Bomb %d    Fire Lv%d" % [
+		int(carry_state.get("lives", 3)),
+		int(carry_state.get("bombs", 2)),
+		int(carry_state.get("fire_level", 1))
+	]
+
+
+func get_chapter_clear_summary() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "Two-stage route secured with %06d total score, %.0f%% chapter kill and Lv%d peak fire." % [
+		int(chapter_state.get("total_score", 0)),
+		get_chapter_kill_rate(),
+		int(chapter_state.get("highest_fire", 1))
+	]
 
 
 func get_chapter_transition_text() -> String:

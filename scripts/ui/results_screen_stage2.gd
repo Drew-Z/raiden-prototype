@@ -73,7 +73,7 @@ func _build_ui() -> void:
 	hero_box.add_child(title)
 
 	var grade := Label.new()
-	grade.text = "GRADE %s" % RunState.get_performance_grade()
+	grade.text = "GRADE %s" % (RunState.get_chapter_grade() if RunState.is_chapter_complete() else RunState.get_performance_grade())
 	grade.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	grade.add_theme_font_size_override("font_size", 30)
 	grade.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5) if RunState.current_run.victory else Color(1.0, 0.6, 0.48))
@@ -107,6 +107,22 @@ func _build_ui() -> void:
 		chapter_label.add_theme_font_size_override("font_size", 18)
 		chapter_margin.add_child(chapter_label)
 
+	if RunState.is_chapter_complete():
+		var chapter_clear_panel := PanelContainer.new()
+		column.add_child(chapter_clear_panel)
+		_register_reveal(chapter_clear_panel)
+		var chapter_clear_margin := MarginContainer.new()
+		chapter_clear_margin.add_theme_constant_override("margin_left", 12)
+		chapter_clear_margin.add_theme_constant_override("margin_top", 10)
+		chapter_clear_margin.add_theme_constant_override("margin_right", 12)
+		chapter_clear_margin.add_theme_constant_override("margin_bottom", 10)
+		chapter_clear_panel.add_child(chapter_clear_margin)
+		var chapter_clear_label := Label.new()
+		chapter_clear_label.text = "CHAPTER SUMMARY\n%s" % RunState.get_chapter_clear_summary()
+		chapter_clear_label.add_theme_font_size_override("font_size", 20)
+		chapter_clear_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		chapter_clear_margin.add_child(chapter_clear_label)
+
 	if RunState.is_chapter_transition_pending():
 		var transition_panel := PanelContainer.new()
 		column.add_child(transition_panel)
@@ -118,7 +134,7 @@ func _build_ui() -> void:
 		transition_margin.add_theme_constant_override("margin_bottom", 10)
 		transition_panel.add_child(transition_margin)
 		var transition_label := Label.new()
-		transition_label.text = "CHAPTER ADVANCE\n%s" % RunState.get_chapter_transition_text()
+		transition_label.text = "CHAPTER ADVANCE\n%s\n%s" % [RunState.get_chapter_transition_text(), RunState.get_chapter_carry_summary()]
 		transition_label.add_theme_font_size_override("font_size", 20)
 		transition_margin.add_child(transition_label)
 

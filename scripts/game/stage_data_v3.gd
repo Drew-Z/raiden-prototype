@@ -98,6 +98,17 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.32
 		},
 		{
+			"time": 12.6,
+			"formation": "suppressor_line",
+			"count": 3,
+			"start_x": 106.0,
+			"gap": 164.0,
+			"velocity": Vector2(0, 140),
+			"health": 34,
+			"fire_interval": 1.12,
+			"drop_chance": 0.28
+		},
+		{
 			"time": 13.8,
 			"formation": "carrier",
 			"position_x": playfield_size.x * 0.5,
@@ -200,6 +211,17 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.34
 		},
 		{
+			"time": 25.6,
+			"formation": "suppressor_line",
+			"count": 4,
+			"start_x": 82.0,
+			"gap": 126.0,
+			"velocity": Vector2(0, 154),
+			"health": 38,
+			"fire_interval": 0.96,
+			"drop_chance": 0.26
+		},
+		{
 			"time": 26.2,
 			"formation": "wall",
 			"count": 5,
@@ -220,6 +242,7 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 		{"time": 5.0, "type": "banner", "text": "SCREEN FIRE", "duration": 0.9, "detail": "Screener units are dropping slow lane bullets. Route around the gaps, not through them.", "card_duration": 1.5, "card_color": Color(0.78, 0.92, 1.0)},
 		{"time": 8.9, "type": "banner", "text": "FORWARD SUPPLY", "duration": 0.95, "detail": "Break the center carrier to stabilize growth before the route locks down.", "card_duration": 1.45, "card_color": Color(0.66, 0.94, 1.0)},
 		{"time": 9.6, "type": "banner", "text": "ANCHOR LINE", "duration": 0.9, "detail": "Anchors are pinning the route. Shift early and preserve a center exit.", "card_duration": 1.45},
+		{"time": 12.5, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Suppressor units spread a wide fan across the board. Pre-position before the cone closes.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
 		{"time": 13.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -26.0)},
 		{"time": 13.8, "type": "banner", "text": "WEAPON SUPPLY", "duration": 0.9, "detail": "Lock this power route before the mid-board pressure spikes.", "card_duration": 1.4, "card_color": Color(0.62, 0.94, 1.0)},
 		{"time": 16.8, "type": "banner", "text": "SCREEN WALL", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
@@ -227,6 +250,7 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 		{"time": 22.8, "type": "banner", "text": "SNIPER CROSS", "duration": 0.85, "detail": "Late snipers are layering on top of the pincer lane. Clear one side before re-centering.", "card_duration": 1.45, "card_color": Color(1.0, 0.84, 0.52)},
 		{"time": 23.6, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -30.0)},
 		{"time": 23.6, "type": "banner", "text": "BOMB REFIT", "duration": 1.0, "detail": "Final bomb stock before boss entry. Cash it into a phase skip if the lane collapses.", "card_duration": 1.55, "card_color": Color(1.0, 0.72, 0.38)},
+		{"time": 25.6, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Late suppressors are pinning the board before the wall drop. Choose one side and break through.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
 		{"time": 28.0, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
 	]
 

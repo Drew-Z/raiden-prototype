@@ -178,6 +178,8 @@ func _fire() -> void:
 				_fire_sniper_pattern()
 			"burst":
 				_fire_burst_pattern()
+			"suppressor":
+				_fire_suppressor_pattern()
 			"sweeper":
 				_fire_sweeper_pattern()
 			"anchor":
@@ -275,6 +277,20 @@ func _fire_burst_pattern() -> void:
 			false,
 			5.6,
 			Color(1.0, 0.56, 0.34),
+			screen_rect
+		)
+		spawn_bullet.emit(bullet)
+
+
+func _fire_suppressor_pattern() -> void:
+	for offset in [-0.34, -0.17, 0.0, 0.17, 0.34]:
+		var bullet = BulletScript.new().configure(
+			position + Vector2(offset * 18.0, 18.0),
+			Vector2(offset * 0.72, 1.0).normalized() * bullet_speed * 0.98,
+			1,
+			false,
+			5.8,
+			Color(1.0, 0.7, 0.34),
 			screen_rect
 		)
 		spawn_bullet.emit(bullet)
@@ -470,6 +486,22 @@ func _draw() -> void:
 				draw_circle(Vector2(0, -2), 5.5, Color(1.0, 0.78, 0.46))
 				if fire_timer <= telegraph_window:
 					draw_arc(Vector2.ZERO, 25.0, PI * 0.28, PI * 0.72, 10, Color(1.0, 0.62, 0.42, 0.48), 2.0)
+			"suppressor":
+				var suppressor_points := PackedVector2Array([
+					Vector2(0, -20),
+					Vector2(22, -2),
+					Vector2(16, 14),
+					Vector2(-16, 14),
+					Vector2(-22, -2)
+				])
+				draw_colored_polygon(suppressor_points, base_tint.lightened(impact_flash_timer * 0.8))
+				draw_rect(Rect2(Vector2(-22, -3), Vector2(44, 6)), Color(1.0, 0.82, 0.46), true)
+				draw_rect(Rect2(Vector2(-12, 8), Vector2(24, 5)), Color(1.0, 0.58, 0.3), true)
+				if fire_timer <= telegraph_window:
+					for angle_offset in [-0.34, -0.17, 0.0, 0.17, 0.34]:
+						var end_point := Vector2(angle_offset * 54.0, 72.0)
+						draw_line(Vector2.ZERO, end_point, Color(1.0, 0.78, 0.4, 0.46), 2.0)
+					draw_arc(Vector2.ZERO, 34.0, PI * 0.18, PI * 0.82, 16, Color(1.0, 0.76, 0.42, 0.42), 2.0)
 			"sweeper":
 				var sweeper_points := PackedVector2Array([
 					Vector2(0, -16),
