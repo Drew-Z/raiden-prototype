@@ -33,6 +33,7 @@ var max_fire_level := 5
 var max_bomb_count := 4
 var shot_flash_timer := 0.0
 var hit_flash_timer := 0.0
+var option_orbit_phase := 0.0
 
 
 func _init() -> void:
@@ -76,6 +77,7 @@ func _physics_process(delta: float) -> void:
 	bomb_flash_timer = max(bomb_flash_timer - delta, 0.0)
 	shot_flash_timer = max(shot_flash_timer - delta, 0.0)
 	hit_flash_timer = max(hit_flash_timer - delta, 0.0)
+	option_orbit_phase += delta
 
 	var direction := _get_input_direction(delta)
 	position += direction * speed * delta
@@ -157,6 +159,25 @@ func _shoot() -> void:
 		var bullet = BulletScript.new().configure(position + shot.offset + Vector2(0, -26), shot.dir.normalized() * 560.0, shot.damage, true, bullet_radius, bullet_tint, screen_rect)
 		spawn_bullet.emit(bullet)
 
+	if fire_level >= 4:
+		var option_offsets: Array[Vector2] = _get_option_offsets()
+		var option_index := 0
+		for option_offset in option_offsets:
+			var option_dir := Vector2(0.0, -1.0)
+			if fire_level >= 5:
+				option_dir.x = -0.05 if option_index == 0 else 0.05
+			var option_bullet = BulletScript.new().configure(
+				position + option_offset + Vector2(0.0, -12.0),
+				option_dir.normalized() * 520.0,
+				9 if fire_level >= 5 else 8,
+				true,
+				3.6,
+				Color(0.72, 0.98, 1.0, 0.96),
+				screen_rect
+			)
+			spawn_bullet.emit(option_bullet)
+			option_index += 1
+
 
 func trigger_bomb() -> void:
 	if not alive or bomb_count <= 0:
@@ -213,6 +234,16 @@ func _on_area_entered(area: Area2D) -> void:
 			add_firepower()
 
 
+func _get_option_offsets() -> Array[Vector2]:
+	var offsets: Array[Vector2] = []
+	if fire_level < 4:
+		return offsets
+	var hover_y := 2.0 + sin(option_orbit_phase * 3.2) * 3.0
+	offsets.append(Vector2(-24.0 + sin(option_orbit_phase * 2.1) * 2.0, hover_y))
+	offsets.append(Vector2(24.0 - sin(option_orbit_phase * 2.1) * 2.0, hover_y))
+	return offsets
+
+
 func _draw() -> void:
 	if lives <= 1:
 		var warning_alpha: float = 0.08 + abs(sin(flash_phase * 6.0)) * 0.12
@@ -241,6 +272,10 @@ func _draw() -> void:
 	])
 	draw_colored_polygon(body, Color(0.25, 0.92, 1.0, 0.95))
 	draw_colored_polygon(wings, Color(0.11, 0.54, 0.95, 0.85))
+	for option_offset in _get_option_offsets():
+		draw_circle(option_offset, 6.0, Color(0.62, 0.94, 1.0, 0.92))
+		draw_circle(option_offset, 3.0, Color(1.0, 0.98, 0.84, 0.94))
+		draw_line(option_offset, option_offset + Vector2(0.0, 10.0), Color(1.0, 0.72, 0.34, 0.54), 2.0)
 	draw_circle(Vector2.ZERO, 5.0, Color(1.0, 0.95, 0.8))
 	if bomb_count <= 0:
 		draw_arc(Vector2.ZERO, 20.0, PI * 0.15, PI * 0.85, 18, Color(1.0, 0.56, 0.4, 0.24), 2.0)
