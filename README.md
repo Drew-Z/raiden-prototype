@@ -1,73 +1,68 @@
-# Raiden Prototype
+﻿# Raiden Prototype
 
-一个基于 Godot 4.6.1 的纵版射击展示原型，用来验证并演示短局街机射击的节奏、成长、资源决策、Boss 收束，以及两关章节串联是否成立。
+一个基于 Godot 4.6.1 的纵版射击展示原型，用来验证并展示短局街机射击的节奏、成长、资源决策、Boss 收束，以及双关章节串联是否成立。
 
 ## 当前阶段目标
 
 - 把短局原型推进成更适合展示的街机射击案例
-- 强化战斗可读性、阶段提示和 Boss 段落完成感
-- 强化火力成长、炸弹决策和一局结束后的总结反馈
-- 保持单关短流程，但让开始、战斗、结算更完整
+- 让单关展示提升为双关章节展示，并补齐章节交接与章节尾声
+- 在不做大规模资源替换的前提下，持续强化可读性、反馈和演出完成度
 
 ## 当前可玩内容
 
-- 主菜单与开始游戏
-- 主菜单可选择 `Stage 01`、`Stage 02` 与 `Chapter Run`
-- `Chapter Run` 在两关之间带独立的章节 briefing 过场
-- 纵向卷轴战斗场景
-- 玩家移动、持续自动射击、受伤、死亡
-- 多波敌群编队进入，包含点射压位机、切线突进机、屏障火力机与补给载具
-- 敌人概率掉落火力升级道具
-- 玩家拾取升级并提升火力等级
-- 炸弹资源与主动清屏
-- 一个带阶段变化的小型 Boss 段落
-- HUD 显示生命、火力、炸弹、分数、阶段进度、战场建议与 Boss 血条
-- 死亡或通关后的结果页，含成绩标签和奖励拆分
-- 章节模式下的关卡衔接、资源继承与章节总结
-- 暂停、重开、返回主菜单与上一局结果回显
+- 主菜单，可选择 `Stage 01`、`Stage 02` 和 `Chapter Run`
+- 玩家移动、自动持续射击、受伤、死亡
+- 敌群编排、掉落升级、火力成长、炸弹清屏
+- 两个可打通的关卡：`Stage 01 // Scramble` 与 `Stage 02 // Storm Front`
+- 第一关到第二关的章节继承：生命、炸弹、火力可跨关保留
+- 第一关结算后的独立 `ChapterBriefing` 中场过场
+- 双关结束后的独立 `ChapterOutro` 章节尾声
+- Boss 段落、HUD、结果页、章节总评和重开流程
+
+## 当前一条完整体验
+
+1. 从主菜单进入 `Stage 01` 或 `Chapter Run`
+2. 在短局战斗中通过击破敌人获取火力升级，逐步成长到高火力
+3. 在高压波次和 Boss 段落中使用炸弹维持节奏
+4. 通关 `Stage 01` 后进入结果页，并在章节模式下转入 `ChapterBriefing`
+5. 经 briefing 确认继承装载后进入 `Stage 02`
+6. 通关双关后进入结果页，并在章节模式下转入独立的 `ChapterOutro`
+
+## 当前章节结构
+
+- `Stage 01 // Scramble`：当前最完整的展示开场，负责建立成长、炸弹节奏和 Boss 收束
+- `Stage 02 // Storm Front`：更强调侧压、风暴互动、屏障火力和更重的 Boss 压迫
+- `Chapter Run`：`Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterOutro`
+
+## 当前版本定位
+
+- 当前状态：双关可展示原型
+- 所处阶段：已经完成最小可玩闭环，正在向双关垂直切片早期推进
+- 当前重点：把章节交接、章节尾声和章节演出继续做得更完整
 
 ## 操作说明
 
 - 移动：`WASD` / 方向键
 - 炸弹：`Space` / `Shift` / `X`
 - 射击：自动持续开火
-
-## 一局体验结构
-
-1. 从主菜单进入战斗场景。
-2. 在短时间内连续应对数波不同编队的杂兵。
-3. 通过击破敌人争取火力升级，逐步从单发成长到多发。
-4. 在高压时刻使用炸弹清弹并处理压场敌群。
-5. 进入 Boss 段落，在阶段变化和炸弹窗口中完成压制。
-6. 击破 Boss 后进入短促收束演出，再进入结果页查看奖励拆分与本局总结。
-7. 在 `Chapter Run` 中，`Stage 01` 通关后会保留生命、火力并获得最小炸弹补给，再进入 `Stage 02`。
-
-## 当前章节结构
-
-- `Stage 01 // Scramble`：当前最完整的展示路线，用于表现节奏、成长与 Boss 收束
-- `Stage 02 // Storm Front`：已打磨为可展示的第二关，强化侧压、屏障火力、压制扇面敌机、风暴打击互动和更重的 Boss 压迫
-- `Chapter Run`：`Stage 01 -> Briefing -> Stage 02` 的双关章节流，用于验证资源继承和更长短流程的成立性
-
-## 当前版本定位
-
-- 当前状态：双关可展示原型，已完成单局展示、章节串联、章节收束、章节 briefing 和第二关环境互动验证
-- 开发阶段：已完成“最小可玩验证”“展示可读性强化”“视听反馈强化”“第二关骨架验证”“双关章节串联验证”“第二关展示打磨”“章节收束增强”和“章节过场增强”，正在向“垂直切片早期”推进
-- 当前重点：继续深化真正的中场过场镜头和章节尾声表现，并评估是否进入更完整的双关垂直切片
+- 继续 / 确认：`Enter`
+- 重开：`R`
+- 返回：`Esc`
 
 ## 运行方式
 
-如果本机 Godot 位于 `D:\Development\Godot`，可直接在项目根目录运行：
+如果本机 Godot 位于 `D:\Development\Godot`，可在项目根目录运行：
 
 ```bash
 "D:/Development/Godot/Godot_v4.6.1-stable_win64.exe" --path "D:/workspace4Codex/raiden prototype"
 ```
 
-Headless 验证示例：
+Headless 单关验证示例：
 
 ```cmd
 set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
-"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 4200 -- --autoplay
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 6200 -- --autoplay
 ```
 
 双关章节验证示例：
@@ -75,18 +70,18 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 ```cmd
 set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
-"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 9000 -- --autoplay --chapter
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 11600 -- --autoplay --chapter
 ```
 
 ## 目录结构
 
 - `project.godot`：项目配置与入口场景
-- `scenes/ui`：主菜单与结果页场景
+- `scenes/ui`：主菜单、结果页、章节 briefing、章节 outro
 - `scenes/game`：战斗场景
-- `scripts/autoload`：全局运行状态与场次统计
-- `scripts/entities`：玩家、敌人、掉落
-- `scripts/game`：子弹、关卡编排、战斗主流程、背景滚动
-- `scripts/ui`：HUD 与界面逻辑
+- `scripts/autoload`：全局运行状态、章节状态和结算数据
+- `scripts/entities`：玩家、敌人、掉落等实体逻辑
+- `scripts/game`：关卡数据、战斗流程、Boss、特效、环境互动
+- `scripts/ui`：HUD、菜单、结果页、章节过场和章节尾声
 
 ## 文档
 

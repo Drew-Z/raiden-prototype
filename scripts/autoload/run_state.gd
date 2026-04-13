@@ -4,6 +4,7 @@ const MENU_SCENE := "res://scenes/ui/MainMenu.tscn"
 const GAME_SCENE := "res://scenes/game/Game.tscn"
 const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
 const CHAPTER_BRIEFING_SCENE := "res://scenes/ui/ChapterBriefing.tscn"
+const CHAPTER_OUTRO_SCENE := "res://scenes/ui/ChapterOutro.tscn"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
@@ -173,6 +174,10 @@ func show_results() -> void:
 
 func show_chapter_briefing() -> void:
 	call_deferred("_change_scene", CHAPTER_BRIEFING_SCENE)
+
+
+func show_chapter_outro() -> void:
+	call_deferred("_change_scene", CHAPTER_OUTRO_SCENE)
 
 
 func go_to_menu() -> void:
@@ -640,6 +645,23 @@ func get_chapter_epilogue() -> String:
 	if not is_chapter_complete():
 		return ""
 	return "Scramble opened the route, Storm Front closed it. The current build now reads like a full showcase sortie rather than a disconnected test run."
+
+
+func get_chapter_outro_headline() -> String:
+	if not is_chapter_complete():
+		return ""
+	var chapter_grade := get_chapter_grade()
+	if chapter_grade == "S":
+		return "Route dominance confirmed. The full chapter now reads like a showcase strike package."
+	if chapter_grade == "A":
+		return "Chapter route secured with strong control. The build is now presentation-ready across both legs."
+	return "Chapter secured. The route is stable, with room to sharpen pacing and finale pressure."
+
+
+func get_chapter_outro_directive() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "Next directive: reinforce Stage 02 spectacle, deepen storm hazard interplay and convert this chapter flow into a true vertical-slice finish."
 
 
 func get_chapter_transition_text() -> String:

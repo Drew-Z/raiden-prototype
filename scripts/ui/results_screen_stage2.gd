@@ -10,6 +10,8 @@ func _ready() -> void:
 		get_tree().create_timer(0.4).timeout.connect(func() -> void:
 			if RunState.is_chapter_transition_pending():
 				RunState.show_chapter_briefing()
+			elif RunState.is_chapter_complete():
+				RunState.show_chapter_outro()
 			else:
 				get_tree().quit()
 		)
@@ -18,6 +20,8 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not event.is_echo() and RunState.is_chapter_transition_pending():
 		RunState.show_chapter_briefing()
+	elif event.is_action_pressed("ui_accept") and not event.is_echo() and RunState.is_chapter_complete():
+		RunState.show_chapter_outro()
 	elif event.is_action_pressed("restart_game") and not event.is_echo():
 		if RunState.is_chapter_complete():
 			RunState.start_chapter()
@@ -249,7 +253,7 @@ func _build_ui() -> void:
 	_register_reveal(footer_box)
 
 	var footer := Label.new()
-	footer.text = "Enter Briefing    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else ("R Retry Chapter    Esc Main Menu" if RunState.is_chapter_complete() else "R Retry    Esc Main Menu")
+	footer.text = "Enter Briefing    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else ("Enter Debrief    R Retry Chapter    Esc Main Menu" if RunState.is_chapter_complete() else "R Retry    Esc Main Menu")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_box.add_child(footer)
@@ -267,6 +271,14 @@ func _build_ui() -> void:
 			RunState.show_chapter_briefing()
 		)
 		button_row.add_child(next_button)
+	elif RunState.is_chapter_complete():
+		var debrief_button := Button.new()
+		debrief_button.text = "Debrief"
+		debrief_button.custom_minimum_size = Vector2(170, 52)
+		debrief_button.pressed.connect(func() -> void:
+			RunState.show_chapter_outro()
+		)
+		button_row.add_child(debrief_button)
 
 	var again_button := Button.new()
 	again_button.text = "Retry Chapter" if RunState.is_chapter_complete() else "Retry"
