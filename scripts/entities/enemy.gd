@@ -182,6 +182,8 @@ func _fire() -> void:
 				_fire_anchor_pattern()
 			"pincer":
 				_fire_pincer_pattern()
+			"screener":
+				_fire_screener_pattern()
 			_:
 				_fire_standard_pattern()
 	volley_index += 1
@@ -276,6 +278,21 @@ func _fire_pincer_pattern() -> void:
 		_spawn_targeted_bullet(aim_offset, 5.8, Color(1.0, 0.78, 0.4), 1.18)
 	if volley_index % 2 == 1:
 		_spawn_targeted_bullet(0.0, 5.2, Color(1.0, 0.9, 0.62), 1.08)
+
+
+func _fire_screener_pattern() -> void:
+	var offsets := [-0.42, 0.0, 0.42] if volley_index % 2 == 0 else [-0.24, 0.24]
+	for offset in offsets:
+		var bullet = BulletScript.new().configure(
+			position + Vector2(offset * 24.0, 20.0),
+			Vector2(offset * 0.35, 1.0).normalized() * bullet_speed * 0.82,
+			1,
+			false,
+			6.6,
+			Color(0.72, 0.92, 1.0),
+			screen_rect
+		)
+		spawn_bullet.emit(bullet)
 
 
 func _spawn_boss_bullet(horizontal: float, bullet_radius: float, bullet_color: Color, speed_scale: float = 1.0) -> void:
@@ -435,6 +452,19 @@ func _draw() -> void:
 				draw_line(Vector2(10, 10), Vector2(20, 20), Color(1.0, 0.66, 0.32, 0.92), 2.0)
 				if fire_timer <= telegraph_window:
 					_draw_pincer_telegraph(Color(1.0, 0.82, 0.48, 0.52), 2.0)
+			"screener":
+				var screener_points := PackedVector2Array([
+					Vector2(0, -20),
+					Vector2(22, -2),
+					Vector2(18, 14),
+					Vector2(-18, 14),
+					Vector2(-22, -2)
+				])
+				draw_colored_polygon(screener_points, base_tint.lightened(impact_flash_timer * 0.8))
+				draw_rect(Rect2(Vector2(-20, -4), Vector2(40, 8)), Color(0.72, 0.92, 1.0), true)
+				draw_rect(Rect2(Vector2(-10, 8), Vector2(20, 6)), Color(0.36, 0.8, 1.0), true)
+				if fire_timer <= telegraph_window:
+					draw_arc(Vector2.ZERO, 34.0, PI * 0.12, PI * 0.88, 16, Color(0.72, 0.92, 1.0, 0.54), 3.0)
 			_:
 				var points := PackedVector2Array([
 					Vector2(0, -18),

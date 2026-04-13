@@ -1,5 +1,7 @@
 extends Control
 
+const StageCatalog := preload("res://scripts/game/stage_catalog.gd")
+
 
 func _ready() -> void:
 	_build_ui()
@@ -43,21 +45,26 @@ func _build_ui() -> void:
 	column.add_child(tag)
 
 	var summary := Label.new()
-	summary.text = "Clearer pacing, stronger fire growth,\nbetter bomb presence and a heavier boss finish."
+	summary.text = "Stage 01 is the polished showcase route.\nStage 02 is the expansion skeleton for chapter growth validation."
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.add_theme_font_size_override("font_size", 22)
 	column.add_child(summary)
 
-	var start_button := Button.new()
-	start_button.text = "Start Sortie"
-	start_button.custom_minimum_size = Vector2(240, 58)
-	start_button.pressed.connect(func() -> void:
-		RunState.start_game()
-	)
-	column.add_child(start_button)
+	var stage_button_row := HBoxContainer.new()
+	stage_button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	stage_button_row.add_theme_constant_override("separation", 12)
+	column.add_child(stage_button_row)
+
+	for stage_id in ["stage_1", "stage_2"]:
+		var meta := StageCatalog.get_stage_meta(stage_id)
+		var button := Button.new()
+		button.text = "%s\n%s" % [meta.menu_label, meta.tagline]
+		button.custom_minimum_size = Vector2(220, 72)
+		button.pressed.connect(RunState.start_game.bind(stage_id))
+		stage_button_row.add_child(button)
 
 	var features := Label.new()
-	features.text = "New in this build:\n- Stronger early / mid / late rhythm\n- Clearer fire growth to Lv5\n- Bomb supply before the boss\n- Pause, restart and menu flow"
+	features.text = "Current builds:\n- Stage 01: showcase route with clearer pacing and boss presentation\n- Stage 02: expansion skeleton with denser side pressure and new screener enemies"
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.add_theme_font_size_override("font_size", 18)
 	column.add_child(features)
@@ -82,4 +89,4 @@ func _build_ui() -> void:
 
 
 func _auto_start() -> void:
-	RunState.start_game()
+	RunState.start_game(RunState.get_requested_autoplay_stage())

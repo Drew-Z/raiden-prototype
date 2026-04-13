@@ -62,7 +62,7 @@ func _build_ui() -> void:
 	_register_reveal(hero_box)
 
 	var title := Label.new()
-	title.text = "STAGE CLEAR" if RunState.current_run.victory else "MISSION FAILED"
+	title.text = "%s CLEAR" % String(RunState.current_run.stage_name) if RunState.current_run.victory else "MISSION FAILED"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 36)
 	hero_box.add_child(title)
@@ -105,7 +105,7 @@ func _build_ui() -> void:
 	route_margin.add_theme_constant_override("margin_bottom", 10)
 	route_panel.add_child(route_margin)
 	var route_label := Label.new()
-	route_label.text = "FIRE ROUTE  %s" % RunState.get_fire_route_text()
+	route_label.text = "%s\nFIRE ROUTE  %s" % [String(RunState.current_run.stage_name), RunState.get_fire_route_text()]
 	route_label.add_theme_font_size_override("font_size", 20)
 	route_margin.add_child(route_label)
 

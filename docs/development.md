@@ -16,7 +16,9 @@
 
 - `res://scripts/autoload/run_state.gd`
 - `res://scripts/game/game_stage2.gd`
+- `res://scripts/game/stage_catalog.gd`
 - `res://scripts/game/stage_data_v2.gd`
+- `res://scripts/game/stage_data_v3.gd`
 - `res://scripts/entities/player.gd`
 - `res://scripts/entities/enemy.gd`
 - `res://scripts/entities/pickup.gd`
@@ -61,6 +63,7 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
 ## 当前结构说明
 
 - 第一阶段旧脚本仍保留在仓库中，便于对照，但当前主流程已切到 `stage2` 版本脚本
+- 当前战斗主流程已经从“写死单关”切到“由 `stage_catalog.gd` 选择关卡数据脚本”的结构
 - 战斗反馈相关模块目前拆在：
   - `res://scripts/game/bomb_effect.gd`
   - `res://scripts/game/impact_effect.gd`
@@ -81,6 +84,8 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
 - HUD 现在还承担电影边栏包装，Boss 入场、击破和失败收束都只通过 HUD 接口触发，不直接改场景结构
 - 持续危险压屏也统一走 `hud_v2.gd`，主控只负责传入强度和颜色，不直接操作覆盖节点
 - BGM 现在区分普通战斗、Boss、Boss overdrive、失败和通关收束，仍然保持程序生成占位实现
+- 新增的 `screener` 敌机职责已经接入通用敌人脚本；第二关则主要用它来验证“屏障火力”在关卡中的可读性和成本
+- `RunState` 现在会记住当前关卡标识，主菜单可选关，重开和结果页也会沿用当前关卡上下文
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
 ## 提交建议

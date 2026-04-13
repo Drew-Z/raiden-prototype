@@ -3,9 +3,11 @@ extends Node
 const MENU_SCENE := "res://scenes/ui/MainMenu.tscn"
 const GAME_SCENE := "res://scenes/game/Game.tscn"
 const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
+const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
 var rng := RandomNumberGenerator.new()
+var selected_stage_id := "stage_1"
 
 
 func _ready() -> void:
@@ -46,7 +48,10 @@ func _register_keys(action_name: String, keycodes: Array[int]) -> void:
 
 
 func reset_run() -> void:
+	var stage_meta := StageCatalogScript.get_stage_meta(selected_stage_id)
 	current_run = {
+		"stage_id": selected_stage_id,
+		"stage_name": stage_meta.get("name", "STAGE 01 // SCRAMBLE"),
 		"score": 0,
 		"score_before_bonus": 0,
 		"final_score": 0,
@@ -70,7 +75,9 @@ func reset_run() -> void:
 	}
 
 
-func start_game() -> void:
+func start_game(stage_id: String = "") -> void:
+	if stage_id != "":
+		selected_stage_id = stage_id
 	reset_run()
 	call_deferred("_change_scene", GAME_SCENE)
 
@@ -81,6 +88,14 @@ func show_results() -> void:
 
 func go_to_menu() -> void:
 	call_deferred("_change_scene", MENU_SCENE)
+
+
+func get_selected_stage_id() -> String:
+	return selected_stage_id
+
+
+func get_selected_stage_meta() -> Dictionary:
+	return StageCatalogScript.get_stage_meta(selected_stage_id)
 
 
 func register_enemy_spawn() -> void:
@@ -221,9 +236,9 @@ func get_performance_grade() -> String:
 
 func get_result_flavor() -> String:
 	if current_run.victory and current_run.player_lives >= 3 and current_run.max_fire_level >= 5:
-		return "High tempo clear with strong resource control."
+		return "%s secured with strong tempo and resource control." % String(current_run.stage_name)
 	if current_run.victory:
-		return "Stage secured. Pressure curve held to the end."
+		return "%s secured. Pressure curve held to the end." % String(current_run.stage_name)
 	if current_run.max_fire_level >= 4:
 		return "Good growth, but the late pressure still broke the run."
 	return "Early survival is stable, but growth and routing need work."
@@ -297,3 +312,11 @@ func get_resource_summary() -> String:
 
 func is_autoplay() -> bool:
 	return OS.get_cmdline_args().has("--autoplay") or OS.get_cmdline_user_args().has("--autoplay")
+
+
+func get_requested_autoplay_stage() -> String:
+	var args := OS.get_cmdline_args()
+	var user_args := OS.get_cmdline_user_args()
+	if args.has("--stage2") or user_args.has("--stage2"):
+		return "stage_2"
+	return selected_stage_id

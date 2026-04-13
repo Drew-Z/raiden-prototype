@@ -5,7 +5,7 @@ const EnemyScript := preload("res://scripts/entities/enemy.gd")
 const PickupScript := preload("res://scripts/entities/pickup.gd")
 const StarfieldScript := preload("res://scripts/game/starfield.gd")
 const HUDScript := preload("res://scripts/ui/hud_v2.gd")
-const StageDataScript := preload("res://scripts/game/stage_data_v2.gd")
+const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 const BombEffectScript := preload("res://scripts/game/bomb_effect.gd")
 const ImpactEffectScript := preload("res://scripts/game/impact_effect.gd")
 const ExplosionEffectScript := preload("res://scripts/game/explosion_effect.gd")
@@ -26,6 +26,7 @@ var effects_layer: Node2D
 var waves: Array[Dictionary] = []
 var stage_events: Array[Dictionary] = []
 var boss_config: Dictionary = {}
+var stage_meta: Dictionary = {}
 var wave_index := 0
 var event_index := 0
 var stage_time := 0.0
@@ -48,8 +49,8 @@ var bgm
 func _ready() -> void:
 	randomize()
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_build_scene()
 	_setup_stage()
+	_build_scene()
 
 	if RunState.is_autoplay():
 		_queue_banner("AUTO PLAY", 1.2, Color(0.8, 0.95, 1.0), false)
@@ -93,7 +94,7 @@ func _build_scene() -> void:
 	hud.restart_requested.connect(_restart_run)
 	hud.menu_requested.connect(_return_to_menu)
 	add_child(hud)
-	hud.set_stage_text("SCRAMBLE")
+	hud.set_stage_text(String(stage_meta.get("menu_label", "SCRAMBLE")))
 	hud.set_stage_progress(0.0)
 	hud.set_status_hint("BUILD FIREPOWER", Color(0.82, 0.94, 1.0))
 	hud.update_player(3, 1, 2, RunState.current_run.score)
@@ -114,9 +115,11 @@ func _build_scene() -> void:
 
 
 func _setup_stage() -> void:
-	waves = StageDataScript.build_waves(playfield_rect.size)
-	stage_events = StageDataScript.build_events(playfield_rect.size)
-	boss_config = StageDataScript.build_boss(playfield_rect.size)
+	stage_meta = StageCatalogScript.get_stage_meta(RunState.get_selected_stage_id())
+	var stage_script = StageCatalogScript.get_stage_data_script(RunState.get_selected_stage_id())
+	waves = stage_script.build_waves(playfield_rect.size)
+	stage_events = stage_script.build_events(playfield_rect.size)
+	boss_config = stage_script.build_boss(playfield_rect.size)
 
 
 func _process(delta: float) -> void:
@@ -305,6 +308,19 @@ func _spawn_wave(wave: Dictionary) -> void:
 					"role": "pincer",
 					"tint": Color(1.0, 0.64, 0.24)
 				})
+		"screener_line":
+			for index in range(wave.count):
+				_spawn_enemy({
+					"position": Vector2(wave.start_x + index * wave.gap, -60.0 - index * 24.0),
+					"velocity": wave.velocity,
+					"health": wave.health,
+					"fire_interval": wave.fire_interval + index * 0.05,
+					"drop_chance": wave.drop_chance,
+					"screen_rect": playfield_rect,
+					"score_value": 230,
+					"role": "screener",
+					"tint": Color(0.46, 0.8, 1.0)
+				})
 		"dash_pair":
 			for index in range(wave.count):
 				var side := -1.0 if index % 2 == 0 else 1.0
@@ -374,6 +390,9 @@ func _warn_wave_entry(wave: Dictionary) -> void:
 		"escort":
 			hud.show_edge_warning("left", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
 			hud.show_edge_warning("right", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
+		"screener_line":
+			hud.show_edge_warning("left", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
+			hud.show_edge_warning("right", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
 
 
 func _spawn_enemy(config: Dictionary) -> void:
