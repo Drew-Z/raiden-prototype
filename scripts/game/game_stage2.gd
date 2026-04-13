@@ -10,6 +10,7 @@ const BombEffectScript := preload("res://scripts/game/bomb_effect.gd")
 const ImpactEffectScript := preload("res://scripts/game/impact_effect.gd")
 const ExplosionEffectScript := preload("res://scripts/game/explosion_effect.gd")
 const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
+const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960))
 var player
@@ -36,6 +37,7 @@ var shake_timer := 0.0
 var shake_strength := 0.0
 var time_stop_timer := 0.0
 var time_stop_scale := 1.0
+var sfx
 
 
 func _ready() -> void:
@@ -72,6 +74,10 @@ func _build_scene() -> void:
 	effects_layer = Node2D.new()
 	effects_layer.name = "EffectsLayer"
 	world_layer.add_child(effects_layer)
+
+	if DisplayServer.get_name() != "headless":
+		sfx = SfxControllerScript.new()
+		add_child(sfx)
 
 	hud = HUDScript.new()
 	hud.resume_requested.connect(_resume_run)
@@ -327,6 +333,7 @@ func _spawn_boss() -> void:
 	boss_phase_seen = 1
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
+	_play_sfx("boss_warning")
 	_show_flash(Color(1.0, 0.76, 0.38), 0.32, 0.18)
 	_start_shake(8.0, 0.35)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
@@ -397,6 +404,7 @@ func _get_boss_phase(ratio: float) -> int:
 
 func _on_player_bullet_spawned(bullet) -> void:
 	bullet_layer.add_child(bullet)
+	_play_sfx("player_shot")
 
 
 func _on_enemy_bullet_spawned(bullet) -> void:
@@ -404,6 +412,7 @@ func _on_enemy_bullet_spawned(bullet) -> void:
 
 
 func _on_player_bomb_activated(center: Vector2) -> void:
+	_play_sfx("bomb")
 	RunState.register_bomb_used()
 	var cleared_bullets := _clear_enemy_projectiles()
 	if cleared_bullets > 0:
@@ -433,6 +442,7 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 
 
 func _on_player_died() -> void:
+	_play_sfx("player_die")
 	_spawn_explosion(player.position, 1.3, false)
 	_start_shake(12.0, 0.28)
 	_show_flash(Color(1.0, 0.4, 0.36), 0.28, 0.18)
@@ -442,6 +452,7 @@ func _on_player_died() -> void:
 
 
 func _on_player_hurt(position_value: Vector2, lives_left: int) -> void:
+	_play_sfx("player_hurt")
 	_spawn_impact(position_value, 1.0, Color(1.0, 0.48, 0.4, 0.95))
 	_start_shake(7.0, 0.18)
 	_show_flash(Color(1.0, 0.45, 0.38), 0.18, 0.1)
@@ -460,11 +471,13 @@ func _on_player_stats_changed(lives: int, bombs: int, fire_level: int) -> void:
 		hud.update_player(lives, fire_level, bombs, RunState.current_run.score)
 
 	if fire_gained:
+		_play_sfx("power_up")
 		_show_flash(Color(0.56, 0.94, 1.0), 0.16, 0.08)
 		hud.pulse_screen(Color(0.56, 0.94, 1.0, 0.1), 0.08)
 		_spawn_explosion(player.position + Vector2(0.0, -12.0), 0.8 + fire_level * 0.05, false)
 		_queue_banner("FIRE LEVEL %d" % fire_level, 0.55, Color(0.56, 0.94, 1.0), false)
 	elif bombs_gained:
+		_play_sfx("bomb_pickup")
 		_show_flash(Color(1.0, 0.7, 0.34), 0.14, 0.08)
 		hud.pulse_screen(Color(1.0, 0.74, 0.36, 0.1), 0.08)
 		_queue_banner("BOMB STOCK +1", 0.55, Color(1.0, 0.66, 0.38), false)
@@ -479,18 +492,23 @@ func _on_enemy_damaged(enemy, amount: int, remaining_health: int) -> void:
 	var color := Color(1.0, 0.8, 0.54, 0.95) if enemy.is_boss else Color(1.0, 0.72, 0.48, 0.92)
 	_spawn_impact(enemy.position, scale, color)
 	if enemy.is_boss and amount >= 18:
+		_play_sfx("boss_hit")
 		_trigger_hit_stop(0.024, 0.18)
+	elif amount > 0:
+		_play_sfx("enemy_hit")
 
 
 func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 	_spawn_explosion(enemy.position, 1.45 if enemy.is_boss else 0.92, enemy.is_boss)
 	if enemy.is_boss:
+		_play_sfx("boss_break")
 		_clear_enemy_projectiles()
 		_start_shake(16.0, 0.35)
 		_show_flash(Color(1.0, 0.88, 0.52), 0.26, 0.18)
 		hud.pulse_screen(Color(1.0, 0.9, 0.56, 0.14), 0.12)
 		_trigger_hit_stop(0.08, 0.05)
 	else:
+		_play_sfx("enemy_destroy")
 		_start_shake(4.0, 0.08)
 		_trigger_hit_stop(0.018, 0.3)
 
@@ -536,10 +554,12 @@ func _spawn_pickup(position_value: Vector2, kind: String = "power") -> void:
 
 func _on_pickup_collected(kind: String) -> void:
 	if kind == "bomb":
+		_play_sfx("bomb_pickup")
 		RunState.register_bomb_pickup()
 		RunState.add_score(300)
 		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "BOMB +300", Color(1.0, 0.74, 0.44), 0.92)
 	else:
+		_play_sfx("power_up")
 		RunState.register_upgrade_pickup()
 		RunState.add_score(150)
 		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "POWER +150", Color(0.62, 0.94, 1.0), 0.92)
@@ -599,6 +619,7 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_queue_banner(label_text, 0.85, label_color, false)
 	hud.set_status_hint(label_text, label_color)
 	hud.pulse_screen(Color(label_color.r, label_color.g, label_color.b, 0.14), 0.08)
+	_play_sfx("boss_phase")
 
 
 func _play_boss_finish_sequence() -> void:
@@ -624,6 +645,7 @@ func _play_boss_finish_sequence() -> void:
 				_start_shake(shake_value, 0.14)
 		)
 	get_tree().create_timer(0.22).timeout.connect(func() -> void:
+		_play_sfx("stage_clear")
 		_queue_banner("CLEAR BONUS", 0.8, Color(1.0, 0.86, 0.46), false)
 	)
 	_finish_after_delay(true, 1.9)
@@ -655,6 +677,11 @@ func _spawn_score_popup(position_value: Vector2, text_value: String, color: Colo
 	var popup = ScorePopupScript.new().configure(text_value, color, scale_value)
 	popup.position = position_value
 	effects_layer.call_deferred("add_child", popup)
+
+
+func _play_sfx(event_name: String) -> void:
+	if is_instance_valid(sfx):
+		sfx.play_event(event_name)
 
 
 func _show_flash(color: Color, alpha: float, duration: float) -> void:
