@@ -223,7 +223,9 @@ func _get_fire_interval() -> float:
 
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("enemy_projectiles"):
+	if area.is_in_group("hazards"):
+		apply_damage(1)
+	elif area.is_in_group("enemy_projectiles"):
 		area.pop()
 		apply_damage(1)
 	elif area.is_in_group("enemies"):

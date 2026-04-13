@@ -33,7 +33,12 @@ static func get_stage_meta(stage_id: String) -> Dictionary:
 				"name": "STAGE 02 // STORM FRONT",
 				"menu_label": "Stage 02",
 				"tagline": "Dense side pressure, carried growth and a heavier storm boss.",
-				"summary": "Expanded second-stage route built around side pressure, screen-fire control and a more aggressive storm boss."
+				"summary": "Expanded second-stage route built around side pressure, screen-fire control and a more aggressive storm boss.",
+				"standalone_start_state": {
+					"lives": 3,
+					"bombs": 4,
+					"fire_level": 3
+				}
 			}
 		_:
 			return {

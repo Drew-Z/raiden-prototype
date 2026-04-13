@@ -77,6 +77,13 @@ func _reset_chapter_state() -> void:
 
 
 func _get_default_start_state() -> Dictionary:
+	var stage_meta := StageCatalogScript.get_stage_meta(selected_stage_id)
+	if stage_meta.has("standalone_start_state"):
+		return stage_meta.get("standalone_start_state", {
+			"lives": 3,
+			"bombs": 2,
+			"fire_level": 1
+		})
 	return {
 		"lives": 3,
 		"bombs": 2,
@@ -568,6 +575,30 @@ func get_chapter_stage_breakdown_text() -> String:
 	return "\n".join(lines)
 
 
+func get_chapter_timeline() -> Array[Dictionary]:
+	var cards: Array[Dictionary] = []
+	if not is_chapter_mode():
+		return cards
+	var stage_results: Array = chapter_state.get("stage_results", [])
+	for stage_index in range(chapter_state.get("stage_order", []).size()):
+		var stage_id := String(chapter_state.stage_order[stage_index])
+		var meta := StageCatalogScript.get_stage_meta(stage_id)
+		var result: Dictionary = {}
+		if stage_index < stage_results.size():
+			result = stage_results[stage_index]
+		cards.append({
+			"label": meta.get("menu_label", stage_id),
+			"name": meta.get("name", stage_id),
+			"summary": meta.get("summary", ""),
+			"completed": stage_index < stage_results.size(),
+			"victory": bool(result.get("victory", false)),
+			"grade": String(result.get("grade", "--")),
+			"active": stage_index == int(chapter_state.get("current_index", 0)) and not bool(chapter_state.get("chapter_finished", false)),
+			"pending": stage_index >= stage_results.size()
+		})
+	return cards
+
+
 func get_chapter_carry_summary() -> String:
 	if not is_chapter_transition_pending():
 		return ""
@@ -576,6 +607,16 @@ func get_chapter_carry_summary() -> String:
 		int(carry_state.get("lives", 3)),
 		int(carry_state.get("bombs", 2)),
 		int(carry_state.get("fire_level", 1))
+	]
+
+
+func get_chapter_transition_brief() -> String:
+	if not is_chapter_transition_pending():
+		return ""
+	var next_meta := get_next_stage_meta()
+	return "%s\n%s" % [
+		String(next_meta.get("tagline", "Next stage incoming.")),
+		String(next_meta.get("summary", ""))
 	]
 
 
@@ -588,6 +629,12 @@ func get_chapter_clear_summary() -> String:
 		get_chapter_kill_rate(),
 		int(chapter_state.get("highest_fire", 1))
 	]
+
+
+func get_chapter_epilogue() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "Scramble opened the route, Storm Front closed it. The current build now reads like a full showcase sortie rather than a disconnected test run."
 
 
 func get_chapter_transition_text() -> String:

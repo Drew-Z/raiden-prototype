@@ -75,6 +75,7 @@ CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_f
 - 第一阶段旧脚本仍保留在仓库中，便于对照，但当前主流程已切到 `stage2` 版本脚本
 - 当前战斗主流程已经从“写死单关”切到“由 `stage_catalog.gd` 选择关卡数据脚本”的结构
 - 当前战斗主流程已经支持 `Stage 01`、`Stage 02` 与 `Chapter Run` 三种入口
+- 第二关单独入口现在使用展示用中段装载，更接近章节第二段的真实体验
 - 战斗反馈相关模块目前拆在：
   - `res://scripts/game/bomb_effect.gd`
   - `res://scripts/game/impact_effect.gd`
@@ -86,6 +87,8 @@ CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_f
 - Boss 现在带有相位切换后的“核心暴露”短窗口，相关状态仍集中在 `enemy.gd` 与 `game_stage2.gd`，便于后续继续扩展弱点或破甲机制
 - `Stage 02` Boss 已拆出独立 `storm` 风格，仍然复用通用 Boss 管线，但火力节奏、外观和文案已可单独配置
 - 第二关新增的 `suppressor` 敌机职责使用宽扇面火力做路线封锁，和 `screener`、`pincer` 的作用已经明确区分
+- 第二关新增的 `storm_strike` 互动点由独立脚本 `storm_strike.gd` 管理，通过时间轴事件触发，不和常规敌机逻辑混在一起
+- `starfield.gd` 现在支持按关卡主题切换背景视觉，第二关会使用更明显的风暴主题层
 - 结果页已改为脚本构建的展示面板，统计、战绩摘要和下一步建议仍统一从 `run_state.gd` 取数，便于后续继续补动画或更多复盘指标
 - Boss 击破后的战场清场总结卡由 `hud_v2.gd` 承担，只在收束阶段短暂显示，结果页仍负责最终复盘
 - 事件卡现在支持带时长的临时提示，关卡事件可以在 `stage_data_v2.gd` 和 `stage_data_v3.gd` 里直接附加 `detail`、`card_duration` 和 `card_color`

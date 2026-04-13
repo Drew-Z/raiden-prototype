@@ -96,6 +96,14 @@ func _build_ui() -> void:
 	hero_box.add_child(tags)
 
 	if RunState.is_chapter_mode():
+		var timeline_row := HBoxContainer.new()
+		timeline_row.add_theme_constant_override("separation", 10)
+		column.add_child(timeline_row)
+		_register_reveal(timeline_row)
+		for card_data in RunState.get_chapter_timeline():
+			timeline_row.add_child(_build_chapter_stage_card(card_data))
+
+	if RunState.is_chapter_mode():
 		var chapter_panel := PanelContainer.new()
 		column.add_child(chapter_panel)
 		_register_reveal(chapter_panel)
@@ -126,6 +134,12 @@ func _build_ui() -> void:
 		chapter_clear_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		chapter_clear_margin.add_child(chapter_clear_label)
 
+		var epilogue_label := Label.new()
+		epilogue_label.text = "EPILOGUE\n%s" % RunState.get_chapter_epilogue()
+		epilogue_label.add_theme_font_size_override("font_size", 18)
+		epilogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		chapter_clear_margin.add_child(epilogue_label)
+
 	if RunState.is_chapter_transition_pending():
 		var transition_panel := PanelContainer.new()
 		column.add_child(transition_panel)
@@ -137,8 +151,13 @@ func _build_ui() -> void:
 		transition_margin.add_theme_constant_override("margin_bottom", 10)
 		transition_panel.add_child(transition_margin)
 		var transition_label := Label.new()
-		transition_label.text = "CHAPTER ADVANCE\n%s\n%s" % [RunState.get_chapter_transition_text(), RunState.get_chapter_carry_summary()]
+		transition_label.text = "CHAPTER ADVANCE\n%s\n%s\n%s" % [
+			RunState.get_chapter_transition_text(),
+			RunState.get_chapter_carry_summary(),
+			RunState.get_chapter_transition_brief()
+		]
 		transition_label.add_theme_font_size_override("font_size", 20)
+		transition_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		transition_margin.add_child(transition_label)
 
 	var stat_row := HBoxContainer.new()
@@ -317,6 +336,46 @@ func _build_text_card(title_text: String, body_text: String) -> Control:
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.add_theme_font_size_override("font_size", 16)
 	column.add_child(body)
+	return panel
+
+
+func _build_chapter_stage_card(card_data: Dictionary) -> Control:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	margin.add_child(column)
+
+	var label := Label.new()
+	label.text = String(card_data.get("label", "STAGE"))
+	label.add_theme_font_size_override("font_size", 16)
+	column.add_child(label)
+
+	var status := Label.new()
+	if bool(card_data.get("completed", false)):
+		status.text = "CLEAR  GRADE %s" % String(card_data.get("grade", "--"))
+		status.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58) if bool(card_data.get("victory", false)) else Color(1.0, 0.58, 0.46))
+	elif bool(card_data.get("active", false)):
+		status.text = "CURRENT LEG"
+		status.add_theme_color_override("font_color", Color(0.72, 0.94, 1.0))
+	else:
+		status.text = "PENDING"
+		status.add_theme_color_override("font_color", Color(0.72, 0.72, 0.78))
+	status.add_theme_font_size_override("font_size", 15)
+	column.add_child(status)
+
+	var summary := Label.new()
+	summary.text = String(card_data.get("summary", ""))
+	summary.add_theme_font_size_override("font_size", 14)
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(summary)
 	return panel
 
 

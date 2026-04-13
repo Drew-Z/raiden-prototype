@@ -14,6 +14,7 @@ const BossBreakEffectScript := preload("res://scripts/game/boss_break_effect.gd"
 const BgmControllerScript := preload("res://scripts/game/bgm_controller.gd")
 const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
+const StormStrikeScript := preload("res://scripts/game/storm_strike.gd")
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960))
 var player
@@ -23,6 +24,7 @@ var bullet_layer: Node2D
 var enemy_layer: Node2D
 var pickup_layer: Node2D
 var effects_layer: Node2D
+var hazard_layer: Node2D
 var waves: Array[Dictionary] = []
 var stage_events: Array[Dictionary] = []
 var boss_config: Dictionary = {}
@@ -87,7 +89,7 @@ func _ready() -> void:
 
 
 func _build_scene() -> void:
-	var starfield = StarfieldScript.new()
+	var starfield = StarfieldScript.new().configure(String(stage_meta.get("id", "stage_1")))
 	add_child(starfield)
 
 	world_layer = Node2D.new()
@@ -104,6 +106,10 @@ func _build_scene() -> void:
 	pickup_layer = Node2D.new()
 	pickup_layer.name = "PickupLayer"
 	world_layer.add_child(pickup_layer)
+
+	hazard_layer = Node2D.new()
+	hazard_layer.name = "HazardLayer"
+	world_layer.add_child(hazard_layer)
 
 	effects_layer = Node2D.new()
 	effects_layer.name = "EffectsLayer"
@@ -205,6 +211,8 @@ func _process_stage_events() -> void:
 					)
 			"pickup":
 				_spawn_pickup(event.position, event.pickup_type)
+			"storm_strike":
+				_trigger_storm_strike(event)
 		event_index += 1
 
 
@@ -217,6 +225,8 @@ func _get_banner_color(text: String) -> Color:
 		return Color(1.0, 0.86, 0.46)
 	if text.contains("CARRIER"):
 		return Color(0.96, 0.78, 0.48)
+	if text.contains("STORM"):
+		return Color(0.76, 0.92, 1.0)
 	return Color(0.82, 0.95, 1.0)
 
 
@@ -727,6 +737,30 @@ func _spawn_pickup(position_value: Vector2, kind: String = "power") -> void:
 	var pickup = PickupScript.new().configure(position_value, playfield_rect, kind)
 	pickup.collected.connect(_on_pickup_collected)
 	pickup_layer.call_deferred("add_child", pickup)
+
+
+func _trigger_storm_strike(event: Dictionary) -> void:
+	if String(stage_meta.get("id", "")) != "stage_2":
+		return
+	var lanes: Array = event.get("lanes", [])
+	if lanes.is_empty():
+		return
+	hud.show_event_card_temporarily(
+		String(event.get("title", "STORM STRIKE")),
+		String(event.get("detail", "Lane strike incoming. Read the telegraph and rotate early.")),
+		float(event.get("card_duration", 1.2)),
+		Color(0.82, 0.94, 1.0)
+	)
+	_queue_banner(String(event.get("banner", "STORM STRIKE")), 0.75, Color(0.82, 0.94, 1.0), false)
+	for lane_x in lanes:
+		var strike = StormStrikeScript.new().configure(float(lane_x), playfield_rect, float(event.get("telegraph", 0.92)), float(event.get("active", 0.42)))
+		strike.finished.connect(func() -> void:
+			if is_instance_valid(hud):
+				hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.05), 0.05)
+		)
+		hazard_layer.call_deferred("add_child", strike)
+	_play_sfx("boss_phase")
+	_show_flash(Color(0.76, 0.9, 1.0), 0.08, 0.06)
 
 
 func _on_pickup_collected(kind: String) -> void:
