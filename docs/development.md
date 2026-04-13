@@ -9,6 +9,7 @@
 ## 主要场景
 
 - `res://scenes/ui/MainMenu.tscn`
+- `res://scenes/ui/ChapterBriefing.tscn`
 - `res://scenes/game/Game.tscn`
 - `res://scenes/ui/ResultsScreen.tscn`
 
@@ -23,6 +24,7 @@
 - `res://scripts/entities/enemy.gd`
 - `res://scripts/entities/pickup.gd`
 - `res://scripts/ui/hud_v2.gd`
+- `res://scripts/ui/chapter_briefing.gd`
 - `res://scripts/ui/main_menu_stage2.gd`
 - `res://scripts/ui/results_screen_stage2.gd`
 
@@ -47,14 +49,15 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 ```cmd
 set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
-"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 9000 --log-file stage6_chapter.log -- --autoplay --chapter
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 10400 --log-file stage10_chapter.log -- --autoplay --chapter
 ```
 
 输出中会打印类似：
 
 ```text
-RUN_RESULT victory=true score=24585 kill_rate=94.03 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=2
-CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_fire=5
+RUN_RESULT victory=true score=23306 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=3
+RUN_RESULT victory=true score=26979 kill_rate=95.95 max_fire=5 route=Lv5 bombs_used=2 lives=3
+CHAPTER_RESULT victory=true total_score=50285 kill_rate=90.51 stages=2 highest_fire=5
 ```
 
 ## 当前验证结论
@@ -69,12 +72,14 @@ CHAPTER_RESULT victory=true total_score=47383 kill_rate=90.07 stages=2 highest_f
 - 通关后会触发 Boss 击破收束并进入结果页
 - 结果页会显示奖励拆分、成绩标签、章节交接与下一步建议
 - `Stage 01 -> Stage 02` 会正确继承生命、炸弹与火力，并在结果页承接下一关
+- `Stage 01 -> Results -> ChapterBriefing -> Stage 02` 这条链路已经可以完整跑通
 
 ## 当前结构说明
 
 - 第一阶段旧脚本仍保留在仓库中，便于对照，但当前主流程已切到 `stage2` 版本脚本
 - 当前战斗主流程已经从“写死单关”切到“由 `stage_catalog.gd` 选择关卡数据脚本”的结构
 - 当前战斗主流程已经支持 `Stage 01`、`Stage 02` 与 `Chapter Run` 三种入口
+- `Chapter Run` 现在带有独立的 `ChapterBriefing` 中场场景，不再是结果页直接跳入下一关
 - 第二关单独入口现在使用展示用中段装载，更接近章节第二段的真实体验
 - 战斗反馈相关模块目前拆在：
   - `res://scripts/game/bomb_effect.gd`

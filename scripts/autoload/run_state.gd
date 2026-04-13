@@ -3,6 +3,7 @@ extends Node
 const MENU_SCENE := "res://scenes/ui/MainMenu.tscn"
 const GAME_SCENE := "res://scenes/game/Game.tscn"
 const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
+const CHAPTER_BRIEFING_SCENE := "res://scenes/ui/ChapterBriefing.tscn"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
@@ -168,6 +169,10 @@ func start_next_chapter_stage() -> void:
 
 func show_results() -> void:
 	call_deferred("_change_scene", RESULTS_SCENE)
+
+
+func show_chapter_briefing() -> void:
+	call_deferred("_change_scene", CHAPTER_BRIEFING_SCENE)
 
 
 func go_to_menu() -> void:

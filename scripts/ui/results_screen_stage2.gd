@@ -9,7 +9,7 @@ func _ready() -> void:
 	if RunState.is_autoplay():
 		get_tree().create_timer(0.4).timeout.connect(func() -> void:
 			if RunState.is_chapter_transition_pending():
-				RunState.start_next_chapter_stage()
+				RunState.show_chapter_briefing()
 			else:
 				get_tree().quit()
 		)
@@ -17,7 +17,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not event.is_echo() and RunState.is_chapter_transition_pending():
-		RunState.start_next_chapter_stage()
+		RunState.show_chapter_briefing()
 	elif event.is_action_pressed("restart_game") and not event.is_echo():
 		if RunState.is_chapter_complete():
 			RunState.start_chapter()
@@ -249,7 +249,7 @@ func _build_ui() -> void:
 	_register_reveal(footer_box)
 
 	var footer := Label.new()
-	footer.text = "Enter Next Stage    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else ("R Retry Chapter    Esc Main Menu" if RunState.is_chapter_complete() else "R Retry    Esc Main Menu")
+	footer.text = "Enter Briefing    R Retry    Esc Main Menu" if RunState.is_chapter_transition_pending() else ("R Retry Chapter    Esc Main Menu" if RunState.is_chapter_complete() else "R Retry    Esc Main Menu")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_box.add_child(footer)
@@ -261,10 +261,10 @@ func _build_ui() -> void:
 
 	if RunState.is_chapter_transition_pending():
 		var next_button := Button.new()
-		next_button.text = "Next Stage"
+		next_button.text = "Briefing"
 		next_button.custom_minimum_size = Vector2(170, 52)
 		next_button.pressed.connect(func() -> void:
-			RunState.start_next_chapter_stage()
+			RunState.show_chapter_briefing()
 		)
 		button_row.add_child(next_button)
 
