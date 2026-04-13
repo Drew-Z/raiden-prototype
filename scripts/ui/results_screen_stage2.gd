@@ -66,14 +66,19 @@ func _build_ui() -> void:
 	column.add_child(tags)
 
 	var summary := Label.new()
-	summary.text = "Score: %06d\nKill Rate: %.0f%%\nMax Fire: Lv%d\nFire Route: %s" % [
-		RunState.current_run.score,
+	summary.text = "Final Score: %06d\nKill Rate: %.0f%%\nMax Fire: Lv%d\nFire Route: %s" % [
+		RunState.current_run.final_score,
 		RunState.get_kill_rate(),
 		RunState.current_run.max_fire_level,
 		RunState.get_fire_route_text()
 	]
 	summary.add_theme_font_size_override("font_size", 22)
 	column.add_child(summary)
+
+	var score_breakdown := Label.new()
+	score_breakdown.text = RunState.get_score_breakdown_text()
+	score_breakdown.add_theme_font_size_override("font_size", 18)
+	column.add_child(score_breakdown)
 
 	var detail := Label.new()
 	detail.text = "Bombs Used: %d    Bombs Picked: %d\nPower Pickups: %d    Lives Lost: %d\nBoss Defeated: %s    Run Time: %.1f sec" % [

@@ -30,15 +30,22 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, screen_size), Color(0.03, 0.05, 0.11), true)
+	draw_rect(Rect2(Vector2(0, 0), Vector2(screen_size.x, 160.0)), Color(0.08, 0.13, 0.2, 0.24), true)
+	draw_rect(Rect2(Vector2(0, screen_size.y - 220.0), Vector2(screen_size.x, 220.0)), Color(0.02, 0.08, 0.14, 0.28), true)
 
 	for lane in range(4):
 		var x := 40.0 + lane * ((screen_size.x - 80.0) / 3.0)
 		draw_line(Vector2(x, 0), Vector2(x, screen_size.y), Color(0.1, 0.16, 0.25, 0.55), 2.0)
+		draw_line(Vector2(x + 8.0, 0), Vector2(x + 8.0, screen_size.y), Color(0.16, 0.26, 0.36, 0.16), 1.0)
 
 	var stripe_color := Color(0.07, 0.2, 0.29, 0.42)
 	for stripe in range(14):
 		var top := fmod(stripe * 80.0 + scroll, screen_size.y + 80.0) - 80.0
 		draw_rect(Rect2(Vector2(0, top), Vector2(screen_size.x, 34)), stripe_color, true)
+
+	for band in range(3):
+		var band_top := fmod(band * 220.0 + scroll * 0.45, screen_size.y + 180.0) - 180.0
+		draw_rect(Rect2(Vector2(0, band_top), Vector2(screen_size.x, 90.0)), Color(0.05, 0.16, 0.24, 0.1), true)
 
 	for star in stars:
 		draw_circle(star.position, star.size, Color(0.86, 0.95, 1.0, 0.88))

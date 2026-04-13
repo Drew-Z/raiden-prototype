@@ -48,6 +48,12 @@ func _register_keys(action_name: String, keycodes: Array[int]) -> void:
 func reset_run() -> void:
 	current_run = {
 		"score": 0,
+		"score_before_bonus": 0,
+		"final_score": 0,
+		"clear_bonus": 0,
+		"survival_bonus": 0,
+		"bomb_stock_bonus": 0,
+		"efficiency_bonus": 0,
 		"enemies_spawned": 0,
 		"enemies_destroyed": 0,
 		"fire_level": 1,
@@ -122,9 +128,12 @@ func update_player_state(lives: int, bombs: int, fire_level: int) -> void:
 func finish_run(victory: bool, duration_sec: float) -> void:
 	current_run.victory = victory
 	current_run.duration_sec = duration_sec
+	current_run.score_before_bonus = current_run.score
+	_apply_end_bonuses()
+	current_run.final_score = current_run.score
 	print("RUN_RESULT victory=%s score=%d kill_rate=%.2f max_fire=%d route=%s bombs_used=%d lives=%d" % [
 		str(victory),
-		int(current_run.score),
+		int(current_run.final_score),
 		get_kill_rate(),
 		int(current_run.max_fire_level),
 		get_fire_route_text(),
@@ -132,6 +141,32 @@ func finish_run(victory: bool, duration_sec: float) -> void:
 		int(current_run.player_lives)
 	])
 	show_results()
+
+
+func _apply_end_bonuses() -> void:
+	current_run.clear_bonus = 0
+	current_run.survival_bonus = 0
+	current_run.bomb_stock_bonus = 0
+	current_run.efficiency_bonus = 0
+	if not current_run.victory:
+		return
+
+	current_run.clear_bonus = 2000
+	current_run.survival_bonus = int(current_run.player_lives) * 500
+	current_run.bomb_stock_bonus = int(current_run.player_bombs) * 250
+
+	var kill_rate := get_kill_rate()
+	if kill_rate >= 90.0:
+		current_run.efficiency_bonus = 1200
+	elif kill_rate >= 80.0:
+		current_run.efficiency_bonus = 800
+	elif kill_rate >= 70.0:
+		current_run.efficiency_bonus = 400
+
+	current_run.score += current_run.clear_bonus
+	current_run.score += current_run.survival_bonus
+	current_run.score += current_run.bomb_stock_bonus
+	current_run.score += current_run.efficiency_bonus
 
 
 func _change_scene(scene_path: String) -> void:
@@ -192,6 +227,19 @@ func get_result_flavor() -> String:
 	if current_run.max_fire_level >= 4:
 		return "Good growth, but the late pressure still broke the run."
 	return "Early survival is stable, but growth and routing need work."
+
+
+func get_score_breakdown_text() -> String:
+	if not current_run.victory:
+		return "Battle Score: %06d" % int(current_run.final_score)
+	return "Battle: %06d\nClear Bonus: %04d\nSurvival Bonus: %04d\nBomb Stock Bonus: %04d\nEfficiency Bonus: %04d\nFinal Score: %06d" % [
+		int(current_run.score_before_bonus),
+		int(current_run.clear_bonus),
+		int(current_run.survival_bonus),
+		int(current_run.bomb_stock_bonus),
+		int(current_run.efficiency_bonus),
+		int(current_run.final_score)
+	]
 
 
 func get_result_tags() -> Array[String]:

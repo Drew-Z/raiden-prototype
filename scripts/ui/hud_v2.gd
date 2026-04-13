@@ -10,9 +10,11 @@ var hull_label: Label
 var fire_label: Label
 var bomb_label: Label
 var bomb_hint_label: Label
+var status_label: Label
 var stage_label: Label
 var banner_label: Label
 var fire_bar: ProgressBar
+var stage_bar: ProgressBar
 var boss_panel: PanelContainer
 var boss_name_label: Label
 var boss_phase_label: Label
@@ -64,6 +66,14 @@ func _build_status_panel() -> void:
 	score_label.add_theme_font_size_override("font_size", 28)
 	left_column.add_child(score_label)
 
+	stage_bar = ProgressBar.new()
+	stage_bar.min_value = 0.0
+	stage_bar.max_value = 1.0
+	stage_bar.value = 0.0
+	stage_bar.show_percentage = false
+	stage_bar.custom_minimum_size = Vector2(0.0, 10.0)
+	left_column.add_child(stage_bar)
+
 	var right_column := VBoxContainer.new()
 	right_column.custom_minimum_size = Vector2(180.0, 0.0)
 	right_column.add_theme_constant_override("separation", 6)
@@ -73,6 +83,7 @@ func _build_status_panel() -> void:
 	fire_label = _make_label("FIRE Lv1 / 5")
 	bomb_label = _make_label("BOMBS 2 / 4 [**--]")
 	bomb_hint_label = _make_label("READY TO BOMB")
+	status_label = _make_label("BUILD FIREPOWER")
 	fire_bar = ProgressBar.new()
 	fire_bar.min_value = 1.0
 	fire_bar.max_value = 5.0
@@ -85,6 +96,7 @@ func _build_status_panel() -> void:
 	right_column.add_child(fire_bar)
 	right_column.add_child(bomb_label)
 	right_column.add_child(bomb_hint_label)
+	right_column.add_child(status_label)
 
 
 func _build_boss_panel() -> void:
@@ -232,6 +244,7 @@ func update_player(lives: int, fire_level: int, bombs: int, score: int) -> void:
 	bomb_hint_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.34) if bombs > 0 else Color(0.72, 0.72, 0.72))
 	fire_label.add_theme_color_override("font_color", Color(0.5, 0.92, 1.0) if fire_level >= 4 else Color(1.0, 1.0, 1.0))
 	hull_label.add_theme_color_override("font_color", Color(1.0, 0.54, 0.46) if lives <= 1 else Color(1.0, 1.0, 1.0))
+	stage_bar.modulate = Color(1.0, 0.78, 0.38) if fire_level >= 4 else Color(0.55, 0.84, 1.0)
 
 
 func _build_bomb_string(bombs: int) -> String:
@@ -243,6 +256,15 @@ func _build_bomb_string(bombs: int) -> String:
 
 func set_stage_text(text: String) -> void:
 	stage_label.text = text
+
+
+func set_stage_progress(ratio: float) -> void:
+	stage_bar.value = clampf(ratio, 0.0, 1.0)
+
+
+func set_status_hint(text: String, color: Color = Color(0.88, 0.94, 1.0)) -> void:
+	status_label.text = text
+	status_label.add_theme_color_override("font_color", color)
 
 
 func show_banner(text: String, color: Color = Color(1.0, 1.0, 1.0)) -> void:
@@ -260,6 +282,7 @@ func set_boss_info(name: String, ratio: float, phase_text: String = "") -> void:
 	boss_name_label.text = name
 	boss_phase_label.text = phase_text
 	boss_bar.value = clamp(ratio, 0.0, 1.0)
+	boss_bar.modulate = Color(1.0, 0.56, 0.34) if ratio <= 0.33 else Color(1.0, 0.74, 0.4)
 
 
 func hide_boss() -> void:

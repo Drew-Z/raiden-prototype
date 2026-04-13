@@ -1,27 +1,27 @@
 # Raiden Prototype
 
-一个基于 Godot 4.6.1 的纵版射击最小可玩原型，用来验证第一阶段的核心玩法闭环是否成立。
+一个基于 Godot 4.6.1 的纵版射击展示原型，用来验证并演示单关短局的节奏、成长、资源决策和 Boss 收束是否成立。
 
 ## 当前阶段目标
 
-- 验证纵版卷轴战斗的阅读性与短局节奏
-- 验证敌群编排是否能支撑从开局到 Boss 的压力曲线
-- 验证火力升级是否带来明确成长反馈
-- 验证炸弹资源是否能在高压时刻形成有效逆转
-- 验证一局结束后的结果页总结是否足够支撑复盘
+- 把短局原型推进成更适合展示的街机射击案例
+- 强化战斗可读性、阶段提示和 Boss 段落完成感
+- 强化火力成长、炸弹决策和一局结束后的总结反馈
+- 保持单关短流程，但让开始、战斗、结算更完整
 
 ## 当前可玩内容
 
 - 主菜单与开始游戏
 - 纵向卷轴战斗场景
 - 玩家移动、持续自动射击、受伤、死亡
-- 多波敌群编队进入
+- 多波敌群编队进入，包含点射压位机、切线突进机与补给载具
 - 敌人概率掉落火力升级道具
 - 玩家拾取升级并提升火力等级
 - 炸弹资源与主动清屏
-- 一个小型 Boss 段落
-- HUD 显示生命、火力、炸弹、分数与 Boss 血条
-- 死亡或通关后的结果页
+- 一个带阶段变化的小型 Boss 段落
+- HUD 显示生命、火力、炸弹、分数、阶段进度、战场建议与 Boss 血条
+- 死亡或通关后的结果页，含成绩标签和奖励拆分
+- 暂停、重开、返回主菜单与上一局结果回显
 
 ## 操作说明
 
@@ -35,23 +35,29 @@
 2. 在短时间内连续应对数波不同编队的杂兵。
 3. 通过击破敌人争取火力升级，逐步从单发成长到多发。
 4. 在高压时刻使用炸弹清弹并处理压场敌群。
-5. 进入 Boss 段落，完成击破或失败结算。
-6. 在结果页查看分数、击破率、最高火力与本局火力路线。
+5. 进入 Boss 段落，在阶段变化和炸弹窗口中完成压制。
+6. 击破 Boss 后进入短促收束演出，再进入结果页查看奖励拆分与本局总结。
+
+## 当前版本定位
+
+- 当前状态：单关展示原型，已完成完整短局闭环
+- 开发阶段：已完成“最小可玩验证”，正在向“垂直切片早期”推进
+- 当前重点：继续补强爽感、视听反馈和可展示包装
 
 ## 运行方式
 
 如果本机 Godot 位于 `D:\Development\Godot`，可直接在项目根目录运行：
 
-```powershell
-& 'D:\Development\Godot\Godot_v4.6.1-stable_win64.exe' --path 'D:\workspace4Codex\raiden prototype'
+```bash
+"D:/Development/Godot/Godot_v4.6.1-stable_win64.exe" --path "D:/workspace4Codex/raiden prototype"
 ```
 
 Headless 验证示例：
 
-```powershell
-$env:APPDATA='D:\workspace4Codex\raiden prototype\.godot-user'
-$env:LOCALAPPDATA='D:\workspace4Codex\raiden prototype\.godot-user'
-& 'D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe' --headless --path 'D:\workspace4Codex\raiden prototype' --fixed-fps 60 --quit-after 3600 -- --autoplay
+```cmd
+set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
+set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 4200 -- --autoplay
 ```
 
 ## 目录结构
@@ -68,4 +74,4 @@ $env:LOCALAPPDATA='D:\workspace4Codex\raiden prototype\.godot-user'
 
 - [第一阶段设计文档](D:/workspace4Codex/raiden prototype/docs/phase-1-design.md)
 - [开发与验证说明](D:/workspace4Codex/raiden prototype/docs/development.md)
-
+- [当前进度记录](D:/workspace4Codex/raiden prototype/docs/progress.md)

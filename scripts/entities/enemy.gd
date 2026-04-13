@@ -41,6 +41,7 @@ var enemy_role := "standard"
 var acceleration := Vector2.ZERO
 var dash_delay := 0.0
 var impact_flash_timer := 0.0
+var telegraph_window := 0.34
 
 
 func _init() -> void:
@@ -281,6 +282,8 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2(58, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
 		draw_rect(Rect2(Vector2(-38, 18), Vector2(76, 20)), Color(0.42, 0.12, 0.12, 0.94), true)
 		draw_circle(Vector2.ZERO, 14.0 + impact_flash_timer * 16.0, Color(1.0, 0.88, 0.5, core_alpha))
+		if fire_timer <= 0.36:
+			_draw_boss_telegraph(ratio)
 	else:
 		match enemy_role:
 			"sniper":
@@ -294,6 +297,8 @@ func _draw() -> void:
 				])
 				draw_colored_polygon(sniper_points, base_tint.lightened(impact_flash_timer * 0.8))
 				draw_rect(Rect2(Vector2(-4, -22), Vector2(8, 16)), Color(1.0, 0.86, 0.5), true)
+				if fire_timer <= telegraph_window:
+					_draw_target_telegraph(Color(1.0, 0.86, 0.48, 0.55), 1.8)
 			"burst":
 				var burst_points := PackedVector2Array([
 					Vector2(0, -22),
@@ -303,6 +308,8 @@ func _draw() -> void:
 				])
 				draw_colored_polygon(burst_points, base_tint.lightened(impact_flash_timer * 0.8))
 				draw_circle(Vector2(0, -2), 5.5, Color(1.0, 0.78, 0.46))
+				if fire_timer <= telegraph_window:
+					draw_arc(Vector2.ZERO, 25.0, PI * 0.28, PI * 0.72, 10, Color(1.0, 0.62, 0.42, 0.48), 2.0)
 			"sweeper":
 				var sweeper_points := PackedVector2Array([
 					Vector2(0, -16),
@@ -313,6 +320,8 @@ func _draw() -> void:
 				])
 				draw_colored_polygon(sweeper_points, base_tint.lightened(impact_flash_timer * 0.8))
 				draw_rect(Rect2(Vector2(-18, 2), Vector2(36, 6)), Color(1.0, 0.74, 0.38), true)
+				if movement_pattern == "dash" and elapsed >= dash_delay * 0.6 and elapsed < dash_delay + 0.22:
+					draw_line(Vector2(0, 18), Vector2(0, 42), Color(1.0, 0.68, 0.3, 0.4), 4.0)
 			_:
 				var points := PackedVector2Array([
 					Vector2(0, -18),
@@ -322,3 +331,22 @@ func _draw() -> void:
 				])
 				draw_colored_polygon(points, base_tint.lightened(impact_flash_timer * 0.8))
 				draw_circle(Vector2.ZERO, 5.0, Color(1.0, 0.9, 0.62))
+
+
+func _draw_target_telegraph(color: Color, width: float) -> void:
+	var direction := _get_player_direction()
+	var end_point := direction * 78.0
+	draw_line(Vector2.ZERO, end_point, color, width)
+	draw_circle(end_point, 4.0, Color(color.r, color.g, color.b, min(0.9, color.a + 0.2)))
+
+
+func _draw_boss_telegraph(ratio: float) -> void:
+	var telegraph_alpha: float = 0.28 + (telegraph_window - min(fire_timer, telegraph_window)) * 0.75
+	var left_origin := Vector2(-44.0, 24.0)
+	var right_origin := Vector2(44.0, 24.0)
+	draw_arc(Vector2.ZERO, 72.0, PI * 0.18, PI * 0.82, 20, Color(1.0, 0.64, 0.42, telegraph_alpha), 3.0)
+	if ratio <= 0.66:
+		var side_origins: Array[Vector2] = [left_origin, right_origin]
+		for side_origin in side_origins:
+			var direction: Vector2 = (_get_player_direction() + Vector2(side_origin.x * 0.0025, 0.0)).normalized()
+			draw_line(side_origin, side_origin + direction * 110.0, Color(1.0, 0.84, 0.56, telegraph_alpha + 0.08), 2.0)

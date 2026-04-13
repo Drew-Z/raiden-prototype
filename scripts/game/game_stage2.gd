@@ -76,6 +76,8 @@ func _build_scene() -> void:
 	hud.menu_requested.connect(_return_to_menu)
 	add_child(hud)
 	hud.set_stage_text("SCRAMBLE")
+	hud.set_stage_progress(0.0)
+	hud.set_status_hint("BUILD FIREPOWER", Color(0.82, 0.94, 1.0))
 	hud.update_player(3, 1, 2, RunState.current_run.score)
 
 	player = PlayerScript.new().configure(playfield_rect, RunState.is_autoplay())
@@ -112,6 +114,7 @@ func _process(delta: float) -> void:
 		_spawn_boss()
 
 	_update_boss_state()
+	_update_hud_status()
 	hud.update_player(player.lives, player.fire_level, player.bomb_count, RunState.current_run.score)
 
 
@@ -316,6 +319,7 @@ func _spawn_boss() -> void:
 	RunState.register_enemy_spawn()
 	boss_phase_seen = 1
 	hud.set_stage_text("BOSS ENGAGE")
+	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
 	_show_flash(Color(1.0, 0.76, 0.38), 0.32, 0.18)
 	_start_shake(8.0, 0.35)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
@@ -334,6 +338,46 @@ func _update_boss_state() -> void:
 		_handle_boss_phase_shift(phase_index)
 
 	hud.set_boss_info(active_boss.boss_name, ratio, "PHASE %d" % phase_index)
+
+
+func _update_hud_status() -> void:
+	if not is_instance_valid(hud) or not is_instance_valid(player):
+		return
+
+	var progress_ratio := 1.0 if boss_spawned else clampf(stage_time / boss_config.time, 0.0, 1.0)
+	hud.set_stage_progress(progress_ratio)
+
+	var enemy_bullet_count := get_tree().get_nodes_in_group("enemy_projectiles").size()
+	var hint_text := "BUILD FIREPOWER"
+	var hint_color := Color(0.82, 0.94, 1.0)
+
+	if player.lives <= 1:
+		hint_text = "CRITICAL HULL"
+		hint_color = Color(1.0, 0.56, 0.46)
+	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 5.5):
+		hint_text = "NO BOMB BUFFER"
+		hint_color = Color(1.0, 0.7, 0.42)
+	elif player.bomb_count > 0 and enemy_bullet_count >= (10 if boss_spawned else 14):
+		hint_text = "BOMB WINDOW OPEN"
+		hint_color = Color(1.0, 0.76, 0.34)
+	elif boss_spawned:
+		if boss_phase_seen == 3:
+			hint_text = "FINAL PHASE PRESSURE"
+			hint_color = Color(1.0, 0.62, 0.38)
+		else:
+			hint_text = "BREAK THE CORE"
+			hint_color = Color(1.0, 0.82, 0.48)
+	elif stage_time >= boss_config.time - 4.0:
+		hint_text = "APPROACHING BOSS"
+		hint_color = Color(1.0, 0.82, 0.48)
+	elif player.fire_level < 3 and stage_time < 18.0:
+		hint_text = "BUILD FIREPOWER"
+		hint_color = Color(0.82, 0.94, 1.0)
+	elif stage_time >= 18.0:
+		hint_text = "HOLD FORMATION SPACE"
+		hint_color = Color(0.92, 0.9, 1.0)
+
+	hud.set_status_hint(hint_text, hint_color)
 
 
 func _get_boss_phase(ratio: float) -> int:
@@ -439,8 +483,9 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 
 	if enemy == active_boss:
 		active_boss = null
+		hud.set_status_hint("SORTIE COMPLETE", Color(1.0, 0.94, 0.58))
 		_queue_banner("STAGE CLEAR", 1.1, Color(1.0, 0.95, 0.56), false)
-		_finish_after_delay(true, 1.4)
+		_play_boss_finish_sequence()
 
 
 func _on_enemy_escaped(enemy) -> void:
@@ -528,6 +573,35 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_show_flash(label_color, 0.22, 0.12)
 	_start_shake(10.0 if phase_index == 3 else 7.0, 0.24)
 	_queue_banner(label_text, 0.85, label_color, false)
+	hud.set_status_hint(label_text, label_color)
+
+
+func _play_boss_finish_sequence() -> void:
+	_start_shake(18.0, 0.55)
+	_show_flash(Color(1.0, 0.9, 0.6), 0.24, 0.2)
+	var finish_center := Vector2(playfield_rect.size.x * 0.5, 174.0)
+	var explosion_offsets := [
+		Vector2(-34.0, -18.0),
+		Vector2(36.0, -10.0),
+		Vector2(-12.0, 20.0),
+		Vector2(18.0, 12.0),
+		Vector2(0.0, -30.0),
+		Vector2(0.0, 0.0)
+	]
+	for index in range(explosion_offsets.size()):
+		var delay: float = 0.08 * float(index)
+		var spawn_offset: Vector2 = explosion_offsets[index]
+		var spawn_scale: float = 1.15 + float(index) * 0.1
+		var shake_value: float = 10.0 + float(index)
+		get_tree().create_timer(delay).timeout.connect(func() -> void:
+			if is_instance_valid(effects_layer):
+				_spawn_explosion(finish_center + spawn_offset, spawn_scale, true)
+				_start_shake(shake_value, 0.14)
+		)
+	get_tree().create_timer(0.22).timeout.connect(func() -> void:
+		_queue_banner("CLEAR BONUS", 0.8, Color(1.0, 0.86, 0.46), false)
+	)
+	_finish_after_delay(true, 1.9)
 
 
 func _clear_enemy_projectiles() -> int:
