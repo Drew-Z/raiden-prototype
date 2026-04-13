@@ -34,6 +34,8 @@ var last_bomb_count := 2
 var boss_phase_seen := 1
 var shake_timer := 0.0
 var shake_strength := 0.0
+var time_stop_timer := 0.0
+var time_stop_scale := 1.0
 
 
 func _ready() -> void:
@@ -103,11 +105,15 @@ func _setup_stage() -> void:
 
 
 func _process(delta: float) -> void:
+	var scaled_delta := delta
+	if time_stop_timer > 0.0:
+		time_stop_timer = max(time_stop_timer - delta, 0.0)
+		scaled_delta *= time_stop_scale
 	_update_screen_shake(delta)
 	if run_finished or get_tree().paused:
 		return
 
-	stage_time += delta
+	stage_time += scaled_delta
 	_process_stage_events()
 	_spawn_due_waves()
 
@@ -416,7 +422,9 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 	effects_layer.call_deferred("add_child", effect)
 	_spawn_explosion(center, 1.8, false)
 	_show_flash(Color(0.8, 0.95, 1.0), 0.38, 0.16)
+	hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.16), 0.08)
 	_start_shake(14.0, 0.24)
+	_trigger_hit_stop(0.045, 0.08)
 
 	var label_text := "BOMB DETONATION"
 	if cleared_bullets > 0:
@@ -428,6 +436,7 @@ func _on_player_died() -> void:
 	_spawn_explosion(player.position, 1.3, false)
 	_start_shake(12.0, 0.28)
 	_show_flash(Color(1.0, 0.4, 0.36), 0.28, 0.18)
+	hud.pulse_screen(Color(1.0, 0.42, 0.36, 0.18), 0.12)
 	_queue_banner("MISSION FAILED", 0.9, Color(1.0, 0.55, 0.42), false)
 	_finish_after_delay(false, 1.2)
 
@@ -452,10 +461,12 @@ func _on_player_stats_changed(lives: int, bombs: int, fire_level: int) -> void:
 
 	if fire_gained:
 		_show_flash(Color(0.56, 0.94, 1.0), 0.16, 0.08)
+		hud.pulse_screen(Color(0.56, 0.94, 1.0, 0.1), 0.08)
 		_spawn_explosion(player.position + Vector2(0.0, -12.0), 0.8 + fire_level * 0.05, false)
 		_queue_banner("FIRE LEVEL %d" % fire_level, 0.55, Color(0.56, 0.94, 1.0), false)
 	elif bombs_gained:
 		_show_flash(Color(1.0, 0.7, 0.34), 0.14, 0.08)
+		hud.pulse_screen(Color(1.0, 0.74, 0.36, 0.1), 0.08)
 		_queue_banner("BOMB STOCK +1", 0.55, Color(1.0, 0.66, 0.38), false)
 
 
@@ -467,6 +478,8 @@ func _on_enemy_damaged(enemy, amount: int, remaining_health: int) -> void:
 		scale += 0.2
 	var color := Color(1.0, 0.8, 0.54, 0.95) if enemy.is_boss else Color(1.0, 0.72, 0.48, 0.92)
 	_spawn_impact(enemy.position, scale, color)
+	if enemy.is_boss and amount >= 18:
+		_trigger_hit_stop(0.024, 0.18)
 
 
 func _on_enemy_destroyed(enemy, by_player: bool) -> void:
@@ -475,8 +488,11 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 		_clear_enemy_projectiles()
 		_start_shake(16.0, 0.35)
 		_show_flash(Color(1.0, 0.88, 0.52), 0.26, 0.18)
+		hud.pulse_screen(Color(1.0, 0.9, 0.56, 0.14), 0.12)
+		_trigger_hit_stop(0.08, 0.05)
 	else:
 		_start_shake(4.0, 0.08)
+		_trigger_hit_stop(0.018, 0.3)
 
 	if by_player:
 		RunState.register_enemy_destroyed(enemy.score_value, enemy.is_boss)
@@ -582,6 +598,7 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_start_shake(10.0 if phase_index == 3 else 7.0, 0.24)
 	_queue_banner(label_text, 0.85, label_color, false)
 	hud.set_status_hint(label_text, label_color)
+	hud.pulse_screen(Color(label_color.r, label_color.g, label_color.b, 0.14), 0.08)
 
 
 func _play_boss_finish_sequence() -> void:
@@ -656,6 +673,11 @@ func _show_flash(color: Color, alpha: float, duration: float) -> void:
 func _start_shake(strength: float, duration: float) -> void:
 	shake_strength = max(shake_strength, strength)
 	shake_timer = max(shake_timer, duration)
+
+
+func _trigger_hit_stop(duration: float, scale: float) -> void:
+	time_stop_timer = max(time_stop_timer, duration)
+	time_stop_scale = clampf(scale, 0.01, 1.0)
 
 
 func _update_screen_shake(delta: float) -> void:

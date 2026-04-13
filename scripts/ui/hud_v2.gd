@@ -20,6 +20,7 @@ var boss_name_label: Label
 var boss_phase_label: Label
 var boss_bar: ProgressBar
 var pause_panel: PanelContainer
+var pulse_overlay: ColorRect
 
 
 func _ready() -> void:
@@ -27,6 +28,7 @@ func _ready() -> void:
 	_build_status_panel()
 	_build_boss_panel()
 	_build_banner()
+	_build_pulse_overlay()
 	_build_pause_panel()
 	_build_hint_label()
 
@@ -151,6 +153,13 @@ func _build_banner() -> void:
 	banner_label.add_theme_font_size_override("font_size", 28)
 	banner_label.visible = false
 	add_child(banner_label)
+
+
+func _build_pulse_overlay() -> void:
+	pulse_overlay = ColorRect.new()
+	pulse_overlay.visible = false
+	pulse_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(pulse_overlay)
 
 
 func _build_pause_panel() -> void:
@@ -283,6 +292,17 @@ func set_boss_info(name: String, ratio: float, phase_text: String = "") -> void:
 	boss_phase_label.text = phase_text
 	boss_bar.value = clamp(ratio, 0.0, 1.0)
 	boss_bar.modulate = Color(1.0, 0.56, 0.34) if ratio <= 0.33 else Color(1.0, 0.74, 0.4)
+
+
+func pulse_screen(color: Color, duration: float = 0.08) -> void:
+	if not is_instance_valid(pulse_overlay):
+		return
+	pulse_overlay.color = color
+	pulse_overlay.visible = true
+	get_tree().create_timer(duration).timeout.connect(func() -> void:
+		if is_instance_valid(pulse_overlay):
+			pulse_overlay.visible = false
+	)
 
 
 func hide_boss() -> void:

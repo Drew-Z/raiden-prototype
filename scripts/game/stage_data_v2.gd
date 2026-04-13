@@ -190,6 +190,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 	return [
 		{"time": 0.6, "type": "banner", "text": "OPENING SWEEP", "duration": 1.4},
+		{"time": 4.8, "type": "banner", "text": "KEEP FIRE ROUTE", "duration": 0.8},
 		{"time": 9.3, "type": "banner", "text": "MID ASSAULT", "duration": 1.2},
 		{"time": 14.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -28.0)},
 		{"time": 14.8, "type": "banner", "text": "WEAPON CAPSULE", "duration": 0.9},
