@@ -46,6 +46,9 @@ var hold_y := 180.0
 var hold_duration := 1.4
 var hover_amplitude := 18.0
 var release_speed := 170.0
+var core_exposed_timer := 0.0
+var core_exposed_duration := 2.2
+var core_damage_multiplier := 1.65
 
 
 func _init() -> void:
@@ -100,6 +103,8 @@ func configure(config: Dictionary):
 	hold_duration = config.get("hold_duration", 1.4)
 	hover_amplitude = config.get("hover_amplitude", 18.0)
 	release_speed = config.get("release_speed", 170.0)
+	core_exposed_duration = config.get("core_exposed_duration", 2.2)
+	core_damage_multiplier = config.get("core_damage_multiplier", 1.65)
 	return self
 
 
@@ -110,6 +115,7 @@ func _physics_process(delta: float) -> void:
 	elapsed += delta
 	fire_timer -= delta
 	impact_flash_timer = max(impact_flash_timer - delta, 0.0)
+	core_exposed_timer = max(core_exposed_timer - delta, 0.0)
 
 	match movement_pattern:
 		"straight":
@@ -285,12 +291,26 @@ func _get_fire_delay() -> float:
 	return max(0.5, fire_interval - 0.28)
 
 
+func expose_core(duration: float = -1.0) -> void:
+	var open_time := core_exposed_duration if duration <= 0.0 else duration
+	core_exposed_timer = max(core_exposed_timer, open_time)
+	fire_timer = max(fire_timer, 0.4)
+	queue_redraw()
+
+
+func is_core_exposed() -> bool:
+	return core_exposed_timer > 0.0
+
+
 func apply_damage(amount: int, by_player: bool = true) -> void:
 	if not alive:
 		return
-	health -= amount
-	impact_flash_timer = 0.12
-	damaged.emit(self, amount, max(0, health))
+	var applied_amount := amount
+	if is_boss and by_player and is_core_exposed():
+		applied_amount = maxi(1, int(round(float(amount) * core_damage_multiplier)))
+	health -= applied_amount
+	impact_flash_timer = 0.18 if is_boss and is_core_exposed() else 0.12
+	damaged.emit(self, applied_amount, max(0, health))
 	if health <= 0:
 		alive = false
 		destroyed.emit(self, by_player)
@@ -306,14 +326,21 @@ func _on_area_entered(area: Area2D) -> void:
 func _draw() -> void:
 	if is_boss:
 		var ratio := float(health) / float(max_health)
-		var core_alpha := 0.72 + (1.0 - ratio) * 0.18 + impact_flash_timer * 1.2
+		var exposed_alpha := clampf(core_exposed_timer / max(core_exposed_duration, 0.01), 0.0, 1.0)
+		var core_alpha := 0.72 + (1.0 - ratio) * 0.18 + impact_flash_timer * 1.2 + exposed_alpha * 0.22
 		draw_circle(Vector2.ZERO, 50.0, Color(0.24, 0.1, 0.1, 0.96))
 		draw_rect(Rect2(Vector2(-58, -30), Vector2(116, 60)), base_tint.lightened(impact_flash_timer * 0.8), true)
 		draw_rect(Rect2(Vector2(-28, -54), Vector2(56, 26)), Color(1.0, 0.78, 0.3, 0.95), true)
 		draw_rect(Rect2(Vector2(-86, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
 		draw_rect(Rect2(Vector2(58, -18), Vector2(28, 36)), Color(0.65, 0.12, 0.12, 0.95), true)
 		draw_rect(Rect2(Vector2(-38, 18), Vector2(76, 20)), Color(0.42, 0.12, 0.12, 0.94), true)
-		draw_circle(Vector2.ZERO, 14.0 + impact_flash_timer * 16.0, Color(1.0, 0.88, 0.5, core_alpha))
+		if is_core_exposed():
+			draw_arc(Vector2.ZERO, 24.0 + exposed_alpha * 6.0, 0.0, TAU, 32, Color(1.0, 0.92, 0.64, 0.48 + exposed_alpha * 0.26), 3.0)
+			draw_line(Vector2(-30.0, -8.0), Vector2(-16.0, -2.0), Color(1.0, 0.82, 0.46, 0.72), 2.0)
+			draw_line(Vector2(-30.0, 8.0), Vector2(-16.0, 2.0), Color(1.0, 0.82, 0.46, 0.72), 2.0)
+			draw_line(Vector2(30.0, -8.0), Vector2(16.0, -2.0), Color(1.0, 0.82, 0.46, 0.72), 2.0)
+			draw_line(Vector2(30.0, 8.0), Vector2(16.0, 2.0), Color(1.0, 0.82, 0.46, 0.72), 2.0)
+		draw_circle(Vector2.ZERO, 14.0 + impact_flash_timer * 16.0 + exposed_alpha * 4.0, Color(1.0, 0.88, 0.5, core_alpha))
 		if fire_timer <= 0.36:
 			_draw_boss_telegraph(ratio)
 	else:

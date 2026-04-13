@@ -68,6 +68,7 @@ RUN_RESULT victory=true score=16070 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 
   - `res://scripts/game/score_popup.gd`
   - `res://scripts/game/sfx_controller.gd`
 - 当前有一套程序生成的占位音效，正常游玩会启用；`headless` 自动验证中会跳过音效节点，以保证日志更干净
+- Boss 现在带有相位切换后的“核心暴露”短窗口，相关状态仍集中在 `enemy.gd` 与 `game_stage2.gd`，便于后续继续扩展弱点或破甲机制
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
 ## 提交建议

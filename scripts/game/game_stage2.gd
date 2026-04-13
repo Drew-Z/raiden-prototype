@@ -371,7 +371,10 @@ func _update_boss_state() -> void:
 		boss_phase_seen = phase_index
 		_handle_boss_phase_shift(phase_index)
 
-	hud.set_boss_info(active_boss.boss_name, ratio, "PHASE %d" % phase_index)
+	var phase_text := "PHASE %d" % phase_index
+	if active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
+		phase_text += " // CORE OPEN"
+	hud.set_boss_info(active_boss.boss_name, ratio, phase_text)
 
 
 func _update_hud_status() -> void:
@@ -395,7 +398,10 @@ func _update_hud_status() -> void:
 		hint_text = "BOMB WINDOW OPEN"
 		hint_color = Color(1.0, 0.76, 0.34)
 	elif boss_spawned:
-		if boss_phase_seen == 3:
+		if active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
+			hint_text = "CORE EXPOSED // PUSH DAMAGE"
+			hint_color = Color(1.0, 0.88, 0.52)
+		elif boss_phase_seen == 3:
 			hint_text = "FINAL PHASE PRESSURE"
 			hint_color = Color(1.0, 0.62, 0.38)
 		else:
@@ -622,13 +628,16 @@ func _finish_after_delay(victory: bool, delay: float) -> void:
 func _handle_boss_phase_shift(phase_index: int) -> void:
 	if not is_instance_valid(active_boss):
 		return
+	var exposure_duration := 2.0 if phase_index == 3 else 2.4
+	if active_boss.has_method("expose_core"):
+		active_boss.expose_core(exposure_duration)
 	var cleared_bullets := _clear_enemy_projectiles()
 	if cleared_bullets > 0:
 		RunState.add_score(cleared_bullets * 6)
 	var label_text := "CORE OPEN"
 	var label_color := Color(1.0, 0.78, 0.46)
 	if phase_index == 3:
-		label_text = "FINAL OVERDRIVE"
+		label_text = "FINAL CORE OPEN"
 		label_color = Color(1.0, 0.58, 0.34)
 	var shockwave = BombEffectScript.new().configure(260.0, 0.28, label_color, Color(1.0, 0.92, 0.62))
 	shockwave.position = active_boss.position
