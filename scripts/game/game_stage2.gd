@@ -307,6 +307,26 @@ func _spawn_wave(wave: Dictionary) -> void:
 				"role": "burst",
 				"tint": Color(1.0, 0.74, 0.28)
 			})
+		"anchor_column":
+			for index in range(wave.count):
+				_spawn_enemy({
+					"position": Vector2(wave.start_x + index * wave.gap, -72.0 - index * 34.0),
+					"velocity": Vector2(0.0, wave.velocity_y),
+					"pattern": "hold",
+					"health": wave.health,
+					"fire_interval": wave.fire_interval + index * 0.08,
+					"drop_chance": wave.drop_chance,
+					"screen_rect": playfield_rect,
+					"score_value": 240,
+					"role": "anchor",
+					"hold_y": wave.hold_y,
+					"hold_duration": wave.hold_duration + index * 0.1,
+					"hover_amplitude": wave.hover_amplitude,
+					"frequency": wave.frequency,
+					"phase": index * 0.55,
+					"release_speed": wave.release_speed,
+					"tint": Color(0.98, 0.66, 0.28)
+				})
 
 
 func _spawn_enemy(config: Dictionary) -> void:

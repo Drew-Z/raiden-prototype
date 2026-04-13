@@ -75,6 +75,22 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"frequency": 2.2
 		},
 		{
+			"time": 12.0,
+			"formation": "anchor_column",
+			"count": 2,
+			"start_x": 160.0,
+			"gap": 220.0,
+			"velocity_y": 184.0,
+			"hold_y": 188.0,
+			"hold_duration": 2.0,
+			"hover_amplitude": 14.0,
+			"frequency": 1.5,
+			"release_speed": 176.0,
+			"health": 44,
+			"fire_interval": 1.1,
+			"drop_chance": 0.34
+		},
+		{
 			"time": 13.1,
 			"formation": "wall",
 			"count": 4,
@@ -128,6 +144,22 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"drop_chance": 0.42,
 			"amplitude": 188.0,
 			"frequency": 2.5
+		},
+		{
+			"time": 22.0,
+			"formation": "anchor_column",
+			"count": 3,
+			"start_x": 110.0,
+			"gap": 160.0,
+			"velocity_y": 196.0,
+			"hold_y": 206.0,
+			"hold_duration": 1.9,
+			"hover_amplitude": 20.0,
+			"frequency": 1.8,
+			"release_speed": 188.0,
+			"health": 48,
+			"fire_interval": 0.96,
+			"drop_chance": 0.38
 		},
 		{
 			"time": 23.0,
@@ -192,9 +224,11 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 		{"time": 0.6, "type": "banner", "text": "OPENING SWEEP", "duration": 1.4},
 		{"time": 4.8, "type": "banner", "text": "KEEP FIRE ROUTE", "duration": 0.8},
 		{"time": 9.3, "type": "banner", "text": "MID ASSAULT", "duration": 1.2},
+		{"time": 11.7, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
 		{"time": 14.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -28.0)},
 		{"time": 14.8, "type": "banner", "text": "WEAPON CAPSULE", "duration": 0.9},
 		{"time": 18.0, "type": "banner", "text": "FINAL PUSH", "duration": 1.2},
+		{"time": 21.9, "type": "banner", "text": "ANCHOR SCREEN", "duration": 0.9},
 		{"time": 22.7, "type": "banner", "text": "ARMORED CARRIER", "duration": 0.9},
 		{"time": 25.4, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -32.0)},
 		{"time": 25.4, "type": "banner", "text": "BOMB SUPPLY INBOUND", "duration": 1.1},

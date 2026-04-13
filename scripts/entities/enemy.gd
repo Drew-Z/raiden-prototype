@@ -42,6 +42,10 @@ var acceleration := Vector2.ZERO
 var dash_delay := 0.0
 var impact_flash_timer := 0.0
 var telegraph_window := 0.34
+var hold_y := 180.0
+var hold_duration := 1.4
+var hover_amplitude := 18.0
+var release_speed := 170.0
 
 
 func _init() -> void:
@@ -92,6 +96,10 @@ func configure(config: Dictionary):
 	enemy_role = config.get("role", "standard")
 	acceleration = config.get("acceleration", Vector2.ZERO)
 	dash_delay = config.get("dash_delay", 0.0)
+	hold_y = config.get("hold_y", 180.0)
+	hold_duration = config.get("hold_duration", 1.4)
+	hover_amplitude = config.get("hover_amplitude", 18.0)
+	release_speed = config.get("release_speed", 170.0)
 	return self
 
 
@@ -117,6 +125,14 @@ func _physics_process(delta: float) -> void:
 			else:
 				velocity += acceleration * delta
 				position += velocity * delta
+		"hold":
+			if position.y < hold_y:
+				position.y = min(hold_y, position.y + velocity.y * delta)
+			elif elapsed < hold_duration:
+				position.x = spawn_x + sin(elapsed * frequency + phase) * hover_amplitude
+			else:
+				position.y += release_speed * delta
+				position.x = spawn_x + sin(elapsed * frequency + phase) * hover_amplitude * 0.55
 		"boss":
 			if position.y < target_y:
 				position.y = min(target_y, position.y + 110.0 * delta)
@@ -148,6 +164,8 @@ func _fire() -> void:
 				_fire_burst_pattern()
 			"sweeper":
 				_fire_sweeper_pattern()
+			"anchor":
+				_fire_anchor_pattern()
 			_:
 				_fire_standard_pattern()
 	volley_index += 1
@@ -212,6 +230,20 @@ func _fire_sweeper_pattern() -> void:
 			false,
 			5.2,
 			Color(1.0, 0.68, 0.38),
+			screen_rect
+		)
+		spawn_bullet.emit(bullet)
+
+
+func _fire_anchor_pattern() -> void:
+	for offset in [-0.38, -0.18, 0.0, 0.18, 0.38]:
+		var bullet = BulletScript.new().configure(
+			position + Vector2(offset * 20.0, 18.0),
+			Vector2(offset, 1.0).normalized() * bullet_speed * 0.96,
+			1,
+			false,
+			5.8,
+			Color(1.0, 0.66, 0.34),
 			screen_rect
 		)
 		spawn_bullet.emit(bullet)
@@ -322,6 +354,19 @@ func _draw() -> void:
 				draw_rect(Rect2(Vector2(-18, 2), Vector2(36, 6)), Color(1.0, 0.74, 0.38), true)
 				if movement_pattern == "dash" and elapsed >= dash_delay * 0.6 and elapsed < dash_delay + 0.22:
 					draw_line(Vector2(0, 18), Vector2(0, 42), Color(1.0, 0.68, 0.3, 0.4), 4.0)
+			"anchor":
+				var anchor_points := PackedVector2Array([
+					Vector2(0, -20),
+					Vector2(18, -4),
+					Vector2(16, 14),
+					Vector2(-16, 14),
+					Vector2(-18, -4)
+				])
+				draw_colored_polygon(anchor_points, base_tint.lightened(impact_flash_timer * 0.8))
+				draw_rect(Rect2(Vector2(-16, -2), Vector2(32, 8)), Color(1.0, 0.82, 0.52), true)
+				draw_rect(Rect2(Vector2(-8, 8), Vector2(16, 6)), Color(1.0, 0.54, 0.28), true)
+				if fire_timer <= telegraph_window:
+					draw_arc(Vector2.ZERO, 30.0, PI * 0.16, PI * 0.84, 14, Color(1.0, 0.68, 0.38, 0.5), 3.0)
 			_:
 				var points := PackedVector2Array([
 					Vector2(0, -18),
