@@ -136,3 +136,4 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - 新增敌群时优先改 `stage_data_v2.gd` 或 `stage_data_v3.gd`，避免把时间轴逻辑散落到主流程里
 - 继续推进时建议按“大阶段”同步更新 README 和 `docs/progress.md`
 - 路线 A 已经进入封版总结阶段，后续更适合做演示包装、最终总结和范围冻结，而不是继续扩系统
+- 当前仓库还补了一份 `docs/final-project-report.md`，用来把项目定位、完成度、亮点和后续建议一次性收口
