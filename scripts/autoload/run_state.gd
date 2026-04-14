@@ -701,6 +701,46 @@ func get_chapter_ending_verdict() -> String:
 	return "Route is working, but still needs one more polish pass before it fully reads like a finished slice."
 
 
+func get_chapter_review_cards() -> Array[Dictionary]:
+	var cards: Array[Dictionary] = []
+	if not is_chapter_complete():
+		return cards
+
+	var chapter_kill := get_chapter_kill_rate()
+	var chapter_grade := get_chapter_grade()
+	var total_bombs := int(chapter_state.get("total_bombs_used", 0))
+
+	cards.append({
+		"title": "FLOW",
+		"status": "LOCKED" if bool(chapter_state.get("chapter_victory", false)) else "UNSTABLE",
+		"detail": "Two-stage route, carry state and endcap scenes now hold together as one complete chapter flow."
+	})
+
+	cards.append({
+		"title": "PRESSURE",
+		"status": "READY" if chapter_kill >= 90.0 and int(chapter_state.get("highest_fire", 1)) >= 5 else "TUNING",
+		"detail": (
+			"Stage 02 climax now lands as enemy, storm hazard and boss pressure converge into one readable finish."
+			if chapter_kill >= 90.0
+			else
+			"Chapter pressure is stable, but kill pace and final routing still have room for one more polish pass."
+		)
+	})
+
+	cards.append({
+		"title": "REVIEW",
+		"status": "BUILD READY" if chapter_grade in ["S", "A"] and total_bombs <= 5 else "POLISH",
+		"detail": (
+			"The current build reads like a vertical-slice candidate and is ready for external review framing."
+			if chapter_grade in ["S", "A"] and total_bombs <= 5
+			else
+			"The route is presentable, but still benefits from one more round of pacing and presentation cleanup."
+		)
+	})
+
+	return cards
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""

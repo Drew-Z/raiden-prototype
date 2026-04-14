@@ -179,6 +179,12 @@
 - 继续补真正可记忆的章节镜头节点，而不只是静态 UI 包装
 - 继续给 `Stage 02` 补更复杂的环境联动和敌群协同
 - 把当前 `ChapterEnding` 继续推进成更完整的最终 ending scene
+
+### 阶段 19：路线 A 封版前精修
+
+- 第二关 Boss 终盘补成了 `LAST SAFE WINDOW -> OVERDRIVE -> FINISH WINDOW` 三段决策节拍，最后破口比之前更明确
+- `ChapterEnding` 新增章节评审就绪卡，把 FLOW、PRESSURE、REVIEW 三个维度直接展示出来
+- 当前路线 A 已经更接近“封版前最后一轮精修”，后续更适合做最终收口而不是继续扩系统
 - 然后正式决定是否进入双关垂直切片阶段
 
 ### 进入垂直切片前需要确认

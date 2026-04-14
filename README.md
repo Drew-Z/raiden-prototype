@@ -39,7 +39,9 @@
 - `Stage 02 // Storm Front`：更强调侧压、风暴互动、屏障火力和更重的 Boss 压迫
 - `Stage 02 // Storm Front`：中后段已接入 `storm_cross` 十字封线，并会带出支援敌群，开始形成更明确的环境联动
 - `Stage 02 // Storm Front`：Boss 相位切换和 overdrive 现在也会接入风暴机关，关底段落更像完整关卡高潮
+- `Stage 02 // Storm Front`：Boss 终盘现在会明确提示 `LAST SAFE WINDOW -> OVERDRIVE -> FINISH WINDOW` 三段决策节拍
 - `Chapter Run`：`Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterEnding -> ChapterOutro`
+- `ChapterEnding`：现在会额外显示 `SLICE VERDICT` 和三张章节评审就绪卡，用来总结当前 build 的收口状态
 
 ## 当前版本定位
 

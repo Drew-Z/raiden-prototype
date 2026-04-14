@@ -42,6 +42,7 @@ var last_bomb_count := 2
 var boss_phase_seen := 1
 var boss_overdrive_announced := false
 var boss_final_warning_announced := false
+var boss_finish_window_announced := false
 var boss_phase_hazard_fired: Dictionary = {}
 var shake_timer := 0.0
 var shake_strength := 0.0
@@ -478,6 +479,7 @@ func _spawn_boss() -> void:
 	boss_phase_seen = 1
 	boss_overdrive_announced = false
 	boss_final_warning_announced = false
+	boss_finish_window_announced = false
 	boss_phase_hazard_fired = {}
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
@@ -523,6 +525,9 @@ func _update_boss_state() -> void:
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and not boss_overdrive_announced:
 		boss_overdrive_announced = true
 		_handle_boss_overdrive()
+	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.1 and not boss_finish_window_announced and active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
+		boss_finish_window_announced = true
+		_handle_boss_finish_window()
 
 	var phase_text := "PHASE %d" % phase_index
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
@@ -556,7 +561,12 @@ func _update_hud_status() -> void:
 		hint_text = "BOMB WINDOW OPEN"
 		hint_color = Color(1.0, 0.76, 0.34)
 	elif boss_spawned:
-		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
+		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and boss_finish_window_announced:
+			hint_text = "FINISH WINDOW // BREAK CORE"
+			hint_color = Color(1.0, 0.88, 0.54)
+			danger_strength = max(danger_strength, 0.12)
+			danger_color = Color(1.0, 0.42, 0.18, 1.0)
+		elif active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
 			hint_text = "OVERDRIVE // HOLD LINE"
 			hint_color = Color(1.0, 0.56, 0.32)
 			danger_strength = max(danger_strength, 0.16)
@@ -960,6 +970,34 @@ func _handle_boss_final_warning() -> void:
 	hud.pulse_screen(Color(warning_color.r, warning_color.g, warning_color.b, 0.16), 0.1)
 	_show_flash(warning_color, 0.14, 0.08)
 	_start_shake(8.0, 0.18)
+	_play_sfx("boss_phase")
+
+
+func _handle_boss_finish_window() -> void:
+	if not is_instance_valid(active_boss):
+		return
+	var finish_color := Color(1.0, 0.88, 0.54)
+	if active_boss.has_method("expose_core"):
+		active_boss.expose_core(1.55)
+	var cleared_bullets := _clear_enemy_projectiles()
+	if cleared_bullets > 0:
+		RunState.add_score(cleared_bullets * 10)
+	var shockwave = BombEffectScript.new().configure(236.0, 0.22, finish_color, Color(1.0, 0.96, 0.72))
+	shockwave.position = active_boss.position
+	effects_layer.call_deferred("add_child", shockwave)
+	_spawn_explosion(active_boss.position, 1.2, true)
+	_queue_banner("FINISH WINDOW", 0.95, finish_color, false)
+	hud.set_status_hint("FINISH WINDOW // BREAK CORE", finish_color)
+	hud.show_event_card_temporarily(
+		"FINISH WINDOW",
+		String(boss_config.get("finish_window_detail", "Overdrive has opened one final breach line. Cash the route now before the storm fully closes again.")),
+		1.45,
+		finish_color
+	)
+	hud.pulse_screen(Color(finish_color.r, finish_color.g, finish_color.b, 0.16), 0.1)
+	_show_flash(finish_color, 0.18, 0.1)
+	_start_shake(10.0, 0.22)
+	_trigger_hit_stop(0.028, 0.12)
 	_play_sfx("boss_phase")
 
 

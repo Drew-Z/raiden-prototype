@@ -324,6 +324,7 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"final_core_phase_detail": "The final storm core is open. Push hard now before the sweep lines accelerate.",
 		"final_warning_detail": "The route is about to collapse into overdrive. This is the last clean bomb window before the storm locks both sides.",
 		"overdrive_detail": "Overdrive is closing the side lanes. Preserve a clean edge, then bomb through the next collapse.",
+		"finish_window_detail": "The storm core is flickering under overload. Break through now while one breach line is still open.",
 		"phase_2_hazard": {
 			"type": "storm_strike",
 			"lanes": [118.0, 422.0],

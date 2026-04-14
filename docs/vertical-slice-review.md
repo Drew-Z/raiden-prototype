@@ -70,5 +70,7 @@
   - 展示文案、阶段判断和封版准备
 - 最近又补了一轮：
   - Boss 终盘“最后安全窗口”提示
-  - `ChapterEnding` 的 `SLICE VERDICT` 结论卡
+- `ChapterEnding` 的 `SLICE VERDICT` 结论卡
+- 第二关 Boss 终盘的 `FINISH WINDOW` 最终破口提示
+- `ChapterEnding` 新增 FLOW / PRESSURE / REVIEW 三张评审就绪卡，更适合直接用于 review build 展示
 - 如果继续沿路径 A 推进，下一步更适合做封版评审和最终包装，而不是继续扩新系统

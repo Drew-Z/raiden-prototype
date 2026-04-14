@@ -220,6 +220,13 @@ func _build_ui() -> void:
 	verdict_body.add_theme_font_size_override("font_size", 18)
 	verdict_column.add_child(verdict_body)
 
+	var review_row := HBoxContainer.new()
+	review_row.add_theme_constant_override("separation", 12)
+	root.add_child(review_row)
+	_register_reveal(review_row)
+	for card_data in RunState.get_chapter_review_cards():
+		review_row.add_child(_build_review_card(card_data, accent_color))
+
 	var footer_row := HBoxContainer.new()
 	footer_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	footer_row.add_theme_constant_override("separation", 14)
@@ -312,6 +319,42 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_font_size_override("font_size", 14)
 	column.add_child(summary)
+
+	return panel
+
+
+func _build_review_card(card_data: Dictionary, accent_color: Color) -> Control:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	margin.add_child(column)
+
+	var title := Label.new()
+	title.text = String(card_data.get("title", "CHECK"))
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", accent_color)
+	column.add_child(title)
+
+	var status := Label.new()
+	status.text = String(card_data.get("status", "READY"))
+	status.add_theme_font_size_override("font_size", 22)
+	status.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
+	column.add_child(status)
+
+	var detail := Label.new()
+	detail.text = String(card_data.get("detail", ""))
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail.add_theme_font_size_override("font_size", 14)
+	column.add_child(detail)
 
 	return panel
 
