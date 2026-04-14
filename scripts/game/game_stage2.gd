@@ -41,6 +41,7 @@ var last_fire_level := 1
 var last_bomb_count := 2
 var boss_phase_seen := 1
 var boss_overdrive_announced := false
+var boss_phase_hazard_fired: Dictionary = {}
 var shake_timer := 0.0
 var shake_strength := 0.0
 var time_stop_timer := 0.0
@@ -213,9 +214,9 @@ func _process_stage_events() -> void:
 			"pickup":
 				_spawn_pickup(event.position, event.pickup_type)
 			"storm_strike":
-				_trigger_storm_strike(event)
+				_trigger_hazard_event(event)
 			"storm_cross":
-				_trigger_storm_cross(event)
+				_trigger_hazard_event(event)
 		event_index += 1
 
 
@@ -475,6 +476,7 @@ func _spawn_boss() -> void:
 	RunState.register_enemy_spawn()
 	boss_phase_seen = 1
 	boss_overdrive_announced = false
+	boss_phase_hazard_fired = {}
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
 	hud.show_cinematic_bars(40.0, 0.16)
@@ -742,6 +744,14 @@ func _spawn_pickup(position_value: Vector2, kind: String = "power") -> void:
 	pickup_layer.call_deferred("add_child", pickup)
 
 
+func _trigger_hazard_event(event: Dictionary) -> void:
+	match String(event.get("type", "")):
+		"storm_cross":
+			_trigger_storm_cross(event)
+		_:
+			_trigger_storm_strike(event)
+
+
 func _trigger_storm_strike(event: Dictionary) -> void:
 	if String(stage_meta.get("id", "")) != "stage_2":
 		return
@@ -906,6 +916,7 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 		phase_detail = String(boss_config.get("final_core_phase_detail", "Final phase has opened the core. Push damage now before overdrive speed ramps up."))
 	hud.show_event_card_temporarily(label_text, phase_detail, 1.4, label_color)
 	_play_sfx("boss_phase")
+	_trigger_boss_hazard("phase_%d_hazard" % phase_index)
 
 
 func _handle_boss_overdrive() -> void:
@@ -926,6 +937,21 @@ func _handle_boss_overdrive() -> void:
 		overdrive_color
 	)
 	_play_sfx("boss_phase")
+	_trigger_boss_hazard("overdrive_hazard")
+
+
+func _trigger_boss_hazard(config_key: String) -> void:
+	if String(stage_meta.get("id", "")) != "stage_2":
+		return
+	if bool(boss_phase_hazard_fired.get(config_key, false)):
+		return
+	if not boss_config.has(config_key):
+		return
+	boss_phase_hazard_fired[config_key] = true
+	var hazard_event: Dictionary = boss_config.get(config_key, {})
+	if hazard_event.is_empty():
+		return
+	_trigger_hazard_event(hazard_event)
 
 
 func _play_boss_finish_sequence() -> void:

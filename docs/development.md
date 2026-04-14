@@ -60,9 +60,9 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 输出中会打印类似：
 
 ```text
-RUN_RESULT victory=true score=22530 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=2
-RUN_RESULT victory=true score=27535 kill_rate=96.15 max_fire=5 route=Lv5 bombs_used=2 lives=2
-CHAPTER_RESULT victory=true total_score=50065 kill_rate=90.74 stages=2 highest_fire=5
+RUN_RESULT victory=true score=23432 kill_rate=88.10 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=2 lives=3
+RUN_RESULT victory=true score=28725 kill_rate=96.25 max_fire=5 route=Lv5 bombs_used=2 lives=3
+CHAPTER_RESULT victory=true total_score=52157 kill_rate=92.07 stages=2 highest_fire=5
 ```
 
 ## 当前验证结论
@@ -79,6 +79,7 @@ CHAPTER_RESULT victory=true total_score=50065 kill_rate=90.74 stages=2 highest_f
 - `Stage 01 -> Stage 02` 会正确继承生命、炸弹与火力，并在结果页承接下一关
 - `Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterEnding -> ChapterOutro` 这条链路已经可以完整跑通
 - 第二关新的 `storm_cross` 十字封线和支援敌群联动可以与章节链路共存，不会打断 `--autoplay --chapter`
+- 第二关 Boss 相位切换和 overdrive 触发的风暴机关也可以与章节链路共存，不会打断 `--autoplay --chapter`
 
 ## 当前结构说明
 
@@ -102,6 +103,7 @@ CHAPTER_RESULT victory=true total_score=50065 kill_rate=90.74 stages=2 highest_f
 - 第二关新增的 `storm_strike` 互动点由独立脚本 `storm_strike.gd` 管理，通过时间轴事件触发，不和常规敌机逻辑混在一起
 - 第二关新增的 `storm_sweep` 互动点由独立脚本 `storm_sweep.gd` 管理，并可通过 `storm_cross` 事件与 `storm_strike` 组合
 - `storm_cross` 现在还支持通过事件数据带出 `support_wave`，用于把环境机关和支援敌群编排在同一个节奏点里
+- `stage_data_v3.gd` 的 Boss 配置现在也支持 `phase_2_hazard`、`phase_3_hazard` 和 `overdrive_hazard`
 - `starfield.gd` 现在支持按关卡主题切换背景视觉，第二关会使用更明显的风暴主题层
 - 结果页已改为脚本构建的展示面板，统计、战绩摘要和下一步建议仍统一从 `run_state.gd` 取数，便于后续继续补动画或更多复盘指标
 - Boss 击破后的战场清场总结卡由 `hud_v2.gd` 承担，只在收束阶段短暂显示，结果页仍负责最终复盘
@@ -115,6 +117,7 @@ CHAPTER_RESULT victory=true total_score=50065 kill_rate=90.74 stages=2 highest_f
 - 结果页在章节完成后现在会先进入 `ChapterEnding`，再进入 `ChapterOutro`
 - `ChapterBriefing` 和 `ChapterOutro` 现在都会展示章节卡片，让双关路线在中场和尾声里更容易阅读
 - `ChapterOutro` 现在会先播一个短暂的 ending 封板，再进入完整 debrief 面板
+- Boss 级风暴联动依然通过主控触发、数据脚本配置的方式接入，没有把环境逻辑重新塞回敌人脚本
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
