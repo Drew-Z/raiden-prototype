@@ -106,3 +106,4 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [最终项目总总结](D:/workspace4Codex/raiden prototype/docs/final-project-report.md)
 - [当前封版候选说明](D:/workspace4Codex/raiden prototype/docs/release-candidate-note.md)
 - [最终交付说明](D:/workspace4Codex/raiden prototype/docs/final-delivery-note.md)
+- [当前封版交接说明](D:/workspace4Codex/raiden prototype/docs/final-handoff-note.md)
