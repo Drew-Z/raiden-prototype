@@ -10,6 +10,7 @@
 
 - `res://scenes/ui/MainMenu.tscn`
 - `res://scenes/ui/ChapterBriefing.tscn`
+- `res://scenes/ui/ChapterEnding.tscn`
 - `res://scenes/ui/ChapterOutro.tscn`
 - `res://scenes/game/Game.tscn`
 - `res://scenes/ui/ResultsScreen.tscn`
@@ -27,6 +28,7 @@
 - `res://scripts/entities/pickup.gd`
 - `res://scripts/ui/hud_v2.gd`
 - `res://scripts/ui/chapter_briefing.gd`
+- `res://scripts/ui/chapter_ending.gd`
 - `res://scripts/ui/chapter_outro.gd`
 - `res://scripts/ui/main_menu_stage2.gd`
 - `res://scripts/ui/results_screen_stage2.gd`
@@ -52,15 +54,15 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 ```cmd
 set APPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
-"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 12200 --log-file stage12b_chapter.log -- --autoplay --chapter
+"D:\Development\Godot\Godot_v4.6.1-stable_win64_console.exe" --headless --path "D:\workspace4Codex\raiden prototype" --fixed-fps 60 --quit-after 13600 --log-file stage14_chapter.log -- --autoplay --chapter
 ```
 
 输出中会打印类似：
 
 ```text
-RUN_RESULT victory=true score=23630 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=3
-RUN_RESULT victory=true score=27435 kill_rate=96.15 max_fire=5 route=Lv5 bombs_used=2 lives=3
-CHAPTER_RESULT victory=true total_score=51065 kill_rate=90.74 stages=2 highest_fire=5
+RUN_RESULT victory=true score=22530 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=2
+RUN_RESULT victory=true score=27535 kill_rate=96.15 max_fire=5 route=Lv5 bombs_used=2 lives=2
+CHAPTER_RESULT victory=true total_score=50065 kill_rate=90.74 stages=2 highest_fire=5
 ```
 
 ## 当前验证结论
@@ -75,7 +77,7 @@ CHAPTER_RESULT victory=true total_score=51065 kill_rate=90.74 stages=2 highest_f
 - 通关后会触发 Boss 击破收束并进入结果页
 - 结果页会显示奖励拆分、成绩标签、章节交接与下一步建议
 - `Stage 01 -> Stage 02` 会正确继承生命、炸弹与火力，并在结果页承接下一关
-- `Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterOutro` 这条链路已经可以完整跑通
+- `Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterEnding -> ChapterOutro` 这条链路已经可以完整跑通
 - 第二关新的 `storm_cross` 十字封线和支援敌群联动可以与章节链路共存，不会打断 `--autoplay --chapter`
 
 ## 当前结构说明
@@ -84,6 +86,7 @@ CHAPTER_RESULT victory=true total_score=51065 kill_rate=90.74 stages=2 highest_f
 - 当前战斗主流程已经从“写死单关”切到“由 `stage_catalog.gd` 选择关卡数据脚本”的结构
 - 当前战斗主流程已经支持 `Stage 01`、`Stage 02` 与 `Chapter Run` 三种入口
 - `Chapter Run` 现在带有独立的 `ChapterBriefing` 中场场景和 `ChapterOutro` 章节尾声，不再由结果页单独承担完整章节包装
+- `Chapter Run` 现在还带有独立的 `ChapterEnding` 收束场景，用来承接双关完成后的章节镜头
 - 第二关单独入口现在使用展示用中段装载，更接近章节第二段的真实体验
 - 战斗反馈相关模块目前拆在：
   - `res://scripts/game/bomb_effect.gd`
@@ -109,6 +112,7 @@ CHAPTER_RESULT victory=true total_score=51065 kill_rate=90.74 stages=2 highest_f
 - `RunState` 现在既负责单关统计，也负责双关章节模式、阶段交接资源和章节总计
 - `RunState` 现在还负责章节总评、章节交接文案和双关结束后的总成绩摘要
 - 结果页在章节模式下现在只负责阶段结算与跳转，不再单独承接完整章节尾声
+- 结果页在章节完成后现在会先进入 `ChapterEnding`，再进入 `ChapterOutro`
 - `ChapterBriefing` 和 `ChapterOutro` 现在都会展示章节卡片，让双关路线在中场和尾声里更容易阅读
 - `ChapterOutro` 现在会先播一个短暂的 ending 封板，再进入完整 debrief 面板
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关

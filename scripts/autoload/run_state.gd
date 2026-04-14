@@ -4,6 +4,7 @@ const MENU_SCENE := "res://scenes/ui/MainMenu.tscn"
 const GAME_SCENE := "res://scenes/game/Game.tscn"
 const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
 const CHAPTER_BRIEFING_SCENE := "res://scenes/ui/ChapterBriefing.tscn"
+const CHAPTER_ENDING_SCENE := "res://scenes/ui/ChapterEnding.tscn"
 const CHAPTER_OUTRO_SCENE := "res://scenes/ui/ChapterOutro.tscn"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
@@ -174,6 +175,10 @@ func show_results() -> void:
 
 func show_chapter_briefing() -> void:
 	call_deferred("_change_scene", CHAPTER_BRIEFING_SCENE)
+
+
+func show_chapter_ending() -> void:
+	call_deferred("_change_scene", CHAPTER_ENDING_SCENE)
 
 
 func show_chapter_outro() -> void:
@@ -662,6 +667,27 @@ func get_chapter_outro_directive() -> String:
 	if not is_chapter_complete():
 		return ""
 	return "Next directive: reinforce Stage 02 spectacle, deepen storm hazard interplay and convert this chapter flow into a true vertical-slice finish."
+
+
+func get_chapter_ending_banner() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "ENDING // ROUTE VERIFIED"
+
+
+func get_chapter_ending_title() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "CHAPTER ROUTE LOCKED"
+
+
+func get_chapter_ending_summary() -> String:
+	if not is_chapter_complete():
+		return ""
+	return "%s\n%s" % [
+		get_chapter_clear_summary(),
+		get_chapter_outro_headline()
+	]
 
 
 func get_chapter_transition_text() -> String:
