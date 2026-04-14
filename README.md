@@ -44,6 +44,8 @@
 - `Chapter Run`：`Stage 01 -> Results -> ChapterBriefing -> Stage 02 -> Results -> ChapterEnding -> ChapterOutro`
 - `ChapterEnding`：现在会额外显示 `SLICE VERDICT` 和三张章节评审就绪卡，用来总结当前 build 的收口状态
 - `ChapterEnding`：现在还会显示 `FINAL PASS` 面板，把当前 build 是否适合作为 review build 展示说得更明确
+- 主菜单现在会直接显示当前 build 状态和封版摘要
+- `ChapterOutro` 现在会直接给出 `FINAL PACKAGE` 与 `NEXT STEP`，方便把当前版本作为封版候选阅读
 
 ## 当前版本定位
 
@@ -100,3 +102,4 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [开发与验证说明](D:/workspace4Codex/raiden prototype/docs/development.md)
 - [当前进度记录](D:/workspace4Codex/raiden prototype/docs/progress.md)
 - [双关垂直切片评估](D:/workspace4Codex/raiden prototype/docs/vertical-slice-review.md)
+- [封版总结](D:/workspace4Codex/raiden prototype/docs/final-slice-summary.md)

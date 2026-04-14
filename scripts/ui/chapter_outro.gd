@@ -128,6 +128,14 @@ func _build_ui() -> void:
 	split_row.add_child(_build_panel("EPILOGUE", RunState.get_chapter_epilogue()))
 	split_row.add_child(_build_panel("NEXT DIRECTIVE", RunState.get_chapter_outro_directive()))
 
+	var package_row := HBoxContainer.new()
+	package_row.add_theme_constant_override("separation", 16)
+	root.add_child(package_row)
+	_register_reveal(package_row)
+
+	package_row.add_child(_build_panel("FINAL PACKAGE", RunState.get_final_package_summary()))
+	package_row.add_child(_build_panel("NEXT STEP", RunState.get_final_package_next_step()))
+
 	var footer_row := HBoxContainer.new()
 	footer_row.alignment = BoxContainer.ALIGNMENT_END
 	footer_row.add_theme_constant_override("separation", 14)

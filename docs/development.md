@@ -124,6 +124,7 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - `ChapterEnding` 现在还会播放独立章节结尾提示音，并先给出 route seal 封板，再展开完整 ending 内容
 - `ChapterEnding` 现在还会显示 `SLICE VERDICT` 与章节评审就绪卡，方便把当前 build 直接作为 review build 说明
 - `ChapterEnding` 现在再补了一张 `FINAL PASS` 面板，用来明确当前章节是否已经处在 review-ready 状态
+- 主菜单现在会直接显示当前 build 状态摘要，`ChapterOutro` 也会直接给出封版 package 结论与下一步建议
 - 第二关 Boss 现在还带有独立的“最后安全窗口”提示，用于更明确地暴露 overdrive 前的资源决策点
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
@@ -134,3 +135,4 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - 如果后续加入素材资源，优先维持场景与脚本模块边界
 - 新增敌群时优先改 `stage_data_v2.gd` 或 `stage_data_v3.gd`，避免把时间轴逻辑散落到主流程里
 - 继续推进时建议按“大阶段”同步更新 README 和 `docs/progress.md`
+- 路线 A 已经进入封版总结阶段，后续更适合做演示包装、最终总结和范围冻结，而不是继续扩系统

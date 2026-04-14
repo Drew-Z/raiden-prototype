@@ -50,6 +50,34 @@ func _build_ui() -> void:
 	summary.add_theme_font_size_override("font_size", 22)
 	column.add_child(summary)
 
+	var build_panel := PanelContainer.new()
+	column.add_child(build_panel)
+
+	var build_margin := MarginContainer.new()
+	build_margin.add_theme_constant_override("margin_left", 12)
+	build_margin.add_theme_constant_override("margin_top", 10)
+	build_margin.add_theme_constant_override("margin_right", 12)
+	build_margin.add_theme_constant_override("margin_bottom", 10)
+	build_panel.add_child(build_margin)
+
+	var build_column := VBoxContainer.new()
+	build_column.add_theme_constant_override("separation", 4)
+	build_margin.add_child(build_column)
+
+	var build_title := Label.new()
+	build_title.text = RunState.get_build_badge()
+	build_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	build_title.add_theme_font_size_override("font_size", 18)
+	build_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
+	build_column.add_child(build_title)
+
+	var build_summary := Label.new()
+	build_summary.text = RunState.get_build_summary()
+	build_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	build_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	build_summary.add_theme_font_size_override("font_size", 18)
+	build_column.add_child(build_summary)
+
 	var chapter_button := Button.new()
 	chapter_button.text = "Chapter Run\nStage 01 -> Stage 02"
 	chapter_button.custom_minimum_size = Vector2(320, 74)

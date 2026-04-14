@@ -190,6 +190,12 @@
 
 - 第二关 Boss 的 `FINISH WINDOW` 现在会带出独立 `FINAL BREACH` 终盘编排，最终破口和中心突破线更明确
 - `ChapterEnding` 新增 `FINAL PASS` 面板，把当前 build 是否已经足够作为 review build 展示直接说清楚
+
+### 阶段 21：最终封版总结与包装可见化
+
+- 主菜单新增 build 状态摘要，当前 build 的定位不再只写在文档里
+- `ChapterOutro` 新增 `FINAL PACKAGE` 与 `NEXT STEP` 面板，把封版结论直接放进章节 debrief
+- 新增 `docs/final-slice-summary.md`，作为当前双关垂直切片候选的正式封版总结
 - 当前版本已经更接近“可封版的双关垂直切片候选”，后续重点更应该转向最终总结和封版判断
 - 然后正式决定是否进入双关垂直切片阶段
 

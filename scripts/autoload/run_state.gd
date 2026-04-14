@@ -763,6 +763,39 @@ func get_chapter_final_pass_detail() -> String:
 	return "The chapter already reads as one coherent slice, but it still benefits from another polish pass before it should be framed as a finished review build."
 
 
+func get_build_badge() -> String:
+	if is_chapter_complete():
+		var chapter_grade := get_chapter_grade()
+		if chapter_grade == "S":
+			return "BUILD STATUS // REVIEW READY"
+		if chapter_grade == "A":
+			return "BUILD STATUS // STRONG CANDIDATE"
+	return "BUILD STATUS // DUAL-STAGE SLICE CANDIDATE"
+
+
+func get_build_summary() -> String:
+	if is_chapter_complete():
+		return "Current build includes a full two-stage route, carry-state handoff, independent chapter scenes and a readable final boss climax."
+	return "Current build focuses on a polished two-stage showcase route with chapter handoff, ending and debrief flow."
+
+
+func get_final_package_summary() -> String:
+	if not is_chapter_complete():
+		return "Package target: finish a clean two-stage run, verify the chapter handoff and review the ending scenes as one connected presentation chain."
+	return "Package target met: the current build now reads like a compact dual-stage vertical-slice candidate, with full chapter start, handoff, climax, ending and debrief flow."
+
+
+func get_final_package_next_step() -> String:
+	if not is_chapter_complete():
+		return "Next step: clear the full chapter route and confirm the ending chain holds together under review conditions."
+	var chapter_grade := get_chapter_grade()
+	if chapter_grade == "S":
+		return "Next step: freeze scope, clean presentation details and prepare a formal final summary for review."
+	if chapter_grade == "A":
+		return "Next step: run one more polish pass on pacing and ending presentation before freezing scope."
+	return "Next step: keep scope frozen and spend one last pass on pacing cleanup before calling the slice review-ready."
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""
