@@ -796,6 +796,18 @@ func get_final_package_next_step() -> String:
 	return "Next step: keep scope frozen and spend one last pass on pacing cleanup before calling the slice review-ready."
 
 
+func get_demo_route_summary() -> String:
+	if is_chapter_complete():
+		return "Recommended Demo Route\nChapter Run -> Briefing -> Stage 02 storm climax -> ChapterEnding -> ChapterOutro"
+	return "Recommended Demo Route\nChapter Run -> Stage 01 growth -> Briefing -> Stage 02 storm boss -> Ending / Debrief"
+
+
+func get_demo_checklist_text() -> String:
+	if is_chapter_complete():
+		return "Demo Checklist\n- Start from Chapter Run\n- Show carry-state handoff in Briefing\n- Reach Stage 02 storm boss and final breach\n- Let Ending and Debrief play through as final package"
+	return "Demo Checklist\n- Prefer Chapter Run over single-stage entry\n- Highlight Stage 01 growth and bomb routing\n- Show Stage 02 storm hazards and boss climax\n- Finish on Ending / Debrief for the full package"
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""

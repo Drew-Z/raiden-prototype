@@ -109,6 +109,26 @@ func _build_ui() -> void:
 	assessment.add_theme_font_size_override("font_size", 17)
 	column.add_child(assessment)
 
+	var demo_panel := PanelContainer.new()
+	column.add_child(demo_panel)
+
+	var demo_margin := MarginContainer.new()
+	demo_margin.add_theme_constant_override("margin_left", 12)
+	demo_margin.add_theme_constant_override("margin_top", 10)
+	demo_margin.add_theme_constant_override("margin_right", 12)
+	demo_margin.add_theme_constant_override("margin_bottom", 10)
+	demo_panel.add_child(demo_margin)
+
+	var demo_label := Label.new()
+	demo_label.text = "%s\n\n%s" % [
+		RunState.get_demo_route_summary(),
+		RunState.get_demo_checklist_text()
+	]
+	demo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	demo_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	demo_label.add_theme_font_size_override("font_size", 17)
+	demo_margin.add_child(demo_label)
+
 	if RunState.current_run.duration_sec > 0.0:
 		var last_sortie := Label.new()
 		last_sortie.text = "Last Sortie:\nGrade %s   Final %06d\nKill %.0f%%   Max Fire Lv%d" % [
