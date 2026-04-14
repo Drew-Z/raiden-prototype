@@ -690,6 +690,17 @@ func get_chapter_ending_summary() -> String:
 	]
 
 
+func get_chapter_ending_verdict() -> String:
+	if not is_chapter_complete():
+		return ""
+	var chapter_grade := get_chapter_grade()
+	if chapter_grade == "S":
+		return "Vertical slice candidate confirmed. The dual-stage route now holds up as a showcase build."
+	if chapter_grade == "A":
+		return "Vertical slice candidate is stable. One more polish pass should be enough for a stronger review build."
+	return "Route is working, but still needs one more polish pass before it fully reads like a finished slice."
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""

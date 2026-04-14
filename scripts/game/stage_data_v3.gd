@@ -322,6 +322,7 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"boss_intro_detail": "Storm batteries flood the side lanes. Carry one bomb into overdrive or burst through the core window.",
 		"core_phase_detail": "Outer batteries are resetting. Cut back through center and burn the exposed storm core.",
 		"final_core_phase_detail": "The final storm core is open. Push hard now before the sweep lines accelerate.",
+		"final_warning_detail": "The route is about to collapse into overdrive. This is the last clean bomb window before the storm locks both sides.",
 		"overdrive_detail": "Overdrive is closing the side lanes. Preserve a clean edge, then bomb through the next collapse.",
 		"phase_2_hazard": {
 			"type": "storm_strike",

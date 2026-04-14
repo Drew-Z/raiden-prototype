@@ -60,9 +60,9 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 输出中会打印类似：
 
 ```text
-RUN_RESULT victory=true score=23832 kill_rate=88.10 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=2 lives=2
-RUN_RESULT victory=true score=27775 kill_rate=96.25 max_fire=5 route=Lv5 bombs_used=2 lives=2
-CHAPTER_RESULT victory=true total_score=51607 kill_rate=92.07 stages=2 highest_fire=5
+RUN_RESULT victory=true score=23630 kill_rate=85.71 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=3 lives=3
+RUN_RESULT victory=true score=28025 kill_rate=96.25 max_fire=5 route=Lv5 bombs_used=2 lives=3
+CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_fire=5
 ```
 
 ## 当前验证结论
@@ -120,6 +120,7 @@ CHAPTER_RESULT victory=true total_score=51607 kill_rate=92.07 stages=2 highest_f
 - Boss 级风暴联动依然通过主控触发、数据脚本配置的方式接入，没有把环境逻辑重新塞回敌人脚本
 - 当前仓库里已经补了一份 `docs/vertical-slice-review.md`，用于明确判断当前 build 是否进入双关垂直切片收口阶段
 - `ChapterEnding` 现在还会播放独立章节结尾提示音，并先给出 route seal 封板，再展开完整 ending 内容
+- 第二关 Boss 现在还带有独立的“最后安全窗口”提示，用于更明确地暴露 overdrive 前的资源决策点
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 

@@ -193,6 +193,33 @@ func _build_ui() -> void:
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
 
+	var verdict_panel := PanelContainer.new()
+	root.add_child(verdict_panel)
+	_register_reveal(verdict_panel)
+
+	var verdict_margin := MarginContainer.new()
+	verdict_margin.add_theme_constant_override("margin_left", 12)
+	verdict_margin.add_theme_constant_override("margin_top", 10)
+	verdict_margin.add_theme_constant_override("margin_right", 12)
+	verdict_margin.add_theme_constant_override("margin_bottom", 10)
+	verdict_panel.add_child(verdict_margin)
+
+	var verdict_column := VBoxContainer.new()
+	verdict_column.add_theme_constant_override("separation", 6)
+	verdict_margin.add_child(verdict_column)
+
+	var verdict_title := Label.new()
+	verdict_title.text = "SLICE VERDICT"
+	verdict_title.add_theme_font_size_override("font_size", 16)
+	verdict_title.add_theme_color_override("font_color", accent_color)
+	verdict_column.add_child(verdict_title)
+
+	var verdict_body := Label.new()
+	verdict_body.text = RunState.get_chapter_ending_verdict()
+	verdict_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	verdict_body.add_theme_font_size_override("font_size", 18)
+	verdict_column.add_child(verdict_body)
+
 	var footer_row := HBoxContainer.new()
 	footer_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	footer_row.add_theme_constant_override("separation", 14)

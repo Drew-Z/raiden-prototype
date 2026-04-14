@@ -41,6 +41,7 @@ var last_fire_level := 1
 var last_bomb_count := 2
 var boss_phase_seen := 1
 var boss_overdrive_announced := false
+var boss_final_warning_announced := false
 var boss_phase_hazard_fired: Dictionary = {}
 var shake_timer := 0.0
 var shake_strength := 0.0
@@ -476,6 +477,7 @@ func _spawn_boss() -> void:
 	RunState.register_enemy_spawn()
 	boss_phase_seen = 1
 	boss_overdrive_announced = false
+	boss_final_warning_announced = false
 	boss_phase_hazard_fired = {}
 	hud.set_stage_text("BOSS ENGAGE")
 	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
@@ -515,6 +517,9 @@ func _update_boss_state() -> void:
 	if phase_index != boss_phase_seen:
 		boss_phase_seen = phase_index
 		_handle_boss_phase_shift(phase_index)
+	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.28 and not boss_final_warning_announced and not (active_boss.has_method("is_overdrive") and active_boss.is_overdrive()):
+		boss_final_warning_announced = true
+		_handle_boss_final_warning()
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and not boss_overdrive_announced:
 		boss_overdrive_announced = true
 		_handle_boss_overdrive()
@@ -938,6 +943,24 @@ func _handle_boss_overdrive() -> void:
 	)
 	_play_sfx("boss_phase")
 	_trigger_boss_hazard("overdrive_hazard")
+
+
+func _handle_boss_final_warning() -> void:
+	if not is_instance_valid(active_boss):
+		return
+	var warning_color := Color(1.0, 0.74, 0.42)
+	_queue_banner("LAST SAFE WINDOW", 0.9, warning_color, false)
+	hud.set_status_hint("LAST SAFE WINDOW", warning_color)
+	hud.show_event_card_temporarily(
+		"LAST SAFE WINDOW",
+		String(boss_config.get("final_warning_detail", "One last stable lane remains before overdrive. Cash bomb or core damage now, not after the collapse.")),
+		1.35,
+		warning_color
+	)
+	hud.pulse_screen(Color(warning_color.r, warning_color.g, warning_color.b, 0.16), 0.1)
+	_show_flash(warning_color, 0.14, 0.08)
+	_start_shake(8.0, 0.18)
+	_play_sfx("boss_phase")
 
 
 func _trigger_boss_hazard(config_key: String) -> void:
