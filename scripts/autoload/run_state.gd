@@ -741,6 +741,28 @@ func get_chapter_review_cards() -> Array[Dictionary]:
 	return cards
 
 
+func get_chapter_final_pass_title() -> String:
+	if not is_chapter_complete():
+		return ""
+	var chapter_grade := get_chapter_grade()
+	if chapter_grade == "S":
+		return "FINAL PASS // REVIEW READY"
+	if chapter_grade == "A":
+		return "FINAL PASS // STRONG CANDIDATE"
+	return "FINAL PASS // ONE MORE POLISH"
+
+
+func get_chapter_final_pass_detail() -> String:
+	if not is_chapter_complete():
+		return ""
+	var chapter_grade := get_chapter_grade()
+	if chapter_grade == "S":
+		return "This build is strong enough to present as a dual-stage vertical-slice candidate right now. Further work should focus on final packaging, not new systems."
+	if chapter_grade == "A":
+		return "The route is stable and presentation-ready in structure. One last polish pass on pacing and ending presentation should be enough for a stronger review build."
+	return "The chapter already reads as one coherent slice, but it still benefits from another polish pass before it should be framed as a finished review build."
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""

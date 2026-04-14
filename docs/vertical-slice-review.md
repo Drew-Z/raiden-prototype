@@ -73,4 +73,6 @@
 - `ChapterEnding` 的 `SLICE VERDICT` 结论卡
 - 第二关 Boss 终盘的 `FINISH WINDOW` 最终破口提示
 - `ChapterEnding` 新增 FLOW / PRESSURE / REVIEW 三张评审就绪卡，更适合直接用于 review build 展示
+- 第二关 Boss 终盘现在还带有独立 `FINAL BREACH` 编排，高潮终结线比之前更完整
+- `ChapterEnding` 新增 `FINAL PASS` 面板，当前 build 是否已经进入 review-ready 状态更容易判断
 - 如果继续沿路径 A 推进，下一步更适合做封版评审和最终包装，而不是继续扩新系统

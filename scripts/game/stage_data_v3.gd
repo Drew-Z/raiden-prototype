@@ -368,6 +368,16 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 				"drop_chance": 0.0
 			}
 		},
+		"finish_window_hazard": {
+			"type": "storm_strike",
+			"lanes": [118.0, 426.0],
+			"telegraph": 0.72,
+			"active": 0.26,
+			"banner": "FINAL BREACH",
+			"title": "FINISH WINDOW // BREACH LINE",
+			"detail": "The side lanes are collapsing one last time. Center is your final clean cut through the storm core.",
+			"card_duration": 1.1
+		},
 		"bullet_speed": 294.0,
 		"drop_chance": 0.0,
 		"tint": Color(0.84, 0.2, 0.18, 0.95),

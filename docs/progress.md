@@ -185,6 +185,12 @@
 - 第二关 Boss 终盘补成了 `LAST SAFE WINDOW -> OVERDRIVE -> FINISH WINDOW` 三段决策节拍，最后破口比之前更明确
 - `ChapterEnding` 新增章节评审就绪卡，把 FLOW、PRESSURE、REVIEW 三个维度直接展示出来
 - 当前路线 A 已经更接近“封版前最后一轮精修”，后续更适合做最终收口而不是继续扩系统
+
+### 阶段 20：路线 A 最终封版阶段补强
+
+- 第二关 Boss 的 `FINISH WINDOW` 现在会带出独立 `FINAL BREACH` 终盘编排，最终破口和中心突破线更明确
+- `ChapterEnding` 新增 `FINAL PASS` 面板，把当前 build 是否已经足够作为 review build 展示直接说清楚
+- 当前版本已经更接近“可封版的双关垂直切片候选”，后续重点更应该转向最终总结和封版判断
 - 然后正式决定是否进入双关垂直切片阶段
 
 ### 进入垂直切片前需要确认

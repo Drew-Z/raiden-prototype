@@ -81,6 +81,7 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - 第二关新的 `storm_cross` 十字封线和支援敌群联动可以与章节链路共存，不会打断 `--autoplay --chapter`
 - 第二关 Boss 相位切换和 overdrive 触发的风暴机关也可以与章节链路共存，不会打断 `--autoplay --chapter`
 - 第二关 Boss 终盘现在会依次触发 `LAST SAFE WINDOW` 与 `FINISH WINDOW`，终盘读图和资源决策更清楚
+- 第二关 Boss 终盘现在还会补一段 `FINAL BREACH` 终盘编排，把最终破口和中心突破线讲得更直接
 
 ## 当前结构说明
 
@@ -122,6 +123,7 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - 当前仓库里已经补了一份 `docs/vertical-slice-review.md`，用于明确判断当前 build 是否进入双关垂直切片收口阶段
 - `ChapterEnding` 现在还会播放独立章节结尾提示音，并先给出 route seal 封板，再展开完整 ending 内容
 - `ChapterEnding` 现在还会显示 `SLICE VERDICT` 与章节评审就绪卡，方便把当前 build 直接作为 review build 说明
+- `ChapterEnding` 现在再补了一张 `FINAL PASS` 面板，用来明确当前章节是否已经处在 review-ready 状态
 - 第二关 Boss 现在还带有独立的“最后安全窗口”提示，用于更明确地暴露 overdrive 前的资源决策点
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控

@@ -11,6 +11,7 @@ var seal_label: Label
 var route_band: PanelContainer
 var route_band_fill: ColorRect
 var route_band_text: Label
+var final_pass_panel: PanelContainer
 var bgm
 
 
@@ -227,6 +228,33 @@ func _build_ui() -> void:
 	for card_data in RunState.get_chapter_review_cards():
 		review_row.add_child(_build_review_card(card_data, accent_color))
 
+	final_pass_panel = PanelContainer.new()
+	root.add_child(final_pass_panel)
+	_register_reveal(final_pass_panel)
+
+	var final_pass_margin := MarginContainer.new()
+	final_pass_margin.add_theme_constant_override("margin_left", 14)
+	final_pass_margin.add_theme_constant_override("margin_top", 12)
+	final_pass_margin.add_theme_constant_override("margin_right", 14)
+	final_pass_margin.add_theme_constant_override("margin_bottom", 12)
+	final_pass_panel.add_child(final_pass_margin)
+
+	var final_pass_column := VBoxContainer.new()
+	final_pass_column.add_theme_constant_override("separation", 6)
+	final_pass_margin.add_child(final_pass_column)
+
+	var final_pass_title := Label.new()
+	final_pass_title.text = RunState.get_chapter_final_pass_title()
+	final_pass_title.add_theme_font_size_override("font_size", 18)
+	final_pass_title.add_theme_color_override("font_color", accent_color)
+	final_pass_column.add_child(final_pass_title)
+
+	var final_pass_body := Label.new()
+	final_pass_body.text = RunState.get_chapter_final_pass_detail()
+	final_pass_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	final_pass_body.add_theme_font_size_override("font_size", 18)
+	final_pass_column.add_child(final_pass_body)
+
 	var footer_row := HBoxContainer.new()
 	footer_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	footer_row.add_theme_constant_override("separation", 14)
@@ -371,6 +399,8 @@ func _play_intro_motion() -> void:
 		pulse_glow.color.a = 0.14
 		seal_panel.modulate.a = 1.0
 		route_band_fill.scale.x = 1.0
+		if is_instance_valid(final_pass_panel):
+			final_pass_panel.scale = Vector2.ONE
 		return
 
 	var bar_tween := create_tween()
@@ -389,6 +419,12 @@ func _play_intro_motion() -> void:
 	var route_tween := create_tween()
 	route_tween.tween_interval(0.58)
 	route_tween.tween_property(route_band_fill, "scale:x", 1.0, 0.48)
+
+	if is_instance_valid(final_pass_panel):
+		final_pass_panel.scale = Vector2(0.98, 0.98)
+		var pass_tween := create_tween()
+		pass_tween.tween_interval(0.92)
+		pass_tween.tween_property(final_pass_panel, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _play_reveal_sequence() -> void:

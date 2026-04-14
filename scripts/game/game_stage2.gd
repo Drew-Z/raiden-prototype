@@ -999,6 +999,7 @@ func _handle_boss_finish_window() -> void:
 	_start_shake(10.0, 0.22)
 	_trigger_hit_stop(0.028, 0.12)
 	_play_sfx("boss_phase")
+	_trigger_boss_hazard("finish_window_hazard")
 
 
 func _trigger_boss_hazard(config_key: String) -> void:
