@@ -1,19 +1,26 @@
 extends Control
 
+const BgmControllerScript := preload("res://scripts/game/bgm_controller.gd")
+
 var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
 var pulse_glow: ColorRect
 var seal_panel: PanelContainer
 var seal_label: Label
+var route_band: PanelContainer
+var route_band_fill: ColorRect
+var route_band_text: Label
+var bgm
 
 
 func _ready() -> void:
 	_build_ui()
 	_play_intro_motion()
 	_play_reveal_sequence()
+	_play_audio()
 	if RunState.is_autoplay():
-		get_tree().create_timer(0.85).timeout.connect(func() -> void:
+		get_tree().create_timer(1.05).timeout.connect(func() -> void:
 			RunState.show_chapter_outro()
 		)
 
@@ -71,6 +78,8 @@ func _build_ui() -> void:
 	root.add_theme_constant_override("separation", 18)
 	frame.add_child(root)
 
+	var accent_color := _get_grade_color()
+
 	seal_panel = PanelContainer.new()
 	seal_panel.set_anchors_preset(Control.PRESET_CENTER)
 	seal_panel.offset_left = -150.0
@@ -95,13 +104,14 @@ func _build_ui() -> void:
 	seal_title.text = "ROUTE SEAL"
 	seal_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_title.add_theme_font_size_override("font_size", 18)
-	seal_title.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
+	seal_title.add_theme_color_override("font_color", accent_color)
 	seal_column.add_child(seal_title)
 
 	seal_label = Label.new()
 	seal_label.text = "CHAPTER %s" % RunState.get_chapter_grade()
 	seal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_label.add_theme_font_size_override("font_size", 34)
+	seal_label.add_theme_color_override("font_color", accent_color)
 	seal_column.add_child(seal_label)
 
 	var seal_summary := Label.new()
@@ -119,7 +129,7 @@ func _build_ui() -> void:
 	banner.text = RunState.get_chapter_ending_banner()
 	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	banner.add_theme_font_size_override("font_size", 18)
-	banner.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
+	banner.add_theme_color_override("font_color", accent_color)
 	hero.add_child(banner)
 
 	var title := Label.new()
@@ -134,6 +144,39 @@ func _build_ui() -> void:
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	subtitle.add_theme_font_size_override("font_size", 20)
 	hero.add_child(subtitle)
+
+	route_band = PanelContainer.new()
+	root.add_child(route_band)
+	_register_reveal(route_band)
+
+	var route_margin := MarginContainer.new()
+	route_margin.add_theme_constant_override("margin_left", 12)
+	route_margin.add_theme_constant_override("margin_top", 10)
+	route_margin.add_theme_constant_override("margin_right", 12)
+	route_margin.add_theme_constant_override("margin_bottom", 10)
+	route_band.add_child(route_margin)
+
+	var route_overlay := Control.new()
+	route_overlay.custom_minimum_size = Vector2(0, 60)
+	route_overlay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	route_margin.add_child(route_overlay)
+
+	route_band_fill = ColorRect.new()
+	route_band_fill.color = Color(accent_color.r, accent_color.g, accent_color.b, 0.22)
+	route_band_fill.set_anchors_preset(Control.PRESET_FULL_RECT)
+	route_band_fill.offset_top = 18.0
+	route_band_fill.offset_bottom = -18.0
+	route_band_fill.scale = Vector2(0.0, 1.0)
+	route_band_fill.pivot_offset = Vector2(0.0, 12.0)
+	route_overlay.add_child(route_band_fill)
+
+	route_band_text = Label.new()
+	route_band_text.text = "SCRAMBLE SECURED  ->  STORM FRONT COLLAPSED  ->  ROUTE LOCKED"
+	route_band_text.set_anchors_preset(Control.PRESET_FULL_RECT)
+	route_band_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	route_band_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	route_band_text.add_theme_font_size_override("font_size", 20)
+	route_overlay.add_child(route_band_text)
 
 	var score_row := HBoxContainer.new()
 	score_row.add_theme_constant_override("separation", 14)
@@ -257,6 +300,7 @@ func _play_intro_motion() -> void:
 		bottom_bar.offset_top = -58.0
 		pulse_glow.color.a = 0.14
 		seal_panel.modulate.a = 1.0
+		route_band_fill.scale.x = 1.0
 		return
 
 	var bar_tween := create_tween()
@@ -271,6 +315,10 @@ func _play_intro_motion() -> void:
 	seal_tween.tween_property(seal_panel, "modulate:a", 1.0, 0.2)
 	seal_tween.tween_interval(0.34)
 	seal_tween.tween_property(seal_panel, "modulate:a", 0.0, 0.22)
+
+	var route_tween := create_tween()
+	route_tween.tween_interval(0.58)
+	route_tween.tween_property(route_band_fill, "scale:x", 1.0, 0.48)
 
 
 func _play_reveal_sequence() -> void:
@@ -288,3 +336,23 @@ func _play_reveal_sequence() -> void:
 			var tween := create_tween()
 			tween.tween_property(target, "modulate:a", 1.0, 0.24)
 		)
+
+
+func _play_audio() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	bgm = BgmControllerScript.new()
+	add_child(bgm)
+	bgm.play_chapter_end_sting()
+
+
+func _get_grade_color() -> Color:
+	match RunState.get_chapter_grade():
+		"S":
+			return Color(1.0, 0.9, 0.58)
+		"A":
+			return Color(0.82, 0.94, 1.0)
+		"B":
+			return Color(0.92, 0.84, 0.56)
+		_:
+			return Color(0.84, 0.84, 0.9)

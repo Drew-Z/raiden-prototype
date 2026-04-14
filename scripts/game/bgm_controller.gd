@@ -35,6 +35,10 @@ func play_clear_sting() -> void:
 	_play_sting("clear_sting")
 
 
+func play_chapter_end_sting() -> void:
+	_play_sting("chapter_end_sting")
+
+
 func play_fail_sting() -> void:
 	_play_sting("fail_sting")
 
@@ -111,6 +115,13 @@ func _get_stream(track_name: String) -> AudioStreamWAV:
 				{"freq": 659.25, "duration": 0.08, "volume": 0.12, "wave": "sine"},
 				{"freq": 783.99, "duration": 0.12, "volume": 0.11, "wave": "sine"}
 			], 0.018)
+		"chapter_end_sting":
+			stream = _build_one_shot_stream([
+				{"freq": 392.00, "duration": 0.08, "volume": 0.11, "wave": "triangle"},
+				{"freq": 523.25, "duration": 0.08, "volume": 0.11, "wave": "triangle"},
+				{"freq": 659.25, "duration": 0.1, "volume": 0.12, "wave": "sine"},
+				{"freq": 783.99, "duration": 0.14, "volume": 0.12, "wave": "sine"}
+			], 0.02)
 		"fail_sting":
 			stream = _build_one_shot_stream([
 				{"freq": 246.94, "duration": 0.08, "volume": 0.12, "wave": "triangle"},
