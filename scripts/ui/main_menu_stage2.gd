@@ -79,7 +79,7 @@ func _build_ui() -> void:
 	build_column.add_child(build_summary)
 
 	var chapter_button := Button.new()
-	chapter_button.text = "Chapter Run\nStage 01 -> Stage 02"
+	chapter_button.text = "Chapter Run\nStage 01 -> Stage 02\n%s" % RunState.get_release_candidate_label()
 	chapter_button.custom_minimum_size = Vector2(320, 74)
 	chapter_button.pressed.connect(RunState.start_chapter)
 	column.add_child(chapter_button)

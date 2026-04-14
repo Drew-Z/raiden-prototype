@@ -808,6 +808,16 @@ func get_demo_checklist_text() -> String:
 	return "Demo Checklist\n- Prefer Chapter Run over single-stage entry\n- Highlight Stage 01 growth and bomb routing\n- Show Stage 02 storm hazards and boss climax\n- Finish on Ending / Debrief for the full package"
 
 
+func get_release_candidate_label() -> String:
+	if is_chapter_complete():
+		var chapter_grade := get_chapter_grade()
+		if chapter_grade == "S":
+			return "CURRENT RC // REVIEW READY"
+		if chapter_grade == "A":
+			return "CURRENT RC // STRONG CANDIDATE"
+	return "CURRENT RC // CHAPTER RUN RECOMMENDED"
+
+
 func get_chapter_transition_text() -> String:
 	if not is_chapter_transition_pending():
 		return ""

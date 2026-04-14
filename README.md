@@ -104,3 +104,4 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [双关垂直切片评估](D:/workspace4Codex/raiden prototype/docs/vertical-slice-review.md)
 - [封版总结](D:/workspace4Codex/raiden prototype/docs/final-slice-summary.md)
 - [最终项目总总结](D:/workspace4Codex/raiden prototype/docs/final-project-report.md)
+- [当前封版候选说明](D:/workspace4Codex/raiden prototype/docs/release-candidate-note.md)
