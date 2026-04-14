@@ -93,3 +93,4 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [第一阶段设计文档](D:/workspace4Codex/raiden prototype/docs/phase-1-design.md)
 - [开发与验证说明](D:/workspace4Codex/raiden prototype/docs/development.md)
 - [当前进度记录](D:/workspace4Codex/raiden prototype/docs/progress.md)
+- [双关垂直切片评估](D:/workspace4Codex/raiden prototype/docs/vertical-slice-review.md)

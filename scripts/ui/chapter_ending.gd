@@ -4,6 +4,8 @@ var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
 var pulse_glow: ColorRect
+var seal_panel: PanelContainer
+var seal_label: Label
 
 
 func _ready() -> void:
@@ -68,6 +70,45 @@ func _build_ui() -> void:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 18)
 	frame.add_child(root)
+
+	seal_panel = PanelContainer.new()
+	seal_panel.set_anchors_preset(Control.PRESET_CENTER)
+	seal_panel.offset_left = -150.0
+	seal_panel.offset_top = -74.0
+	seal_panel.offset_right = 150.0
+	seal_panel.offset_bottom = 74.0
+	seal_panel.modulate.a = 0.0
+	add_child(seal_panel)
+
+	var seal_margin := MarginContainer.new()
+	seal_margin.add_theme_constant_override("margin_left", 16)
+	seal_margin.add_theme_constant_override("margin_top", 12)
+	seal_margin.add_theme_constant_override("margin_right", 16)
+	seal_margin.add_theme_constant_override("margin_bottom", 12)
+	seal_panel.add_child(seal_margin)
+
+	var seal_column := VBoxContainer.new()
+	seal_column.add_theme_constant_override("separation", 4)
+	seal_margin.add_child(seal_column)
+
+	var seal_title := Label.new()
+	seal_title.text = "ROUTE SEAL"
+	seal_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	seal_title.add_theme_font_size_override("font_size", 18)
+	seal_title.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
+	seal_column.add_child(seal_title)
+
+	seal_label = Label.new()
+	seal_label.text = "CHAPTER %s" % RunState.get_chapter_grade()
+	seal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	seal_label.add_theme_font_size_override("font_size", 34)
+	seal_column.add_child(seal_label)
+
+	var seal_summary := Label.new()
+	seal_summary.text = "Storm Front secured"
+	seal_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	seal_summary.add_theme_font_size_override("font_size", 18)
+	seal_column.add_child(seal_summary)
 
 	var hero := VBoxContainer.new()
 	hero.add_theme_constant_override("separation", 6)
@@ -215,6 +256,7 @@ func _play_intro_motion() -> void:
 		top_bar.offset_bottom = 58.0
 		bottom_bar.offset_top = -58.0
 		pulse_glow.color.a = 0.14
+		seal_panel.modulate.a = 1.0
 		return
 
 	var bar_tween := create_tween()
@@ -224,6 +266,11 @@ func _play_intro_motion() -> void:
 	var pulse_tween := create_tween().set_loops()
 	pulse_tween.tween_property(pulse_glow, "color:a", 0.16, 0.42)
 	pulse_tween.tween_property(pulse_glow, "color:a", 0.05, 0.55)
+
+	var seal_tween := create_tween()
+	seal_tween.tween_property(seal_panel, "modulate:a", 1.0, 0.2)
+	seal_tween.tween_interval(0.34)
+	seal_tween.tween_property(seal_panel, "modulate:a", 0.0, 0.22)
 
 
 func _play_reveal_sequence() -> void:
@@ -235,7 +282,7 @@ func _play_reveal_sequence() -> void:
 	for index in range(reveal_nodes.size()):
 		var target := reveal_nodes[index]
 		var delay := 0.12 * float(index)
-		get_tree().create_timer(0.14 + delay).timeout.connect(func() -> void:
+		get_tree().create_timer(0.56 + delay).timeout.connect(func() -> void:
 			if not is_instance_valid(target):
 				return
 			var tween := create_tween()

@@ -39,13 +39,13 @@ func _build_ui() -> void:
 	column.add_child(title)
 
 	var tag := Label.new()
-	tag.text = "PHASE 2 SHOWCASE BUILD"
+	tag.text = "DUAL-STAGE VERTICAL SLICE CANDIDATE"
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.add_theme_font_size_override("font_size", 24)
 	column.add_child(tag)
 
 	var summary := Label.new()
-	summary.text = "Stage 01 is the polished opener.\nStage 02 now supports direct chapter carry-over and a heavier storm boss route."
+	summary.text = "Stage 01 is the polished opener.\nStage 02 now carries storm hazards through the boss route and chapter ending flow."
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.add_theme_font_size_override("font_size", 22)
 	column.add_child(summary)
@@ -70,10 +70,16 @@ func _build_ui() -> void:
 		stage_button_row.add_child(button)
 
 	var features := Label.new()
-	features.text = "Current builds:\n- Stage 01: showcase opener with cleaner pacing and chapter handoff\n- Stage 02: denser side pressure, screen-fire routing and a storm-pattern boss\n- Chapter Run: carries lives, bombs and fire growth into Stage 02"
+	features.text = "Current build status:\n- Stage 01: showcase opener with clean growth and chapter handoff\n- Stage 02: enemy, environment and boss hazards now sync into one storm route\n- Chapter Run: includes Briefing, Ending and Debrief as a full two-stage presentation chain"
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.add_theme_font_size_override("font_size", 18)
 	column.add_child(features)
+
+	var assessment := Label.new()
+	assessment.text = "Assessment:\n- This build now behaves like a dual-stage vertical-slice candidate\n- Best next step is either slice polish and final packaging, or a deliberate expansion into a fuller chapter pipeline"
+	assessment.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	assessment.add_theme_font_size_override("font_size", 17)
+	column.add_child(assessment)
 
 	if RunState.current_run.duration_sec > 0.0:
 		var last_sortie := Label.new()

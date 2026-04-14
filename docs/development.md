@@ -118,6 +118,7 @@ CHAPTER_RESULT victory=true total_score=52157 kill_rate=92.07 stages=2 highest_f
 - `ChapterBriefing` 和 `ChapterOutro` 现在都会展示章节卡片，让双关路线在中场和尾声里更容易阅读
 - `ChapterOutro` 现在会先播一个短暂的 ending 封板，再进入完整 debrief 面板
 - Boss 级风暴联动依然通过主控触发、数据脚本配置的方式接入，没有把环境逻辑重新塞回敌人脚本
+- 当前仓库里已经补了一份 `docs/vertical-slice-review.md`，用于明确判断当前 build 是否进入双关垂直切片收口阶段
 - 章节结束后的 `Retry` 现在可以直接重开整个 `Chapter Run`，不会误重开为单独第二关
 - 如果继续扩展展示层，建议优先沿用现有模块，不要把反馈逻辑重新塞回主控
 
