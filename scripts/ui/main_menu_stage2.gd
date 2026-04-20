@@ -10,6 +10,9 @@ func _ready() -> void:
 
 
 func _build_ui() -> void:
+	var viewport_size := get_viewport_rect().size
+	var narrow_layout := viewport_size.x <= 560.0
+
 	var background := ColorRect.new()
 	background.color = Color(0.03, 0.04, 0.1)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -22,15 +25,33 @@ func _build_ui() -> void:
 	stripe.offset_bottom = 290.0
 	add_child(stripe)
 
-	var content_width := clampf(get_viewport_rect().size.x - 260.0, 620.0, 860.0)
+	var scroll := ScrollContainer.new()
+	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scroll.offset_left = 12.0
+	scroll.offset_top = 18.0
+	scroll.offset_right = -12.0
+	scroll.offset_bottom = -12.0
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(scroll)
+
+	var frame := MarginContainer.new()
+	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	frame.add_theme_constant_override("margin_left", 10 if narrow_layout else 24)
+	frame.add_theme_constant_override("margin_top", 18)
+	frame.add_theme_constant_override("margin_right", 10 if narrow_layout else 24)
+	frame.add_theme_constant_override("margin_bottom", 18)
+	scroll.add_child(frame)
+
+	var content_width := minf(viewport_size.x - (44.0 if narrow_layout else 96.0), 860.0)
+	var content_box := CenterContainer.new()
+	content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frame.add_child(content_box)
+
 	var column := VBoxContainer.new()
-	column.set_anchors_preset(Control.PRESET_CENTER)
-	column.offset_left = -content_width * 0.5
-	column.offset_top = -320
-	column.offset_right = content_width * 0.5
-	column.offset_bottom = 320
+	column.custom_minimum_size = Vector2(maxf(0.0, content_width), 0.0)
 	column.add_theme_constant_override("separation", 18)
-	add_child(column)
+	content_box.add_child(column)
 
 	var settings_row := HBoxContainer.new()
 	settings_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -65,14 +86,15 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "RAIDEN PROTOTYPE"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 42)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 30 if narrow_layout else 42)
 	column.add_child(title)
 
 	var tag := Label.new()
 	tag.text = _t("双关纵版切片候选", "DUAL-STAGE VERTICAL SLICE CANDIDATE")
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	tag.add_theme_font_size_override("font_size", 24)
+	tag.add_theme_font_size_override("font_size", 19 if narrow_layout else 24)
 	column.add_child(tag)
 
 	var summary := Label.new()
@@ -82,7 +104,7 @@ func _build_ui() -> void:
 	)
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.add_theme_font_size_override("font_size", 22)
+	summary.add_theme_font_size_override("font_size", 17 if narrow_layout else 22)
 	column.add_child(summary)
 
 	var build_panel := PanelContainer.new()
@@ -102,7 +124,8 @@ func _build_ui() -> void:
 	var build_title := Label.new()
 	build_title.text = RunState.get_build_badge()
 	build_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	build_title.add_theme_font_size_override("font_size", 18)
+	build_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	build_title.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	build_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	build_column.add_child(build_title)
 
@@ -110,7 +133,7 @@ func _build_ui() -> void:
 	build_summary.text = RunState.get_build_summary()
 	build_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	build_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	build_summary.add_theme_font_size_override("font_size", 18)
+	build_summary.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	build_column.add_child(build_summary)
 
 	var chapter_button := Button.new()
@@ -119,13 +142,15 @@ func _build_ui() -> void:
 		_t("推荐演示入口", "Recommended Demo Route"),
 		RunState.get_release_candidate_label()
 	]
-	chapter_button.custom_minimum_size = Vector2(360, 96)
+	chapter_button.custom_minimum_size = Vector2(0, 96)
+	chapter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chapter_button.pressed.connect(RunState.start_chapter)
 	column.add_child(chapter_button)
 
-	var stage_button_row := HBoxContainer.new()
-	stage_button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	stage_button_row.add_theme_constant_override("separation", 12)
+	var stage_button_row := GridContainer.new()
+	stage_button_row.columns = 1 if narrow_layout else 2
+	stage_button_row.add_theme_constant_override("h_separation", 12)
+	stage_button_row.add_theme_constant_override("v_separation", 12)
 	column.add_child(stage_button_row)
 
 	for stage_id in ["stage_1", "stage_2"]:
@@ -135,7 +160,8 @@ func _build_ui() -> void:
 			_get_stage_menu_label(stage_id, meta),
 			_get_stage_tagline(stage_id, meta)
 		]
-		button.custom_minimum_size = Vector2(220, 72)
+		button.custom_minimum_size = Vector2(0, 72)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(RunState.start_game.bind(stage_id))
 		stage_button_row.add_child(button)
 
@@ -146,7 +172,7 @@ func _build_ui() -> void:
 	)
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	features.add_theme_font_size_override("font_size", 18)
+	features.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	column.add_child(features)
 
 	var assessment := Label.new()
@@ -156,7 +182,7 @@ func _build_ui() -> void:
 	)
 	assessment.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	assessment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	assessment.add_theme_font_size_override("font_size", 17)
+	assessment.add_theme_font_size_override("font_size", 15 if narrow_layout else 17)
 	column.add_child(assessment)
 
 	var demo_panel := PanelContainer.new()
@@ -176,7 +202,7 @@ func _build_ui() -> void:
 	]
 	demo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	demo_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	demo_label.add_theme_font_size_override("font_size", 17)
+	demo_label.add_theme_font_size_override("font_size", 15 if narrow_layout else 17)
 	demo_margin.add_child(demo_label)
 
 	if RunState.current_run.duration_sec > 0.0:
@@ -193,7 +219,8 @@ func _build_ui() -> void:
 			RunState.current_run.max_fire_level
 		]
 		last_sortie.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		last_sortie.add_theme_font_size_override("font_size", 18)
+		last_sortie.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		last_sortie.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 		column.add_child(last_sortie)
 
 	var hint := Label.new()
@@ -203,7 +230,7 @@ func _build_ui() -> void:
 	)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.add_theme_font_size_override("font_size", 18)
+	hint.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	column.add_child(hint)
 
 

@@ -32,6 +32,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
+	var viewport_size := get_viewport_rect().size
+	var narrow_layout := viewport_size.x <= 560.0
+
 	var background := ColorRect.new()
 	background.color = Color(0.03, 0.04, 0.08)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -50,23 +53,35 @@ func _build_ui() -> void:
 	add_child(glow_bottom)
 
 	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -250
-	panel.offset_top = -350
-	panel.offset_right = 250
-	panel.offset_bottom = 350
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.offset_left = 14.0
+	panel.offset_top = 14.0
+	panel.offset_right = -14.0
+	panel.offset_bottom = -14.0
 	add_child(panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
+	margin.add_theme_constant_override("margin_left", 14 if narrow_layout else 20)
+	margin.add_theme_constant_override("margin_top", 14 if narrow_layout else 20)
+	margin.add_theme_constant_override("margin_right", 14 if narrow_layout else 20)
+	margin.add_theme_constant_override("margin_bottom", 14 if narrow_layout else 20)
 	panel.add_child(margin)
 
+	var root := VBoxContainer.new()
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 12)
+	margin.add_child(root)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll)
+
 	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - 68.0), 0.0)
 	column.add_theme_constant_override("separation", 14)
-	margin.add_child(column)
+	scroll.add_child(column)
 
 	var hero_box := VBoxContainer.new()
 	hero_box.add_theme_constant_override("separation", 6)
@@ -76,13 +91,14 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = RunState.get_result_title()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 36)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 28 if narrow_layout else 36)
 	hero_box.add_child(title)
 
 	var grade := Label.new()
 	grade.text = "%s %s" % [_t("评级", "GRADE"), (RunState.get_chapter_grade() if RunState.is_chapter_complete() else RunState.get_performance_grade())]
 	grade.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	grade.add_theme_font_size_override("font_size", 30)
+	grade.add_theme_font_size_override("font_size", 24 if narrow_layout else 30)
 	grade.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5) if RunState.current_run.victory else Color(1.0, 0.6, 0.48))
 	hero_box.add_child(grade)
 
@@ -90,18 +106,21 @@ func _build_ui() -> void:
 	flavor.text = RunState.get_result_flavor()
 	flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	flavor.add_theme_font_size_override("font_size", 18)
+	flavor.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	hero_box.add_child(flavor)
 
 	var tags := Label.new()
 	tags.text = " / ".join(RunState.get_result_tags())
 	tags.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tags.add_theme_font_size_override("font_size", 16)
+	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tags.add_theme_font_size_override("font_size", 14 if narrow_layout else 16)
 	hero_box.add_child(tags)
 
 	if RunState.is_chapter_mode():
-		var timeline_row := HBoxContainer.new()
-		timeline_row.add_theme_constant_override("separation", 10)
+		var timeline_row := GridContainer.new()
+		timeline_row.columns = 1 if narrow_layout else 2
+		timeline_row.add_theme_constant_override("h_separation", 10)
+		timeline_row.add_theme_constant_override("v_separation", 10)
 		column.add_child(timeline_row)
 		_register_reveal(timeline_row)
 		for card_data in RunState.get_chapter_timeline():
@@ -119,7 +138,8 @@ func _build_ui() -> void:
 		chapter_panel.add_child(chapter_margin)
 		var chapter_label := Label.new()
 		chapter_label.text = "%s\n%s" % [RunState.get_chapter_progress_text(), RunState.get_chapter_stage_breakdown_text()]
-		chapter_label.add_theme_font_size_override("font_size", 18)
+		chapter_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		chapter_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 		chapter_margin.add_child(chapter_label)
 
 	if RunState.is_chapter_complete():
@@ -134,13 +154,13 @@ func _build_ui() -> void:
 		chapter_clear_panel.add_child(chapter_clear_margin)
 		var chapter_clear_label := Label.new()
 		chapter_clear_label.text = "%s\n%s" % [_t("章节总结", "CHAPTER SUMMARY"), RunState.get_chapter_clear_summary()]
-		chapter_clear_label.add_theme_font_size_override("font_size", 20)
+		chapter_clear_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 		chapter_clear_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		chapter_clear_margin.add_child(chapter_clear_label)
 
 		var epilogue_label := Label.new()
 		epilogue_label.text = "%s\n%s" % [_t("尾声", "EPILOGUE"), RunState.get_chapter_epilogue()]
-		epilogue_label.add_theme_font_size_override("font_size", 18)
+		epilogue_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 		epilogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		chapter_clear_margin.add_child(epilogue_label)
 
@@ -161,12 +181,14 @@ func _build_ui() -> void:
 			RunState.get_chapter_carry_summary(),
 			RunState.get_chapter_transition_brief()
 		]
-		transition_label.add_theme_font_size_override("font_size", 20)
+		transition_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 		transition_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		transition_margin.add_child(transition_label)
 
-	var stat_row := HBoxContainer.new()
-	stat_row.add_theme_constant_override("separation", 10)
+	var stat_row := GridContainer.new()
+	stat_row.columns = 1 if narrow_layout else 3
+	stat_row.add_theme_constant_override("h_separation", 10)
+	stat_row.add_theme_constant_override("v_separation", 10)
 	column.add_child(stat_row)
 	_register_reveal(stat_row)
 	if RunState.is_chapter_complete():
@@ -189,11 +211,14 @@ func _build_ui() -> void:
 	route_panel.add_child(route_margin)
 	var route_label := Label.new()
 	route_label.text = "%s\n%s  %s" % [RunState.get_stage_display_name(String(RunState.current_run.get("stage_id", RunState.get_selected_stage_id()))), _t("火力路线", "FIRE ROUTE"), RunState.get_fire_route_text()]
-	route_label.add_theme_font_size_override("font_size", 20)
+	route_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	route_label.add_theme_font_size_override("font_size", 17 if narrow_layout else 20)
 	route_margin.add_child(route_label)
 
-	var insight_row := HBoxContainer.new()
-	insight_row.add_theme_constant_override("separation", 10)
+	var insight_row := GridContainer.new()
+	insight_row.columns = 1 if narrow_layout else 3
+	insight_row.add_theme_constant_override("h_separation", 10)
+	insight_row.add_theme_constant_override("v_separation", 10)
 	column.add_child(insight_row)
 	_register_reveal(insight_row)
 	insight_row.add_child(_build_text_card(_t("输出", "OFFENSE"), RunState.get_offense_summary()))
@@ -215,7 +240,7 @@ func _build_ui() -> void:
 
 	var score_breakdown := Label.new()
 	score_breakdown.text = RunState.get_score_breakdown_text()
-	score_breakdown.add_theme_font_size_override("font_size", 18)
+	score_breakdown.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	breakdown_column.add_child(score_breakdown)
 
 	var detail := Label.new()
@@ -244,6 +269,7 @@ func _build_ui() -> void:
 			RunState.current_run.duration_sec
 		]
 	detail.add_theme_font_size_override("font_size", 18)
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	breakdown_column.add_child(detail)
 
 	var analysis_panel := PanelContainer.new()
@@ -258,12 +284,12 @@ func _build_ui() -> void:
 	var analysis := Label.new()
 	analysis.text = "%s  %s" % [_t("下一步重点", "NEXT FOCUS"), RunState.get_next_focus()]
 	analysis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	analysis.add_theme_font_size_override("font_size", 18)
+	analysis.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	analysis_margin.add_child(analysis)
 
 	var footer_box := VBoxContainer.new()
 	footer_box.add_theme_constant_override("separation", 10)
-	column.add_child(footer_box)
+	root.add_child(footer_box)
 	_register_reveal(footer_box)
 
 	var footer := Label.new()
@@ -273,18 +299,21 @@ func _build_ui() -> void:
 		else (_t("回车进入结尾    R 重开章节    Esc 主菜单", "Enter Ending    R Retry Chapter    Esc Main Menu") if RunState.is_chapter_complete() else _t("R 重开    Esc 主菜单", "R Retry    Esc Main Menu"))
 	)
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 18)
+	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	footer.add_theme_font_size_override("font_size", 15 if narrow_layout else 18)
 	footer_box.add_child(footer)
 
-	var button_row := HBoxContainer.new()
-	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	button_row.add_theme_constant_override("separation", 12)
+	var button_row := GridContainer.new()
+	button_row.columns = 1 if narrow_layout else 3
+	button_row.add_theme_constant_override("h_separation", 12)
+	button_row.add_theme_constant_override("v_separation", 12)
 	footer_box.add_child(button_row)
 
 	if RunState.is_chapter_transition_pending():
 		var next_button := Button.new()
 		next_button.text = _t("简报", "Briefing")
-		next_button.custom_minimum_size = Vector2(170, 52)
+		next_button.custom_minimum_size = Vector2(0, 52)
+		next_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		next_button.pressed.connect(func() -> void:
 			RunState.show_chapter_briefing()
 		)
@@ -292,7 +321,8 @@ func _build_ui() -> void:
 	elif RunState.is_chapter_complete():
 		var debrief_button := Button.new()
 		debrief_button.text = _t("结尾", "Ending")
-		debrief_button.custom_minimum_size = Vector2(170, 52)
+		debrief_button.custom_minimum_size = Vector2(0, 52)
+		debrief_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		debrief_button.pressed.connect(func() -> void:
 			RunState.show_chapter_ending()
 		)
@@ -300,7 +330,8 @@ func _build_ui() -> void:
 
 	var again_button := Button.new()
 	again_button.text = _t("重开章节", "Retry Chapter") if RunState.is_chapter_complete() else _t("重开", "Retry")
-	again_button.custom_minimum_size = Vector2(170, 52)
+	again_button.custom_minimum_size = Vector2(0, 52)
+	again_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	again_button.pressed.connect(func() -> void:
 		if RunState.is_chapter_complete():
 			RunState.start_chapter()
@@ -311,7 +342,8 @@ func _build_ui() -> void:
 
 	var menu_button := Button.new()
 	menu_button.text = _t("主菜单", "Main Menu")
-	menu_button.custom_minimum_size = Vector2(170, 48)
+	menu_button.custom_minimum_size = Vector2(0, 48)
+	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)
@@ -333,11 +365,13 @@ func _build_stat_card(title_text: String, value_text: String) -> Control:
 
 	var title := Label.new()
 	title.text = title_text
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", 14)
 	column.add_child(title)
 
 	var value := Label.new()
 	value.text = value_text
+	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value.add_theme_font_size_override("font_size", 24)
 	column.add_child(value)
 	return panel
@@ -385,6 +419,7 @@ func _build_chapter_stage_card(card_data: Dictionary) -> Control:
 
 	var label := Label.new()
 	label.text = String(card_data.get("label", "STAGE"))
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 16)
 	column.add_child(label)
 
