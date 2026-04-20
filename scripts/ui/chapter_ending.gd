@@ -13,6 +13,7 @@ var route_band_fill: ColorRect
 var route_band_text: Label
 var final_pass_panel: PanelContainer
 var bgm
+var scroll_container: ScrollContainer
 
 
 func _ready() -> void:
@@ -24,6 +25,11 @@ func _ready() -> void:
 		get_tree().create_timer(1.05).timeout.connect(func() -> void:
 			RunState.show_chapter_outro()
 		)
+
+
+func _input(event: InputEvent) -> void:
+	if _handle_wheel_scroll(event):
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -42,11 +48,13 @@ func _build_ui() -> void:
 	var background := ColorRect.new()
 	background.color = Color(0.015, 0.02, 0.05)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
 	pulse_glow = ColorRect.new()
 	pulse_glow.color = Color(0.96, 0.78, 0.36, 0.06)
 	pulse_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pulse_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(pulse_glow)
 
 	for index in range(7):
@@ -56,11 +64,13 @@ func _build_ui() -> void:
 		stripe.anchor_right = 1.0
 		stripe.offset_top = 108.0 + float(index) * 88.0
 		stripe.offset_bottom = stripe.offset_top + 2.0
+		stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(stripe)
 
 	top_bar = ColorRect.new()
 	top_bar.color = Color(0.0, 0.0, 0.0, 0.92)
 	top_bar.anchor_right = 1.0
+	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(top_bar)
 
 	bottom_bar = ColorRect.new()
@@ -68,6 +78,7 @@ func _build_ui() -> void:
 	bottom_bar.anchor_top = 1.0
 	bottom_bar.anchor_right = 1.0
 	bottom_bar.anchor_bottom = 1.0
+	bottom_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bottom_bar)
 
 	var frame := MarginContainer.new()
@@ -76,23 +87,26 @@ func _build_ui() -> void:
 	frame.add_theme_constant_override("margin_top", 26 if narrow_layout else 110)
 	frame.add_theme_constant_override("margin_right", 16 if narrow_layout else 72)
 	frame.add_theme_constant_override("margin_bottom", 20 if narrow_layout else 110)
+	frame.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(frame)
 
 	var root := VBoxContainer.new()
 	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_theme_constant_override("separation", 16 if narrow_layout else 18)
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	frame.add_child(root)
 
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	root.add_child(scroll)
+	scroll_container = ScrollContainer.new()
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll_container)
 
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - (32.0 if narrow_layout else 144.0)), 0.0)
 	content.add_theme_constant_override("separation", 16 if narrow_layout else 18)
-	scroll.add_child(content)
+	content.mouse_filter = Control.MOUSE_FILTER_PASS
+	scroll_container.add_child(content)
 
 	var accent_color := _get_grade_color()
 
@@ -103,6 +117,7 @@ func _build_ui() -> void:
 	seal_panel.offset_right = 150.0
 	seal_panel.offset_bottom = 74.0
 	seal_panel.modulate.a = 0.0
+	seal_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(seal_panel)
 
 	var seal_margin := MarginContainer.new()
@@ -121,6 +136,7 @@ func _build_ui() -> void:
 	seal_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_title.add_theme_font_size_override("font_size", 18)
 	seal_title.add_theme_color_override("font_color", accent_color)
+	_mark_read_only(seal_title)
 	seal_column.add_child(seal_title)
 
 	seal_label = Label.new()
@@ -128,12 +144,14 @@ func _build_ui() -> void:
 	seal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_label.add_theme_font_size_override("font_size", 34)
 	seal_label.add_theme_color_override("font_color", accent_color)
+	_mark_read_only(seal_label)
 	seal_column.add_child(seal_label)
 
 	var seal_summary := Label.new()
 	seal_summary.text = _t("风暴前线已压制完成", "Storm Front secured")
 	seal_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_summary.add_theme_font_size_override("font_size", 18)
+	_mark_read_only(seal_summary)
 	seal_column.add_child(seal_summary)
 
 	var hero := VBoxContainer.new()
@@ -147,6 +165,7 @@ func _build_ui() -> void:
 	banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	banner.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	banner.add_theme_color_override("font_color", accent_color)
+	_mark_read_only(banner)
 	hero.add_child(banner)
 
 	var title := Label.new()
@@ -154,6 +173,7 @@ func _build_ui() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", 34 if narrow_layout else 42)
+	_mark_read_only(title)
 	hero.add_child(title)
 
 	var subtitle := Label.new()
@@ -161,6 +181,7 @@ func _build_ui() -> void:
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	subtitle.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
+	_mark_read_only(subtitle)
 	hero.add_child(subtitle)
 
 	route_band = PanelContainer.new()
@@ -186,6 +207,7 @@ func _build_ui() -> void:
 	route_band_fill.offset_bottom = -18.0
 	route_band_fill.scale = Vector2(0.0, 1.0)
 	route_band_fill.pivot_offset = Vector2(0.0, 12.0)
+	route_band_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	route_overlay.add_child(route_band_fill)
 
 	route_band_text = Label.new()
@@ -195,6 +217,7 @@ func _build_ui() -> void:
 	route_band_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	route_band_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	route_band_text.add_theme_font_size_override("font_size", 17 if narrow_layout else 20)
+	_mark_read_only(route_band_text)
 	route_overlay.add_child(route_band_text)
 
 	var score_row := GridContainer.new()
@@ -283,6 +306,7 @@ func _build_ui() -> void:
 	footer_row.columns = 1 if narrow_layout else 3
 	footer_row.add_theme_constant_override("h_separation", 14)
 	footer_row.add_theme_constant_override("v_separation", 12)
+	footer_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	root.add_child(footer_row)
 	_register_reveal(footer_row)
 
@@ -293,6 +317,7 @@ func _build_ui() -> void:
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	_mark_read_only(footer)
 	footer_row.add_child(footer)
 
 	var debrief_button := Button.new()
@@ -340,6 +365,9 @@ func _build_stat_card(title_text: String, value_text: String) -> Control:
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	value.add_theme_font_size_override("font_size", 24)
 	column.add_child(value)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(value)
 
 	return panel
 
@@ -375,6 +403,10 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_font_size_override("font_size", 14)
 	column.add_child(summary)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(status)
+	_mark_read_only(summary)
 
 	return panel
 
@@ -411,6 +443,10 @@ func _build_review_card(card_data: Dictionary, accent_color: Color) -> Control:
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail.add_theme_font_size_override("font_size", 14)
 	column.add_child(detail)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(status)
+	_mark_read_only(detail)
 
 	return panel
 
@@ -443,6 +479,10 @@ func _play_intro_motion() -> void:
 	seal_tween.tween_property(seal_panel, "modulate:a", 1.0, 0.2)
 	seal_tween.tween_interval(0.34)
 	seal_tween.tween_property(seal_panel, "modulate:a", 0.0, 0.22)
+	seal_tween.finished.connect(func() -> void:
+		if is_instance_valid(seal_panel):
+			seal_panel.visible = false
+	)
 
 	var route_tween := create_tween()
 	route_tween.tween_interval(0.58)
@@ -494,3 +534,26 @@ func _get_grade_color() -> Color:
 
 func _t(zh_text: String, en_text: String) -> String:
 	return RunState.loc(zh_text, en_text)
+
+
+func _handle_wheel_scroll(event: InputEvent) -> bool:
+	if scroll_container == null or not is_instance_valid(scroll_container):
+		return false
+	if event is not InputEventMouseButton:
+		return false
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return false
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		scroll_container.scroll_vertical = maxi(0, scroll_container.scroll_vertical - 96)
+		return true
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		scroll_container.scroll_vertical += 96
+		return true
+	return false
+
+
+func _mark_read_only(control: Control) -> void:
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if control is Label:
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL

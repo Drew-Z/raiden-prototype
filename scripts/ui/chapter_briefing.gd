@@ -4,6 +4,7 @@ var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
 var scan_line: ColorRect
+var scroll_container: ScrollContainer
 
 
 func _ready() -> void:
@@ -16,6 +17,11 @@ func _ready() -> void:
 		)
 
 
+func _input(event: InputEvent) -> void:
+	if _handle_wheel_scroll(event):
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not event.is_echo():
 		RunState.start_next_chapter_stage()
@@ -25,15 +31,19 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build_ui() -> void:
 	var next_meta := RunState.get_next_stage_meta()
+	var viewport_size := get_viewport_rect().size
+	var narrow_layout := viewport_size.x <= 560.0
 
 	var background := ColorRect.new()
 	background.color = Color(0.015, 0.025, 0.05)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
 	var storm_glow := ColorRect.new()
 	storm_glow.color = Color(0.18, 0.34, 0.54, 0.16)
 	storm_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	storm_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(storm_glow)
 
 	for index in range(8):
@@ -45,12 +55,14 @@ func _build_ui() -> void:
 		stripe.anchor_bottom = 0.0
 		stripe.offset_top = 72.0 + 68.0 * float(index)
 		stripe.offset_bottom = stripe.offset_top + 2.0
+		stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(stripe)
 
 	top_bar = ColorRect.new()
 	top_bar.color = Color(0.0, 0.0, 0.0, 0.88)
 	top_bar.anchor_right = 1.0
 	top_bar.offset_bottom = 0.0
+	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(top_bar)
 
 	bottom_bar = ColorRect.new()
@@ -59,6 +71,7 @@ func _build_ui() -> void:
 	bottom_bar.anchor_right = 1.0
 	bottom_bar.anchor_bottom = 1.0
 	bottom_bar.offset_top = 0.0
+	bottom_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bottom_bar)
 
 	scan_line = ColorRect.new()
@@ -66,48 +79,71 @@ func _build_ui() -> void:
 	scan_line.anchor_right = 1.0
 	scan_line.offset_top = 180.0
 	scan_line.offset_bottom = 186.0
+	scan_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(scan_line)
 
 	var frame := MarginContainer.new()
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.add_theme_constant_override("margin_left", 56)
-	frame.add_theme_constant_override("margin_top", 78)
-	frame.add_theme_constant_override("margin_right", 56)
-	frame.add_theme_constant_override("margin_bottom", 78)
+	frame.add_theme_constant_override("margin_left", 16 if narrow_layout else 56)
+	frame.add_theme_constant_override("margin_top", 24 if narrow_layout else 78)
+	frame.add_theme_constant_override("margin_right", 16 if narrow_layout else 56)
+	frame.add_theme_constant_override("margin_bottom", 20 if narrow_layout else 78)
+	frame.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(frame)
 
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 18)
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 14 if narrow_layout else 18)
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	frame.add_child(root)
-	var narrow_layout := get_viewport_rect().size.x <= 560.0
+
+	scroll_container = ScrollContainer.new()
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll_container)
+
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - (32.0 if narrow_layout else 120.0)), 0.0)
+	content.add_theme_constant_override("separation", 18 if not narrow_layout else 14)
+	content.mouse_filter = Control.MOUSE_FILTER_PASS
+	scroll_container.add_child(content)
 
 	var header := VBoxContainer.new()
 	header.add_theme_constant_override("separation", 4)
-	root.add_child(header)
+	content.add_child(header)
 	_register_reveal(header)
 
 	var status := Label.new()
 	status.text = _t("过场已锁定 // 第二段待命", "TRANSITION LOCKED // LEG 2 READY")
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.add_theme_font_size_override("font_size", 18)
 	status.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
+	_mark_read_only(status)
 	header.add_child(status)
 
 	var title := Label.new()
 	title.text = RunState.get_stage_display_name(String(next_meta.get("id", "")))
-	title.add_theme_font_size_override("font_size", 40)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 28 if narrow_layout else 40)
+	_mark_read_only(title)
 	header.add_child(title)
 
 	var tagline := Label.new()
 	tagline.text = RunState.get_stage_display_tagline(String(next_meta.get("id", ""))) if not next_meta.is_empty() else _t("准备进入下一战区。", "Proceed to the next combat zone.")
+	tagline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
 	tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	tagline.add_theme_font_size_override("font_size", 20)
+	tagline.add_theme_font_size_override("font_size", 17 if narrow_layout else 20)
+	_mark_read_only(tagline)
 	header.add_child(tagline)
 
 	var timeline_row := GridContainer.new()
 	timeline_row.columns = 1 if narrow_layout else 2
 	timeline_row.add_theme_constant_override("h_separation", 12)
 	timeline_row.add_theme_constant_override("v_separation", 12)
-	root.add_child(timeline_row)
+	content.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
@@ -116,7 +152,7 @@ func _build_ui() -> void:
 	focus_row.columns = 1 if narrow_layout else 2
 	focus_row.add_theme_constant_override("h_separation", 16)
 	focus_row.add_theme_constant_override("v_separation", 16)
-	root.add_child(focus_row)
+	content.add_child(focus_row)
 	_register_reveal(focus_row)
 
 	focus_row.add_child(_build_panel(
@@ -142,25 +178,31 @@ func _build_ui() -> void:
 			_t("按回车立即出击，按 Esc 返回主菜单。", "Enter to launch immediately. Esc returns to main menu.")
 		]
 	)
-	root.add_child(timeline_panel)
+	content.add_child(timeline_panel)
 	_register_reveal(timeline_panel)
 
-	var footer_row := HBoxContainer.new()
-	footer_row.alignment = BoxContainer.ALIGNMENT_END
-	footer_row.add_theme_constant_override("separation", 14)
+	var footer_row := GridContainer.new()
+	footer_row.columns = 1 if narrow_layout else 3
+	footer_row.add_theme_constant_override("h_separation", 14)
+	footer_row.add_theme_constant_override("v_separation", 12)
+	footer_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	root.add_child(footer_row)
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
 	footer.text = _t("回车出击    Esc 主菜单", "Enter Deploy    Esc Main Menu")
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 18)
+	footer.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	_mark_read_only(footer)
 	footer_row.add_child(footer)
 
 	var deploy_button := Button.new()
 	deploy_button.text = _t("出击", "Deploy")
-	deploy_button.custom_minimum_size = Vector2(190, 54)
+	deploy_button.custom_minimum_size = Vector2(0, 54)
+	deploy_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	deploy_button.pressed.connect(func() -> void:
 		RunState.start_next_chapter_stage()
 	)
@@ -168,7 +210,8 @@ func _build_ui() -> void:
 
 	var menu_button := Button.new()
 	menu_button.text = _t("主菜单", "Main Menu")
-	menu_button.custom_minimum_size = Vector2(170, 48)
+	menu_button.custom_minimum_size = Vector2(0, 48)
+	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)
@@ -201,6 +244,9 @@ func _build_panel(title_text: String, body_text: String) -> Control:
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.add_theme_font_size_override("font_size", 18)
 	column.add_child(body)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(body)
 
 	return panel
 
@@ -243,6 +289,10 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_font_size_override("font_size", 14)
 	column.add_child(summary)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(status)
+	_mark_read_only(summary)
 
 	return panel
 
@@ -286,3 +336,26 @@ func _play_reveal_sequence() -> void:
 
 func _t(zh_text: String, en_text: String) -> String:
 	return RunState.loc(zh_text, en_text)
+
+
+func _handle_wheel_scroll(event: InputEvent) -> bool:
+	if scroll_container == null or not is_instance_valid(scroll_container):
+		return false
+	if event is not InputEventMouseButton:
+		return false
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return false
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		scroll_container.scroll_vertical = maxi(0, scroll_container.scroll_vertical - 96)
+		return true
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		scroll_container.scroll_vertical += 96
+		return true
+	return false
+
+
+func _mark_read_only(control: Control) -> void:
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if control is Label:
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL

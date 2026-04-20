@@ -1,6 +1,7 @@
 extends Control
 
 var reveal_nodes: Array[CanvasItem] = []
+var scroll_container: ScrollContainer
 
 
 func _ready() -> void:
@@ -15,6 +16,11 @@ func _ready() -> void:
 			else:
 				get_tree().quit()
 		)
+
+
+func _input(event: InputEvent) -> void:
+	if _handle_wheel_scroll(event):
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -38,18 +44,21 @@ func _build_ui() -> void:
 	var background := ColorRect.new()
 	background.color = Color(0.03, 0.04, 0.08)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
 	var glow_top := ColorRect.new()
 	glow_top.color = Color(0.22, 0.32, 0.52, 0.22)
 	glow_top.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	glow_top.offset_bottom = 180.0
+	glow_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(glow_top)
 
 	var glow_bottom := ColorRect.new()
 	glow_bottom.color = Color(0.72, 0.34, 0.22, 0.12) if RunState.current_run.victory else Color(0.62, 0.18, 0.18, 0.14)
 	glow_bottom.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	glow_bottom.offset_top = -220.0
+	glow_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(glow_bottom)
 
 	var panel := PanelContainer.new()
@@ -58,6 +67,7 @@ func _build_ui() -> void:
 	panel.offset_top = 14.0
 	panel.offset_right = -14.0
 	panel.offset_bottom = -14.0
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(panel)
 
 	var margin := MarginContainer.new()
@@ -65,23 +75,26 @@ func _build_ui() -> void:
 	margin.add_theme_constant_override("margin_top", 14 if narrow_layout else 20)
 	margin.add_theme_constant_override("margin_right", 14 if narrow_layout else 20)
 	margin.add_theme_constant_override("margin_bottom", 14 if narrow_layout else 20)
+	margin.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.add_child(margin)
 
 	var root := VBoxContainer.new()
 	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_theme_constant_override("separation", 12)
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	margin.add_child(root)
 
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	root.add_child(scroll)
+	scroll_container = ScrollContainer.new()
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll_container)
 
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - 68.0), 0.0)
 	column.add_theme_constant_override("separation", 14)
-	scroll.add_child(column)
+	column.mouse_filter = Control.MOUSE_FILTER_PASS
+	scroll_container.add_child(column)
 
 	var hero_box := VBoxContainer.new()
 	hero_box.add_theme_constant_override("separation", 6)
@@ -93,6 +106,7 @@ func _build_ui() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", 28 if narrow_layout else 36)
+	_mark_read_only(title)
 	hero_box.add_child(title)
 
 	var grade := Label.new()
@@ -100,6 +114,7 @@ func _build_ui() -> void:
 	grade.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	grade.add_theme_font_size_override("font_size", 24 if narrow_layout else 30)
 	grade.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5) if RunState.current_run.victory else Color(1.0, 0.6, 0.48))
+	_mark_read_only(grade)
 	hero_box.add_child(grade)
 
 	var flavor := Label.new()
@@ -107,6 +122,7 @@ func _build_ui() -> void:
 	flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	flavor.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	_mark_read_only(flavor)
 	hero_box.add_child(flavor)
 
 	var tags := Label.new()
@@ -114,6 +130,7 @@ func _build_ui() -> void:
 	tags.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tags.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tags.add_theme_font_size_override("font_size", 14 if narrow_layout else 16)
+	_mark_read_only(tags)
 	hero_box.add_child(tags)
 
 	if RunState.is_chapter_mode():
@@ -140,6 +157,8 @@ func _build_ui() -> void:
 		chapter_label.text = "%s\n%s" % [RunState.get_chapter_progress_text(), RunState.get_chapter_stage_breakdown_text()]
 		chapter_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		chapter_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+		_mark_read_only(chapter_panel)
+		_mark_read_only(chapter_label)
 		chapter_margin.add_child(chapter_label)
 
 	if RunState.is_chapter_complete():
@@ -152,17 +171,23 @@ func _build_ui() -> void:
 		chapter_clear_margin.add_theme_constant_override("margin_right", 12)
 		chapter_clear_margin.add_theme_constant_override("margin_bottom", 10)
 		chapter_clear_panel.add_child(chapter_clear_margin)
+		var chapter_clear_column := VBoxContainer.new()
+		chapter_clear_column.add_theme_constant_override("separation", 10)
+		chapter_clear_margin.add_child(chapter_clear_column)
 		var chapter_clear_label := Label.new()
 		chapter_clear_label.text = "%s\n%s" % [_t("章节总结", "CHAPTER SUMMARY"), RunState.get_chapter_clear_summary()]
 		chapter_clear_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 		chapter_clear_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		chapter_clear_margin.add_child(chapter_clear_label)
+		chapter_clear_column.add_child(chapter_clear_label)
 
 		var epilogue_label := Label.new()
 		epilogue_label.text = "%s\n%s" % [_t("尾声", "EPILOGUE"), RunState.get_chapter_epilogue()]
 		epilogue_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 		epilogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		chapter_clear_margin.add_child(epilogue_label)
+		chapter_clear_column.add_child(epilogue_label)
+		_mark_read_only(chapter_clear_panel)
+		_mark_read_only(chapter_clear_label)
+		_mark_read_only(epilogue_label)
 
 	if RunState.is_chapter_transition_pending():
 		var transition_panel := PanelContainer.new()
@@ -183,6 +208,8 @@ func _build_ui() -> void:
 		]
 		transition_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 		transition_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_mark_read_only(transition_panel)
+		_mark_read_only(transition_label)
 		transition_margin.add_child(transition_label)
 
 	var stat_row := GridContainer.new()
@@ -213,6 +240,8 @@ func _build_ui() -> void:
 	route_label.text = "%s\n%s  %s" % [RunState.get_stage_display_name(String(RunState.current_run.get("stage_id", RunState.get_selected_stage_id()))), _t("火力路线", "FIRE ROUTE"), RunState.get_fire_route_text()]
 	route_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	route_label.add_theme_font_size_override("font_size", 17 if narrow_layout else 20)
+	_mark_read_only(route_panel)
+	_mark_read_only(route_label)
 	route_margin.add_child(route_label)
 
 	var insight_row := GridContainer.new()
@@ -241,6 +270,8 @@ func _build_ui() -> void:
 	var score_breakdown := Label.new()
 	score_breakdown.text = RunState.get_score_breakdown_text()
 	score_breakdown.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	score_breakdown.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_mark_read_only(score_breakdown)
 	breakdown_column.add_child(score_breakdown)
 
 	var detail := Label.new()
@@ -270,6 +301,8 @@ func _build_ui() -> void:
 		]
 	detail.add_theme_font_size_override("font_size", 18)
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_mark_read_only(breakdown_panel)
+	_mark_read_only(detail)
 	breakdown_column.add_child(detail)
 
 	var analysis_panel := PanelContainer.new()
@@ -285,10 +318,13 @@ func _build_ui() -> void:
 	analysis.text = "%s  %s" % [_t("下一步重点", "NEXT FOCUS"), RunState.get_next_focus()]
 	analysis.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	analysis.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	_mark_read_only(analysis_panel)
+	_mark_read_only(analysis)
 	analysis_margin.add_child(analysis)
 
 	var footer_box := VBoxContainer.new()
 	footer_box.add_theme_constant_override("separation", 10)
+	footer_box.mouse_filter = Control.MOUSE_FILTER_PASS
 	root.add_child(footer_box)
 	_register_reveal(footer_box)
 
@@ -301,12 +337,14 @@ func _build_ui() -> void:
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	footer.add_theme_font_size_override("font_size", 15 if narrow_layout else 18)
+	_mark_read_only(footer)
 	footer_box.add_child(footer)
 
 	var button_row := GridContainer.new()
 	button_row.columns = 1 if narrow_layout else 3
 	button_row.add_theme_constant_override("h_separation", 12)
 	button_row.add_theme_constant_override("v_separation", 12)
+	button_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	footer_box.add_child(button_row)
 
 	if RunState.is_chapter_transition_pending():
@@ -374,6 +412,9 @@ func _build_stat_card(title_text: String, value_text: String) -> Control:
 	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value.add_theme_font_size_override("font_size", 24)
 	column.add_child(value)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(value)
 	return panel
 
 
@@ -400,6 +441,9 @@ func _build_text_card(title_text: String, body_text: String) -> Control:
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.add_theme_font_size_override("font_size", 16)
 	column.add_child(body)
+	_mark_read_only(panel)
+	_mark_read_only(title)
+	_mark_read_only(body)
 	return panel
 
 
@@ -441,6 +485,10 @@ func _build_chapter_stage_card(card_data: Dictionary) -> Control:
 	summary.add_theme_font_size_override("font_size", 14)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(summary)
+	_mark_read_only(panel)
+	_mark_read_only(label)
+	_mark_read_only(status)
+	_mark_read_only(summary)
 	return panel
 
 
@@ -468,3 +516,26 @@ func _play_reveal_sequence() -> void:
 
 func _t(zh_text: String, en_text: String) -> String:
 	return RunState.loc(zh_text, en_text)
+
+
+func _handle_wheel_scroll(event: InputEvent) -> bool:
+	if scroll_container == null or not is_instance_valid(scroll_container):
+		return false
+	if event is not InputEventMouseButton:
+		return false
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return false
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		scroll_container.scroll_vertical = maxi(0, scroll_container.scroll_vertical - 96)
+		return true
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		scroll_container.scroll_vertical += 96
+		return true
+	return false
+
+
+func _mark_read_only(control: Control) -> void:
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if control is Label:
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL

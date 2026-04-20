@@ -38,6 +38,8 @@ func play_event(event_name: String) -> void:
 		return
 
 	var player: AudioStreamPlayer = _get_available_player()
+	player.volume_db = _get_volume_db(event_name)
+	player.pitch_scale = _get_pitch_scale(event_name)
 	player.stream = stream
 	player.play()
 
@@ -52,11 +54,49 @@ func _get_available_player() -> AudioStreamPlayer:
 func _get_cooldown(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return 0.05
+			return 0.09
 		"enemy_hit":
-			return 0.025
+			return 0.055
+		"enemy_destroy":
+			return 0.04
 		_:
 			return 0.0
+
+
+func _get_volume_db(event_name: String) -> float:
+	match event_name:
+		"player_shot":
+			return -12.0
+		"enemy_hit":
+			return -13.0
+		"enemy_destroy":
+			return -9.5
+		"boss_hit":
+			return -6.5
+		"power_up":
+			return -6.5
+		"bomb_pickup":
+			return -6.0
+		"bomb":
+			return -4.5
+		"boss_warning", "boss_phase":
+			return -4.0
+		"boss_break", "stage_clear":
+			return -2.5
+		_:
+			return -5.0
+
+
+func _get_pitch_scale(event_name: String) -> float:
+	match event_name:
+		"player_shot":
+			return randf_range(0.94, 0.99)
+		"enemy_hit":
+			return randf_range(0.92, 0.98)
+		"enemy_destroy":
+			return randf_range(0.94, 1.0)
+		_:
+			return 1.0
 
 
 func _get_stream_for_event(event_name: String) -> AudioStreamWAV:
@@ -67,22 +107,24 @@ func _get_stream_for_event(event_name: String) -> AudioStreamWAV:
 	match event_name:
 		"player_shot":
 			segments = [
-				{"freq": 980.0, "duration": 0.022, "volume": 0.18, "wave": "square"},
-				{"freq": 720.0, "duration": 0.028, "volume": 0.12, "wave": "triangle"}
+				{"freq": 520.0, "duration": 0.016, "volume": 0.075, "wave": "triangle"},
+				{"freq": 390.0, "duration": 0.026, "volume": 0.045, "wave": "sine"}
 			]
 		"enemy_hit":
 			segments = [
-				{"freq": 420.0, "duration": 0.018, "volume": 0.12, "wave": "square"}
+				{"freq": 180.0, "duration": 0.02, "volume": 0.055, "wave": "triangle"},
+				{"freq": 240.0, "duration": 0.02, "volume": 0.03, "wave": "sine"}
 			]
 		"enemy_destroy":
 			segments = [
-				{"freq": 260.0, "duration": 0.035, "volume": 0.2, "wave": "square"},
-				{"freq": 180.0, "duration": 0.06, "volume": 0.16, "wave": "triangle"}
+				{"freq": 170.0, "duration": 0.034, "volume": 0.1, "wave": "triangle"},
+				{"freq": 120.0, "duration": 0.06, "volume": 0.075, "wave": "sine"},
+				{"freq": 260.0, "duration": 0.016, "volume": 0.02, "wave": "noise"}
 			]
 		"boss_hit":
 			segments = [
-				{"freq": 220.0, "duration": 0.032, "volume": 0.22, "wave": "square"},
-				{"freq": 180.0, "duration": 0.05, "volume": 0.18, "wave": "triangle"}
+				{"freq": 190.0, "duration": 0.036, "volume": 0.15, "wave": "triangle"},
+				{"freq": 145.0, "duration": 0.05, "volume": 0.08, "wave": "square"}
 			]
 		"player_hurt":
 			segments = [
@@ -194,5 +236,7 @@ func _wave_sample(wave: String, freq: float, t: float) -> float:
 			return 1.0 if sin(TAU * phase) >= 0.0 else -1.0
 		"triangle":
 			return asin(sin(TAU * phase)) * (2.0 / PI)
+		"noise":
+			return randf_range(-1.0, 1.0)
 		_:
 			return sin(TAU * phase)
