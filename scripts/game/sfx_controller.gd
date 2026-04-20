@@ -122,15 +122,17 @@ func _get_sample_bank(event_name: String) -> Array:
 func _get_cooldown(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return 0.085
+			return 0.09
 		"enemy_hit":
-			return 0.05
+			return 0.06
 		"enemy_destroy":
-			return 0.04
-		"boss_hit":
-			return 0.05
-		"storm_impact":
+			return 0.055
+		"player_hurt":
 			return 0.12
+		"boss_hit":
+			return 0.065
+		"storm_impact":
+			return 0.16
 		_:
 			return 0.0
 
@@ -138,31 +140,33 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -18.0
+			return -20.5
 		"enemy_hit":
-			return -14.8
+			return -17.0
 		"enemy_destroy":
-			return -9.0
+			return -5.8
 		"player_hurt":
-			return -12.0
+			return -17.5
 		"player_die":
-			return -6.0
+			return -9.0
 		"boss_hit":
-			return -7.0
+			return -9.2
 		"power_up", "bomb_pickup":
-			return -7.0
+			return -8.0
 		"bomb":
-			return -5.0
-		"boss_warning", "boss_phase":
-			return -5.5
+			return -7.2
+		"boss_warning":
+			return -8.4
+		"boss_phase":
+			return -7.6
 		"storm_charge":
-			return -6.5
+			return -9.0
 		"storm_impact":
-			return -5.0
+			return -7.8
 		"boss_break", "stage_clear":
-			return -4.0
+			return -5.6
 		_:
-			return -6.0
+			return -7.0
 
 
 func _get_pitch_scale(event_name: String) -> float:
@@ -204,35 +208,35 @@ func _get_bus_name(event_name: String) -> String:
 func _get_max_play_time(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return 0.18
+			return 0.14
 		"enemy_hit":
-			return 0.18
+			return 0.14
 		"enemy_destroy":
-			return 0.34
+			return 0.28
 		"player_hurt":
-			return 0.32
+			return 0.22
 		"player_die":
-			return 0.55
+			return 0.48
 		"boss_hit":
-			return 0.3
+			return 0.24
 		"power_up":
 			return 0.34
 		"bomb_pickup":
 			return 0.32
 		"bomb":
-			return 0.68
-		"boss_warning":
-			return 0.42
-		"boss_phase":
 			return 0.56
+		"boss_warning":
+			return 0.3
+		"boss_phase":
+			return 0.42
 		"storm_charge":
-			return 0.46
+			return 0.34
 		"storm_impact":
-			return 0.72
+			return 0.48
 		"boss_break":
-			return 0.92
+			return 0.68
 		"stage_clear":
-			return 0.8
+			return 0.64
 		_:
 			return 0.0
 
