@@ -54,37 +54,7 @@ func _build_ui() -> void:
 	column.add_theme_constant_override("separation", 18)
 	content_box.add_child(column)
 
-	var settings_row := HBoxContainer.new()
-	settings_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	settings_row.add_theme_constant_override("separation", 10)
-	column.add_child(settings_row)
-
-	var language_label := Label.new()
-	language_label.text = _t("语言", "Language")
-	language_label.add_theme_font_size_override("font_size", 18)
-	settings_row.add_child(language_label)
-
-	var chinese_button := Button.new()
-	chinese_button.text = "中文"
-	chinese_button.custom_minimum_size = Vector2(88, 40)
-	chinese_button.disabled = RunState.get_language_code() == "zh_CN"
-	UiButtonStyle.apply(chinese_button, Color(0.58, 0.78, 1.0), false)
-	chinese_button.pressed.connect(func() -> void:
-		RunState.set_language_code("zh_CN")
-		get_tree().reload_current_scene()
-	)
-	settings_row.add_child(chinese_button)
-
-	var english_button := Button.new()
-	english_button.text = "English"
-	english_button.custom_minimum_size = Vector2(110, 40)
-	english_button.disabled = RunState.get_language_code() == "en"
-	UiButtonStyle.apply(english_button, Color(0.58, 0.78, 1.0), false)
-	english_button.pressed.connect(func() -> void:
-		RunState.set_language_code("en")
-		get_tree().reload_current_scene()
-	)
-	settings_row.add_child(english_button)
+	column.add_child(_build_settings_panel(narrow_layout))
 
 	var title := Label.new()
 	title.text = "RAIDEN PROTOTYPE"
@@ -183,7 +153,7 @@ func _build_ui() -> void:
 	var assessment := Label.new()
 	assessment.text = _t(
 		"判断：\n- 当前版本已经接近双关垂直切片候选\n- 更适合做最终包装与资源替换，而不是继续默认扩系统",
-		"Assessment:\n- This build now behaves like a dual-stage vertical-slice candidate\n- Best next step is either slice polish and final packaging, or a deliberate expansion into a fuller chapter pipeline"
+		"Assessment:\n- This build now behaves like a dual-stage vertical-slice candidate\n- Best next step is final polish, asset replacement and packaging rather than default system expansion"
 	)
 	assessment.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	assessment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -239,6 +209,122 @@ func _build_ui() -> void:
 	column.add_child(hint)
 
 
+func _build_settings_panel(narrow_layout: bool) -> Control:
+	var panel := PanelContainer.new()
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	margin.add_child(column)
+
+	var settings_row := HBoxContainer.new()
+	settings_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	settings_row.add_theme_constant_override("separation", 10)
+	column.add_child(settings_row)
+
+	var language_label := Label.new()
+	language_label.text = _t("语言", "Language")
+	language_label.add_theme_font_size_override("font_size", 18)
+	settings_row.add_child(language_label)
+
+	var chinese_button := Button.new()
+	chinese_button.text = "中文"
+	chinese_button.custom_minimum_size = Vector2(88, 40)
+	chinese_button.disabled = RunState.get_language_code() == "zh_CN"
+	UiButtonStyle.apply(chinese_button, Color(0.58, 0.78, 1.0), false)
+	chinese_button.pressed.connect(func() -> void:
+		RunState.set_language_code("zh_CN")
+		get_tree().reload_current_scene()
+	)
+	settings_row.add_child(chinese_button)
+
+	var english_button := Button.new()
+	english_button.text = "English"
+	english_button.custom_minimum_size = Vector2(110, 40)
+	english_button.disabled = RunState.get_language_code() == "en"
+	UiButtonStyle.apply(english_button, Color(0.58, 0.78, 1.0), false)
+	english_button.pressed.connect(func() -> void:
+		RunState.set_language_code("en")
+		get_tree().reload_current_scene()
+	)
+	settings_row.add_child(english_button)
+
+	var audio_title := Label.new()
+	audio_title.text = _t("音频设置", "Audio Mix")
+	audio_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	audio_title.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	audio_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
+	column.add_child(audio_title)
+
+	column.add_child(_build_audio_slider_row(
+		_t("音乐", "BGM"),
+		RunState.get_bgm_volume(),
+		func(value: float) -> void:
+			RunState.set_bgm_volume(value, false),
+		func(value: float) -> void:
+			RunState.set_bgm_volume(value, true)
+	))
+	column.add_child(_build_audio_slider_row(
+		_t("音效", "SFX"),
+		RunState.get_sfx_volume(),
+		func(value: float) -> void:
+			RunState.set_sfx_volume(value, false),
+		func(value: float) -> void:
+			RunState.set_sfx_volume(value, true)
+	))
+
+	return panel
+
+
+func _build_audio_slider_row(title_text: String, initial_value: float, on_change: Callable, on_commit: Callable) -> Control:
+	var row := VBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 8)
+	row.add_child(header)
+
+	var title := Label.new()
+	title.text = title_text
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.add_theme_font_size_override("font_size", 15)
+	header.add_child(title)
+
+	var value_label := Label.new()
+	value_label.text = _format_percentage(initial_value)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value_label.custom_minimum_size = Vector2(56.0, 0.0)
+	value_label.add_theme_font_size_override("font_size", 15)
+	header.add_child(value_label)
+
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.2
+	slider.step = 0.01
+	slider.value = initial_value
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.value_changed.connect(func(value: float) -> void:
+		value_label.text = _format_percentage(value)
+		on_change.call(value)
+	)
+	slider.drag_ended.connect(func(value_changed: bool) -> void:
+		if value_changed:
+			on_commit.call(slider.value)
+	)
+	row.add_child(slider)
+	return row
+
+
+func _format_percentage(value: float) -> String:
+	return "%d%%" % int(round(value * 100.0))
+
+
 func _auto_start() -> void:
 	if RunState.wants_autoplay_chapter():
 		RunState.start_chapter()
@@ -253,18 +339,22 @@ func _t(zh_text: String, en_text: String) -> String:
 func _get_stage_menu_label(stage_id: String, meta: Dictionary) -> String:
 	if RunState.is_english():
 		return String(meta.get("menu_label", stage_id))
-	if stage_id == "stage_1":
-		return "第一关"
-	if stage_id == "stage_2":
-		return "第二关"
-	return String(meta.get("menu_label", stage_id))
+	match stage_id:
+		"stage_1":
+			return "第一关"
+		"stage_2":
+			return "第二关"
+		_:
+			return String(meta.get("menu_label_zh", meta.get("menu_label", stage_id)))
 
 
 func _get_stage_tagline(stage_id: String, meta: Dictionary) -> String:
 	if RunState.is_english():
 		return String(meta.get("tagline", ""))
-	if stage_id == "stage_1":
-		return "建立成长与开场节奏"
-	if stage_id == "stage_2":
-		return "风暴机关与Boss高潮"
-	return String(meta.get("tagline", ""))
+	match stage_id:
+		"stage_1":
+			return "建立成长与开场节奏"
+		"stage_2":
+			return "风暴机关与 Boss 高潮"
+		_:
+			return String(meta.get("tagline_zh", meta.get("tagline", "")))

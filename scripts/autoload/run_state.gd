@@ -14,6 +14,8 @@ var chapter_state: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var selected_stage_id := "stage_1"
 var language_code := "zh_CN"
+var bgm_volume := 0.85
+var sfx_volume := 0.9
 
 
 func _ready() -> void:
@@ -376,16 +378,29 @@ func _load_settings() -> void:
 	var config := ConfigFile.new()
 	if config.load(SETTINGS_PATH) != OK:
 		language_code = "zh_CN"
+		bgm_volume = 0.85
+		sfx_volume = 0.9
 		return
 	language_code = String(config.get_value("general", "language", "zh_CN"))
 	if language_code not in ["zh_CN", "en"]:
 		language_code = "zh_CN"
+	bgm_volume = clampf(float(config.get_value("audio", "bgm_volume", 0.85)), 0.0, 1.2)
+	sfx_volume = clampf(float(config.get_value("audio", "sfx_volume", 0.9)), 0.0, 1.2)
+	_refresh_audio_mix()
 
 
 func _save_settings() -> void:
 	var config := ConfigFile.new()
 	config.set_value("general", "language", language_code)
+	config.set_value("audio", "bgm_volume", bgm_volume)
+	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.save(SETTINGS_PATH)
+
+
+func _refresh_audio_mix() -> void:
+	var audio_setup = get_node_or_null("/root/AudioBusSetup")
+	if is_instance_valid(audio_setup) and audio_setup.has_method("refresh_mix"):
+		audio_setup.refresh_mix()
 
 
 func get_language_code() -> String:
@@ -403,6 +418,28 @@ func set_language_code(next_language_code: String) -> void:
 		return
 	language_code = next_language_code
 	_save_settings()
+
+
+func get_bgm_volume() -> float:
+	return bgm_volume
+
+
+func get_sfx_volume() -> float:
+	return sfx_volume
+
+
+func set_bgm_volume(next_volume: float, persist: bool = true) -> void:
+	bgm_volume = clampf(next_volume, 0.0, 1.2)
+	_refresh_audio_mix()
+	if persist:
+		_save_settings()
+
+
+func set_sfx_volume(next_volume: float, persist: bool = true) -> void:
+	sfx_volume = clampf(next_volume, 0.0, 1.2)
+	_refresh_audio_mix()
+	if persist:
+		_save_settings()
 
 
 func _lang(zh_text: String, en_text: String) -> String:

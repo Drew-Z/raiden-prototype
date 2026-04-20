@@ -41,6 +41,13 @@
 - 目标来源：
   - [Sonniss GDC Bundle](https://gdc.sonniss.com/)
 - 当前状态：
-  - 站点在当前环境下被 Cloudflare 挑战页拦截，无法自动下载
-- 后续建议：
-  - 如果需要把 Boss 重爆点和环境机关再抬一档，可以在本地下载后放入工作目录，再继续替换 `boss_break`、`bomb` 和环境事件
+  - 已由用户本地下载并放入 `D:\workspace4Codex\voice\sonniss`
+- 当前用途：
+  - `boss_warning`
+  - `boss_break`
+  - `bomb`
+  - `storm_charge`
+  - `storm_impact`
+- 说明：
+  - Sonniss 这轮主要负责补重型爆点、风暴机关和章节后段的压迫声源
+  - 高密度轻音效仍优先使用 Kenney 与 Shapeforms，避免 Sonniss 的重素材把连续战斗挤得太满

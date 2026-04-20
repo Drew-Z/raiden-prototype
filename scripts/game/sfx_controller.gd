@@ -17,7 +17,9 @@ const SAMPLE_VARIANT_COUNTS := {
 	"boss_warning": 3,
 	"boss_phase": 3,
 	"boss_break": 3,
-	"stage_clear": 3
+	"stage_clear": 3,
+	"storm_charge": 3,
+	"storm_impact": 3
 }
 
 var players: Array[AudioStreamPlayer] = []
@@ -32,6 +34,7 @@ func _ready() -> void:
 	for _index in range(14):
 		var player: AudioStreamPlayer = AudioStreamPlayer.new()
 		player.bus = "SFX_UI"
+		player.set_meta("play_id", 0)
 		add_child(player)
 		players.append(player)
 
@@ -65,7 +68,15 @@ func play_event(event_name: String) -> void:
 	player.volume_db = _get_volume_db(event_name)
 	player.pitch_scale = _get_pitch_scale(event_name)
 	player.stream = stream
+	var play_id := int(player.get_meta("play_id", 0)) + 1
+	player.set_meta("play_id", play_id)
 	player.play()
+	var max_play_time := _get_max_play_time(event_name)
+	if max_play_time > 0.0:
+		get_tree().create_timer(max_play_time).timeout.connect(func() -> void:
+			if is_instance_valid(player) and int(player.get_meta("play_id", 0)) == play_id and player.playing:
+				player.stop()
+		)
 
 
 func _get_available_player() -> AudioStreamPlayer:
@@ -118,6 +129,8 @@ func _get_cooldown(event_name: String) -> float:
 			return 0.04
 		"boss_hit":
 			return 0.05
+		"storm_impact":
+			return 0.12
 		_:
 			return 0.0
 
@@ -142,6 +155,10 @@ func _get_volume_db(event_name: String) -> float:
 			return -5.0
 		"boss_warning", "boss_phase":
 			return -5.5
+		"storm_charge":
+			return -6.5
+		"storm_impact":
+			return -5.0
 		"boss_break", "stage_clear":
 			return -4.0
 		_:
@@ -158,6 +175,10 @@ func _get_pitch_scale(event_name: String) -> float:
 			return randf_range(0.97, 1.01)
 		"boss_hit":
 			return randf_range(0.98, 1.01)
+		"storm_charge":
+			return randf_range(0.98, 1.01)
+		"storm_impact":
+			return randf_range(0.99, 1.01)
 		"player_hurt":
 			return randf_range(0.99, 1.01)
 		_:
@@ -172,10 +193,48 @@ func _get_bus_name(event_name: String) -> String:
 			return "SFX_Enemy"
 		"boss_hit", "boss_warning", "boss_phase", "boss_break":
 			return "SFX_Boss"
+		"storm_charge", "storm_impact":
+			return "SFX_Boss"
 		"power_up", "bomb_pickup", "stage_clear":
 			return "SFX_UI"
 		_:
 			return "SFX_UI"
+
+
+func _get_max_play_time(event_name: String) -> float:
+	match event_name:
+		"player_shot":
+			return 0.18
+		"enemy_hit":
+			return 0.18
+		"enemy_destroy":
+			return 0.34
+		"player_hurt":
+			return 0.32
+		"player_die":
+			return 0.55
+		"boss_hit":
+			return 0.3
+		"power_up":
+			return 0.34
+		"bomb_pickup":
+			return 0.32
+		"bomb":
+			return 0.68
+		"boss_warning":
+			return 0.42
+		"boss_phase":
+			return 0.56
+		"storm_charge":
+			return 0.46
+		"storm_impact":
+			return 0.72
+		"boss_break":
+			return 0.92
+		"stage_clear":
+			return 0.8
+		_:
+			return 0.0
 
 
 func _get_procedural_stream_for_event(event_name: String) -> AudioStreamWAV:
@@ -254,6 +313,18 @@ func _get_procedural_stream_for_event(event_name: String) -> AudioStreamWAV:
 				{"freq": 480.0, "duration": 0.05, "volume": 0.14, "wave": "sine"},
 				{"freq": 620.0, "duration": 0.06, "volume": 0.14, "wave": "sine"},
 				{"freq": 820.0, "duration": 0.1, "volume": 0.12, "wave": "sine"}
+			]
+		"storm_charge":
+			segments = [
+				{"freq": 140.0, "duration": 0.08, "volume": 0.14, "wave": "triangle"},
+				{"freq": 220.0, "duration": 0.12, "volume": 0.1, "wave": "sine"},
+				{"freq": 260.0, "duration": 0.08, "volume": 0.05, "wave": "noise"}
+			]
+		"storm_impact":
+			segments = [
+				{"freq": 100.0, "duration": 0.1, "volume": 0.2, "wave": "triangle"},
+				{"freq": 160.0, "duration": 0.14, "volume": 0.14, "wave": "square"},
+				{"freq": 260.0, "duration": 0.06, "volume": 0.05, "wave": "noise"}
 			]
 		_:
 			return null

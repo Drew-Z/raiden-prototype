@@ -805,7 +805,8 @@ func _trigger_storm_strike(event: Dictionary) -> void:
 		float(event.get("telegraph", 0.92)),
 		float(event.get("active", 0.42))
 	)
-	_play_sfx("boss_phase")
+	_play_sfx("storm_charge")
+	_schedule_hazard_impact_sfx(float(event.get("telegraph", 0.92)), float(event.get("active", 0.42)))
 	_show_flash(Color(0.76, 0.9, 1.0), 0.08, 0.06)
 
 
@@ -836,7 +837,8 @@ func _trigger_storm_cross(event: Dictionary) -> void:
 			float(event.get("telegraph", 0.95)),
 			float(event.get("active", 0.34))
 		)
-	_play_sfx("boss_phase")
+	_play_sfx("storm_charge")
+	_schedule_hazard_impact_sfx(float(event.get("telegraph", 0.95)), float(event.get("active", 0.34)))
 	_show_flash(Color(0.76, 0.9, 1.0), 0.1, 0.08)
 	hud.pulse_screen(Color(0.82, 0.94, 1.0, 0.08), 0.06)
 	_queue_support_wave(event)
@@ -873,6 +875,15 @@ func _queue_support_wave(event: Dictionary) -> void:
 		if run_finished:
 			return
 		_spawn_wave(support_wave)
+	)
+
+
+func _schedule_hazard_impact_sfx(telegraph_time: float, active_time: float) -> void:
+	var total_time := maxf(0.12, telegraph_time + active_time * 0.65)
+	get_tree().create_timer(total_time).timeout.connect(func() -> void:
+		if run_finished or get_tree().paused:
+			return
+		_play_sfx("storm_impact")
 	)
 
 

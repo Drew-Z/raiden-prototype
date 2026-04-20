@@ -290,6 +290,34 @@ func _build_pause_panel() -> void:
 	subtitle.add_theme_font_size_override("font_size", 18)
 	column.add_child(subtitle)
 
+	var audio_panel := PanelContainer.new()
+	column.add_child(audio_panel)
+
+	var audio_margin := MarginContainer.new()
+	audio_margin.add_theme_constant_override("margin_left", 10)
+	audio_margin.add_theme_constant_override("margin_top", 8)
+	audio_margin.add_theme_constant_override("margin_right", 10)
+	audio_margin.add_theme_constant_override("margin_bottom", 8)
+	audio_panel.add_child(audio_margin)
+
+	var audio_column := VBoxContainer.new()
+	audio_column.add_theme_constant_override("separation", 6)
+	audio_margin.add_child(audio_column)
+
+	var audio_title := Label.new()
+	audio_title.text = _t("音量", "Volume")
+	audio_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	audio_title.add_theme_font_size_override("font_size", 16)
+	audio_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
+	audio_column.add_child(audio_title)
+
+	audio_column.add_child(_build_pause_audio_slider(_t("音乐", "BGM"), RunState.get_bgm_volume(), func(value: float) -> void:
+		RunState.set_bgm_volume(value, false)
+	))
+	audio_column.add_child(_build_pause_audio_slider(_t("音效", "SFX"), RunState.get_sfx_volume(), func(value: float) -> void:
+		RunState.set_sfx_volume(value, false)
+	))
+
 	var resume_button := Button.new()
 	resume_button.text = _t("继续", "Resume")
 	resume_button.custom_minimum_size = Vector2(190.0, 46.0)
@@ -572,6 +600,48 @@ func hide_pause_menu() -> void:
 
 func is_pause_menu_visible() -> bool:
 	return pause_panel.visible
+
+
+func _build_pause_audio_slider(title_text: String, initial_value: float, on_change: Callable) -> Control:
+	var row := VBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+
+	var header := HBoxContainer.new()
+	row.add_child(header)
+
+	var title := Label.new()
+	title.text = title_text
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.add_theme_font_size_override("font_size", 14)
+	header.add_child(title)
+
+	var value_label := Label.new()
+	value_label.text = "%d%%" % int(round(initial_value * 100.0))
+	value_label.custom_minimum_size = Vector2(56.0, 0.0)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value_label.add_theme_font_size_override("font_size", 14)
+	header.add_child(value_label)
+
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.2
+	slider.step = 0.01
+	slider.value = initial_value
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.value_changed.connect(func(value: float) -> void:
+		value_label.text = "%d%%" % int(round(value * 100.0))
+		on_change.call(value)
+	)
+	slider.drag_ended.connect(func(value_changed: bool) -> void:
+		if value_changed:
+			on_change.call(slider.value)
+			if title_text == _t("音乐", "BGM"):
+				RunState.set_bgm_volume(slider.value, true)
+			else:
+				RunState.set_sfx_volume(slider.value, true)
+	)
+	row.add_child(slider)
+	return row
 
 
 func _t(zh_text: String, en_text: String) -> String:
