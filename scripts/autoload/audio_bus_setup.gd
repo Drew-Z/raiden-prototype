@@ -1,11 +1,11 @@
 extends Node
 
 const BUS_CONFIGS := [
-	{"name": "BGM", "volume_db": -7.5},
-	{"name": "SFX_Player", "volume_db": -2.5},
-	{"name": "SFX_Enemy", "volume_db": -1.2},
-	{"name": "SFX_Boss", "volume_db": 0.0},
-	{"name": "SFX_UI", "volume_db": -1.8}
+	{"name": "BGM", "volume_db": -8.0},
+	{"name": "SFX_Player", "volume_db": -4.5},
+	{"name": "SFX_Enemy", "volume_db": -2.8},
+	{"name": "SFX_Boss", "volume_db": -1.5},
+	{"name": "SFX_UI", "volume_db": -4.0}
 ]
 
 

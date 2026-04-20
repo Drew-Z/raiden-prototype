@@ -3,6 +3,7 @@ class_name SfxController
 
 const AudioBusSetupScript := preload("res://scripts/autoload/audio_bus_setup.gd")
 const SAMPLE_BASE_PATH := "res://assets/audio/sfx"
+const SAMPLE_EXTENSIONS := ["ogg", "wav"]
 const SAMPLE_VARIANT_COUNTS := {
 	"player_shot": 3,
 	"enemy_hit": 3,
@@ -95,12 +96,14 @@ func _get_sample_bank(event_name: String) -> Array:
 	var bank: Array = []
 	var variant_count: int = int(SAMPLE_VARIANT_COUNTS.get(event_name, 0))
 	for variant_index in range(1, variant_count + 1):
-		var path: String = "%s/%s_%02d.wav" % [SAMPLE_BASE_PATH, event_name, variant_index]
-		if not ResourceLoader.exists(path):
-			continue
-		var stream := load(path)
-		if stream is AudioStream:
-			bank.append(stream)
+		for extension in SAMPLE_EXTENSIONS:
+			var path: String = "%s/%s_%02d.%s" % [SAMPLE_BASE_PATH, event_name, variant_index, extension]
+			if not ResourceLoader.exists(path):
+				continue
+			var stream := load(path)
+			if stream is AudioStream:
+				bank.append(stream)
+				break
 	sample_cache[event_name] = bank
 	return bank
 
@@ -122,43 +125,43 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -12.0
+			return -18.0
 		"enemy_hit":
-			return -13.8
+			return -14.8
 		"enemy_destroy":
-			return -8.8
+			return -9.0
 		"player_hurt":
-			return -9.8
+			return -12.0
 		"player_die":
-			return -5.0
-		"boss_hit":
 			return -6.0
+		"boss_hit":
+			return -7.0
 		"power_up", "bomb_pickup":
-			return -5.0
+			return -7.0
 		"bomb":
-			return -4.0
+			return -5.0
 		"boss_warning", "boss_phase":
-			return -3.5
-		"boss_break", "stage_clear":
-			return -2.0
-		_:
 			return -5.5
+		"boss_break", "stage_clear":
+			return -4.0
+		_:
+			return -6.0
 
 
 func _get_pitch_scale(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return randf_range(0.98, 1.03)
+			return randf_range(0.99, 1.02)
 		"enemy_hit":
-			return randf_range(0.95, 1.0)
+			return randf_range(0.98, 1.01)
 		"enemy_destroy":
-			return randf_range(0.94, 1.0)
+			return randf_range(0.97, 1.01)
 		"boss_hit":
-			return randf_range(0.96, 1.0)
+			return randf_range(0.98, 1.01)
 		"player_hurt":
-			return randf_range(0.98, 1.02)
-		_:
 			return randf_range(0.99, 1.01)
+		_:
+			return 1.0
 
 
 func _get_bus_name(event_name: String) -> String:

@@ -284,6 +284,14 @@
 - `BgmController` 也接入 `BGM` 总线，音乐与高频战斗音效终于有了基本的层级分离
 - 击毁、受伤、受击和玩家射击重新拉开了音色职责：击毁恢复更厚的爆裂感，玩家受伤不再和敌人爆炸抢同一块听感位置，连续开火时整体也更稳
 
+### 阶段 36：外部免费素材接入与混音回调
+
+- `SfxController` 现在支持 `.ogg + .wav` 混合加载，Kenney 与 Shapeforms 的原始素材可以直接接入，不需要先全部转码
+- 已用 Kenney 的 `Digital Audio`、`Interface Sounds` 替换玩家射击、拾取、升级和通关提示等高频轻音效
+- 已用 Shapeforms 的 `Sci Fi Weapons`、`Future UI`、`Hit and Punch`、`Sci Fi Spacecraft` 替换敌人受击、敌人击毁、玩家受伤、Boss 命中、Boss 预警和 Boss 击破等关键战斗事件
+- 音频总线和事件音量又做了一轮回调：玩家射击、玩家受伤和 UI 提示整体下压，敌人击毁和 Boss 事件保留更强存在感，连续战斗时不再互相抢最前排
+- 新增 `docs/audio-sources.md`，记录当前已接入素材来源、授权背景和未接入的 Sonniss 阻塞点
+
 ### 进入垂直切片前需要确认
 
 - 是继续把现有双关做成更完整的可展示垂直切片
