@@ -303,6 +303,8 @@
 - 新一轮混音把 `player_hurt / enemy_destroy / boss_warning / storm_impact` 这几类关键事件重新拉开层级，并在 SFX 总线上补了压缩，重点解决“击毁太弱、受伤太抢、整体忽大忽小”的问题
 - 这一轮继续把常听到的采样按变体补偿做了“源文件级”的归一化处理，同时收紧 Lv4 之后的随机火力掉落，并把 HUD 顶部状态条、Boss 条和事件卡再压瘦一档
 - 本地工具里补了 `run_local_debug.cmd` 和 `clear_godot_processes.cmd`，方便在试玩前隔离 `.godot-user` 并清掉卡死的 Godot 进程
+- 又补了一轮高频事件替换：`player_shot / power_up / bomb_pickup` 已从旧的轻量占位音切到 Shapeforms 科幻采样，同时 `wav` 现在会优先于旧 `ogg` 被加载
+- 战场逻辑区域现在整体下移到 HUD 下方，敌机、子弹、拾取和机关不再直接顶到顶部文字区
 
 ### 进入垂直切片前需要确认
 

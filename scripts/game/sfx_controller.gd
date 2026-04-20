@@ -3,7 +3,7 @@ class_name SfxController
 
 const AudioBusSetupScript := preload("res://scripts/autoload/audio_bus_setup.gd")
 const SAMPLE_BASE_PATH := "res://assets/audio/sfx"
-const SAMPLE_EXTENSIONS := ["ogg", "wav"]
+const SAMPLE_EXTENSIONS := ["wav", "ogg"]
 const SAMPLE_VARIANT_COUNTS := {
 	"player_shot": 3,
 	"enemy_hit": 3,
@@ -22,13 +22,17 @@ const SAMPLE_VARIANT_COUNTS := {
 	"storm_impact": 3
 }
 const SAMPLE_VARIANT_GAIN_DB := {
+	"player_shot": [-7.5, -8.2, -7.8],
 	"enemy_hit": [-0.6, 0.0, -1.6],
 	"enemy_destroy": [-1.4, 1.1, -0.3],
 	"player_hurt": [-2.6, -0.9, 0.2],
 	"boss_hit": [-1.8, -0.5, 0.6],
+	"power_up": [-4.2, -3.2, -4.8],
+	"bomb_pickup": [-5.0, -4.2, -4.6],
 	"bomb": [-3.2, -0.8, -4.8],
 	"boss_warning": [-5.4, -3.8, -2.6],
 	"boss_break": [-2.8, -2.1, -2.4],
+	"stage_clear": [-3.8, -6.2, -5.4],
 	"storm_charge": [-1.0, -2.2, -3.0],
 	"storm_impact": [-4.8, -1.1, 0.9]
 }
@@ -160,7 +164,7 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -20.5
+			return -22.5
 		"enemy_hit":
 			return -17.0
 		"enemy_destroy":
@@ -174,17 +178,17 @@ func _get_volume_db(event_name: String) -> float:
 		"power_up", "bomb_pickup":
 			return -8.0
 		"bomb":
-			return -7.2
+			return -8.6
 		"boss_warning":
-			return -8.4
+			return -10.0
 		"boss_phase":
-			return -7.6
+			return -8.6
 		"storm_charge":
-			return -9.0
+			return -9.8
 		"storm_impact":
-			return -7.8
+			return -9.4
 		"boss_break", "stage_clear":
-			return -5.6
+			return -6.8
 		_:
 			return -7.0
 

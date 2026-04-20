@@ -91,6 +91,7 @@ CHAPTER_RESULT victory=true total_score=51655 kill_rate=90.85 stages=2 highest_f
 - 第二关 Boss 相位切换和 overdrive 触发的风暴机关也可以与章节链路共存，不会打断 `--autoplay --chapter`
 - 第二关 Boss 终盘现在会依次触发 `LAST SAFE WINDOW` 与 `FINISH WINDOW`，终盘读图和资源决策更清楚
 - 第二关 Boss 终盘现在还会补一段 `FINAL BREACH` 终盘编排，把最终破口和中心突破线讲得更直接
+- 当前战场有效区域已经下移到顶部 HUD 之下，主玩法内容不会再与上方状态文字直接重叠
 
 ## 当前结构说明
 
