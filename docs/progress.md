@@ -220,6 +220,10 @@
 
 - 新增 `docs/final-freeze-checklist.md`，把当前版本该如何冻结和交付列成清单
 - 新增 `docs/manual-demo-guide.md`，把人工演示的推荐顺序和强调点整理出来
+
+### 阶段 27：当前封版公告
+
+- 新增 `docs/final-release-announcement.md`，把当前版本正式标记为当前封版候选
 - 当前版本已经更接近“可封版的双关垂直切片候选”，后续重点更应该转向最终总结和封版判断
 - 然后正式决定是否进入双关垂直切片阶段
 
