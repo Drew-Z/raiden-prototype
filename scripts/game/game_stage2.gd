@@ -16,7 +16,7 @@ const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 const StormStrikeScript := preload("res://scripts/game/storm_strike.gd")
 const StormSweepScript := preload("res://scripts/game/storm_sweep.gd")
-const PLAYFIELD_TOP_MARGIN := 176.0
+const PLAYFIELD_TOP_MARGIN := 152.0
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960 - PLAYFIELD_TOP_MARGIN))
 var player
@@ -207,7 +207,6 @@ func _process_stage_events() -> void:
 					hud.set_stage_text(_event_text(event, "text", event.text))
 				elif event.text == "BOSS WARNING":
 					hud.set_stage_text(_t("Boss 交战", "BOSS ENGAGE"))
-				_queue_banner(_event_text(event, "text", event.text), event.get("duration", 1.0), _get_banner_color(event.text), false)
 				if event.has("detail"):
 					hud.show_event_card_temporarily(
 						_event_text(event, "title", event.text),
@@ -215,6 +214,8 @@ func _process_stage_events() -> void:
 						event.get("card_duration", event.get("duration", 1.0) + 0.45),
 						event.get("card_color", _get_banner_color(event.text))
 					)
+				else:
+					_queue_banner(_event_text(event, "text", event.text), event.get("duration", 1.0), _get_banner_color(event.text), false)
 			"pickup":
 				_spawn_pickup(event.position, event.pickup_type)
 			"storm_strike":

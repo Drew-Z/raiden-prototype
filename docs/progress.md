@@ -305,6 +305,8 @@
 - 本地工具里补了 `run_local_debug.cmd` 和 `clear_godot_processes.cmd`，方便在试玩前隔离 `.godot-user` 并清掉卡死的 Godot 进程
 - 又补了一轮高频事件替换：`player_shot / power_up / bomb_pickup` 已从旧的轻量占位音切到 Shapeforms 科幻采样，同时 `wav` 现在会优先于旧 `ogg` 被加载
 - 战场逻辑区域现在整体下移到 HUD 下方，敌机、子弹、拾取和机关不再直接顶到顶部文字区
+- 顶部 HUD 继续收口：事件卡现在会优先占用固定顶部条带，普通横幅让位，不再和事件卡叠成两层文字
+- `boss_warning / boss_phase / storm_charge / storm_impact / bomb` 又做了一轮压级和裁尾，临近 Boss 的提示声不再像之前那样过于冲前
 
 ### 进入垂直切片前需要确认
 

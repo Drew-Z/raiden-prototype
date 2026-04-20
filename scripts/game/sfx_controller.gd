@@ -176,19 +176,19 @@ func _get_volume_db(event_name: String) -> float:
 		"boss_hit":
 			return -9.2
 		"power_up", "bomb_pickup":
-			return -8.0
-		"bomb":
-			return -8.6
-		"boss_warning":
 			return -10.0
+		"bomb":
+			return -10.8
+		"boss_warning":
+			return -13.4
 		"boss_phase":
-			return -8.6
+			return -11.4
 		"storm_charge":
-			return -9.8
+			return -11.8
 		"storm_impact":
-			return -9.4
+			return -11.2
 		"boss_break", "stage_clear":
-			return -6.8
+			return -8.2
 		_:
 			return -7.0
 
@@ -244,21 +244,21 @@ func _get_max_play_time(event_name: String) -> float:
 		"boss_hit":
 			return 0.24
 		"power_up":
-			return 0.34
+			return 0.24
 		"bomb_pickup":
-			return 0.32
+			return 0.24
 		"bomb":
-			return 0.56
-		"boss_warning":
-			return 0.3
-		"boss_phase":
 			return 0.42
+		"boss_warning":
+			return 0.22
+		"boss_phase":
+			return 0.28
 		"storm_charge":
-			return 0.34
+			return 0.24
 		"storm_impact":
-			return 0.48
+			return 0.3
 		"boss_break":
-			return 0.68
+			return 0.52
 		"stage_clear":
 			return 0.64
 		_:
