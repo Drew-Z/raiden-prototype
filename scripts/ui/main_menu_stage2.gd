@@ -1,6 +1,7 @@
 extends Control
 
 const StageCatalog := preload("res://scripts/game/stage_catalog.gd")
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
 
 
 func _ready() -> void:
@@ -67,6 +68,7 @@ func _build_ui() -> void:
 	chinese_button.text = "中文"
 	chinese_button.custom_minimum_size = Vector2(88, 40)
 	chinese_button.disabled = RunState.get_language_code() == "zh_CN"
+	UiButtonStyle.apply(chinese_button, Color(0.58, 0.78, 1.0), false)
 	chinese_button.pressed.connect(func() -> void:
 		RunState.set_language_code("zh_CN")
 		get_tree().reload_current_scene()
@@ -77,6 +79,7 @@ func _build_ui() -> void:
 	english_button.text = "English"
 	english_button.custom_minimum_size = Vector2(110, 40)
 	english_button.disabled = RunState.get_language_code() == "en"
+	UiButtonStyle.apply(english_button, Color(0.58, 0.78, 1.0), false)
 	english_button.pressed.connect(func() -> void:
 		RunState.set_language_code("en")
 		get_tree().reload_current_scene()
@@ -144,6 +147,7 @@ func _build_ui() -> void:
 	]
 	chapter_button.custom_minimum_size = Vector2(0, 96)
 	chapter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(chapter_button, Color(0.96, 0.76, 0.34), true)
 	chapter_button.pressed.connect(RunState.start_chapter)
 	column.add_child(chapter_button)
 
@@ -162,6 +166,7 @@ func _build_ui() -> void:
 		]
 		button.custom_minimum_size = Vector2(0, 72)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiButtonStyle.apply(button, Color(0.58, 0.88, 1.0), false)
 		button.pressed.connect(RunState.start_game.bind(stage_id))
 		stage_button_row.add_child(button)
 

@@ -1,6 +1,7 @@
 extends Control
 
 const BgmControllerScript := preload("res://scripts/game/bgm_controller.gd")
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
 
 var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
@@ -324,6 +325,7 @@ func _build_ui() -> void:
 	debrief_button.text = _t("总结", "Debrief")
 	debrief_button.custom_minimum_size = Vector2(0, 52)
 	debrief_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(debrief_button, accent_color, true)
 	debrief_button.pressed.connect(func() -> void:
 		RunState.show_chapter_outro()
 	)
@@ -333,6 +335,7 @@ func _build_ui() -> void:
 	retry_button.text = _t("重开章节", "Retry Chapter")
 	retry_button.custom_minimum_size = Vector2(0, 52)
 	retry_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(retry_button, Color(0.92, 0.62, 0.34), false)
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
 	)

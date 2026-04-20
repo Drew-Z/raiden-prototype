@@ -1,5 +1,7 @@
 extends Control
 
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
+
 var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
@@ -203,6 +205,7 @@ func _build_ui() -> void:
 	retry_button.text = _t("重开章节", "Retry Chapter")
 	retry_button.custom_minimum_size = Vector2(0, 52)
 	retry_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(retry_button, Color(0.92, 0.66, 0.34), false)
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
 	)
@@ -212,6 +215,7 @@ func _build_ui() -> void:
 	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(0, 48)
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(menu_button, Color(0.48, 0.62, 0.84), true)
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)

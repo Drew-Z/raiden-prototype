@@ -748,7 +748,7 @@ func _should_spawn_upgrade(chance: float) -> bool:
 	if chance <= 0.0:
 		return false
 
-	var guaranteed: bool = drop_fail_streak >= 6 or (RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 8)
+	var guaranteed: bool = drop_fail_streak >= 9 or (RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 12)
 	if guaranteed or randf() <= chance:
 		drop_fail_streak = 0
 		return true

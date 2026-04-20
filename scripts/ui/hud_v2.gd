@@ -1,6 +1,8 @@
 extends CanvasLayer
 class_name BattleHUDV2
 
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
+
 signal resume_requested
 signal restart_requested
 signal menu_requested
@@ -265,6 +267,7 @@ func _build_pause_panel() -> void:
 	var resume_button := Button.new()
 	resume_button.text = _t("继续", "Resume")
 	resume_button.custom_minimum_size = Vector2(190.0, 46.0)
+	UiButtonStyle.apply(resume_button, Color(0.58, 0.88, 1.0), true)
 	resume_button.pressed.connect(func() -> void:
 		resume_requested.emit()
 	)
@@ -273,6 +276,7 @@ func _build_pause_panel() -> void:
 	var restart_button := Button.new()
 	restart_button.text = _t("重开", "Restart")
 	restart_button.custom_minimum_size = Vector2(190.0, 46.0)
+	UiButtonStyle.apply(restart_button, Color(0.92, 0.64, 0.32), false)
 	restart_button.pressed.connect(func() -> void:
 		restart_requested.emit()
 	)
@@ -281,6 +285,7 @@ func _build_pause_panel() -> void:
 	var menu_button := Button.new()
 	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(190.0, 44.0)
+	UiButtonStyle.apply(menu_button, Color(0.44, 0.6, 0.84), false)
 	menu_button.pressed.connect(func() -> void:
 		menu_requested.emit()
 	)

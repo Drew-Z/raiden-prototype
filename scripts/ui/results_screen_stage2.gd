@@ -1,5 +1,7 @@
 extends Control
 
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
+
 var reveal_nodes: Array[CanvasItem] = []
 var scroll_container: ScrollContainer
 
@@ -352,6 +354,7 @@ func _build_ui() -> void:
 		next_button.text = _t("简报", "Briefing")
 		next_button.custom_minimum_size = Vector2(0, 52)
 		next_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiButtonStyle.apply(next_button, Color(0.58, 0.88, 1.0), true)
 		next_button.pressed.connect(func() -> void:
 			RunState.show_chapter_briefing()
 		)
@@ -361,6 +364,7 @@ func _build_ui() -> void:
 		debrief_button.text = _t("结尾", "Ending")
 		debrief_button.custom_minimum_size = Vector2(0, 52)
 		debrief_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiButtonStyle.apply(debrief_button, Color(0.96, 0.76, 0.34), true)
 		debrief_button.pressed.connect(func() -> void:
 			RunState.show_chapter_ending()
 		)
@@ -370,6 +374,7 @@ func _build_ui() -> void:
 	again_button.text = _t("重开章节", "Retry Chapter") if RunState.is_chapter_complete() else _t("重开", "Retry")
 	again_button.custom_minimum_size = Vector2(0, 52)
 	again_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(again_button, Color(0.92, 0.64, 0.32), false)
 	again_button.pressed.connect(func() -> void:
 		if RunState.is_chapter_complete():
 			RunState.start_chapter()
@@ -382,6 +387,7 @@ func _build_ui() -> void:
 	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(0, 48)
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(menu_button, Color(0.44, 0.6, 0.84), false)
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)

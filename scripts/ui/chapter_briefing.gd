@@ -1,5 +1,7 @@
 extends Control
 
+const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
+
 var reveal_nodes: Array[CanvasItem] = []
 var top_bar: ColorRect
 var bottom_bar: ColorRect
@@ -203,6 +205,7 @@ func _build_ui() -> void:
 	deploy_button.text = _t("出击", "Deploy")
 	deploy_button.custom_minimum_size = Vector2(0, 54)
 	deploy_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(deploy_button, Color(0.58, 0.88, 1.0), true)
 	deploy_button.pressed.connect(func() -> void:
 		RunState.start_next_chapter_stage()
 	)
@@ -212,6 +215,7 @@ func _build_ui() -> void:
 	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(0, 48)
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UiButtonStyle.apply(menu_button, Color(0.42, 0.56, 0.8), false)
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)

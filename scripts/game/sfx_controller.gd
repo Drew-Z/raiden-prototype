@@ -54,11 +54,11 @@ func _get_available_player() -> AudioStreamPlayer:
 func _get_cooldown(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return 0.09
+			return 0.1
 		"enemy_hit":
-			return 0.055
+			return 0.06
 		"enemy_destroy":
-			return 0.04
+			return 0.05
 		_:
 			return 0.0
 
@@ -66,11 +66,11 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -12.0
+			return -13.5
 		"enemy_hit":
-			return -13.0
+			return -14.0
 		"enemy_destroy":
-			return -9.5
+			return -10.5
 		"boss_hit":
 			return -6.5
 		"power_up":
@@ -90,11 +90,11 @@ func _get_volume_db(event_name: String) -> float:
 func _get_pitch_scale(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return randf_range(0.94, 0.99)
+			return randf_range(0.92, 0.97)
 		"enemy_hit":
-			return randf_range(0.92, 0.98)
+			return randf_range(0.9, 0.96)
 		"enemy_destroy":
-			return randf_range(0.94, 1.0)
+			return randf_range(0.92, 0.98)
 		_:
 			return 1.0
 
@@ -107,19 +107,19 @@ func _get_stream_for_event(event_name: String) -> AudioStreamWAV:
 	match event_name:
 		"player_shot":
 			segments = [
-				{"freq": 520.0, "duration": 0.016, "volume": 0.075, "wave": "triangle"},
-				{"freq": 390.0, "duration": 0.026, "volume": 0.045, "wave": "sine"}
+				{"freq": 460.0, "duration": 0.014, "volume": 0.06, "wave": "triangle"},
+				{"freq": 320.0, "duration": 0.024, "volume": 0.032, "wave": "sine"}
 			]
 		"enemy_hit":
 			segments = [
-				{"freq": 180.0, "duration": 0.02, "volume": 0.055, "wave": "triangle"},
-				{"freq": 240.0, "duration": 0.02, "volume": 0.03, "wave": "sine"}
+				{"freq": 150.0, "duration": 0.018, "volume": 0.045, "wave": "triangle"},
+				{"freq": 210.0, "duration": 0.018, "volume": 0.024, "wave": "sine"}
 			]
 		"enemy_destroy":
 			segments = [
-				{"freq": 170.0, "duration": 0.034, "volume": 0.1, "wave": "triangle"},
-				{"freq": 120.0, "duration": 0.06, "volume": 0.075, "wave": "sine"},
-				{"freq": 260.0, "duration": 0.016, "volume": 0.02, "wave": "noise"}
+				{"freq": 150.0, "duration": 0.032, "volume": 0.08, "wave": "triangle"},
+				{"freq": 110.0, "duration": 0.055, "volume": 0.06, "wave": "sine"},
+				{"freq": 220.0, "duration": 0.014, "volume": 0.014, "wave": "noise"}
 			]
 		"boss_hit":
 			segments = [
