@@ -88,15 +88,15 @@ func _build_status_panel() -> void:
 	top_panel.offset_left = 10.0 if narrow_layout else 14.0
 	top_panel.offset_top = 10.0 if narrow_layout else 14.0
 	top_panel.offset_right = -10.0 if narrow_layout else -14.0
-	top_panel.offset_bottom = 108.0 if narrow_layout else 118.0
+	top_panel.offset_bottom = 96.0 if narrow_layout else 104.0
 	top_panel.modulate = Color(1.0, 1.0, 1.0, 0.88)
 	add_child(top_panel)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_top", 8)
 	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_bottom", 8)
 	top_panel.add_child(margin)
 
 	var row := HBoxContainer.new()
@@ -110,12 +110,12 @@ func _build_status_panel() -> void:
 
 	stage_label = Label.new()
 	stage_label.text = _t("第二阶段演示", "PHASE 2 DEMO")
-	stage_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
+	stage_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	left_column.add_child(stage_label)
 
 	score_label = Label.new()
 	score_label.text = _t("分数", "SCORE") + " 000000"
-	score_label.add_theme_font_size_override("font_size", 24 if narrow_layout else 28)
+	score_label.add_theme_font_size_override("font_size", 22 if narrow_layout else 26)
 	left_column.add_child(score_label)
 
 	stage_bar = ProgressBar.new()
@@ -123,12 +123,12 @@ func _build_status_panel() -> void:
 	stage_bar.max_value = 1.0
 	stage_bar.value = 0.0
 	stage_bar.show_percentage = false
-	stage_bar.custom_minimum_size = Vector2(0.0, 8.0 if narrow_layout else 10.0)
+	stage_bar.custom_minimum_size = Vector2(0.0, 6.0 if narrow_layout else 8.0)
 	left_column.add_child(stage_bar)
 
 	var right_column := VBoxContainer.new()
-	right_column.custom_minimum_size = Vector2(156.0 if narrow_layout else 180.0, 0.0)
-	right_column.add_theme_constant_override("separation", 4 if narrow_layout else 6)
+	right_column.custom_minimum_size = Vector2(144.0 if narrow_layout else 164.0, 0.0)
+	right_column.add_theme_constant_override("separation", 2 if narrow_layout else 4)
 	row.add_child(right_column)
 
 	hull_label = _make_label(_t("生命 3", "HULL 3"))
@@ -141,7 +141,7 @@ func _build_status_panel() -> void:
 	fire_bar.max_value = 5.0
 	fire_bar.value = 1.0
 	fire_bar.show_percentage = false
-	fire_bar.custom_minimum_size = Vector2(0.0, 12.0 if narrow_layout else 14.0)
+	fire_bar.custom_minimum_size = Vector2(0.0, 10.0 if narrow_layout else 12.0)
 
 	right_column.add_child(hull_label)
 	right_column.add_child(fire_label)
@@ -156,9 +156,9 @@ func _build_boss_panel() -> void:
 	boss_panel.visible = false
 	boss_panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	boss_panel.offset_left = 10.0 if narrow_layout else 14.0
-	boss_panel.offset_top = 116.0 if narrow_layout else 126.0
+	boss_panel.offset_top = 102.0 if narrow_layout else 112.0
 	boss_panel.offset_right = -10.0 if narrow_layout else -14.0
-	boss_panel.offset_bottom = 178.0 if narrow_layout else 194.0
+	boss_panel.offset_bottom = 154.0 if narrow_layout else 166.0
 	boss_panel.modulate = Color(1.0, 1.0, 1.0, 0.9)
 	add_child(boss_panel)
 
@@ -195,13 +195,13 @@ func _build_boss_panel() -> void:
 func _build_banner() -> void:
 	banner_label = Label.new()
 	banner_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	banner_label.offset_top = 188.0 if narrow_layout else 214.0
-	banner_label.offset_left = -180.0 if narrow_layout else -210.0
-	banner_label.offset_right = 180.0 if narrow_layout else 210.0
-	banner_label.offset_bottom = 228.0 if narrow_layout else 256.0
+	banner_label.offset_top = 162.0 if narrow_layout else 180.0
+	banner_label.offset_left = -164.0 if narrow_layout else -188.0
+	banner_label.offset_right = 164.0 if narrow_layout else 188.0
+	banner_label.offset_bottom = 194.0 if narrow_layout else 216.0
 	banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	banner_label.add_theme_font_size_override("font_size", 22 if narrow_layout else 26)
+	banner_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 22)
 	banner_label.visible = false
 	add_child(banner_label)
 
@@ -210,10 +210,10 @@ func _build_event_panel() -> void:
 	event_panel = PanelContainer.new()
 	event_panel.visible = false
 	event_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	event_panel.offset_left = -184.0 if narrow_layout else -210.0
-	event_panel.offset_top = 234.0 if narrow_layout else 270.0
-	event_panel.offset_right = 184.0 if narrow_layout else 210.0
-	event_panel.offset_bottom = 304.0 if narrow_layout else 350.0
+	event_panel.offset_left = -172.0 if narrow_layout else -194.0
+	event_panel.offset_top = 204.0 if narrow_layout else 228.0
+	event_panel.offset_right = 172.0 if narrow_layout else 194.0
+	event_panel.offset_bottom = 256.0 if narrow_layout else 288.0
 	event_panel.modulate = Color(1.0, 1.0, 1.0, 0.9)
 	add_child(event_panel)
 
@@ -230,13 +230,14 @@ func _build_event_panel() -> void:
 
 	event_title_label = Label.new()
 	event_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	event_title_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 22)
+	event_title_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 19)
 	column.add_child(event_title_label)
 
 	event_detail_label = Label.new()
 	event_detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	event_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	event_detail_label.add_theme_font_size_override("font_size", 14 if narrow_layout else 16)
+	event_detail_label.max_lines_visible = 2
+	event_detail_label.add_theme_font_size_override("font_size", 13 if narrow_layout else 15)
 	column.add_child(event_detail_label)
 
 
@@ -435,7 +436,7 @@ func _build_cinematic_bars() -> void:
 func _make_label(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 17 if narrow_layout else 19)
+	label.add_theme_font_size_override("font_size", 15 if narrow_layout else 17)
 	return label
 
 
@@ -494,7 +495,8 @@ func show_event_card(title_text: String, detail_text: String, color: Color = Col
 func show_event_card_temporarily(title_text: String, detail_text: String, duration: float, color: Color = Color(1.0, 0.86, 0.54)) -> void:
 	show_event_card(title_text, detail_text, color)
 	var current_token := event_card_token
-	get_tree().create_timer(duration).timeout.connect(func() -> void:
+	var hold_duration := maxf(0.5, duration * (0.72 if narrow_layout else 0.82))
+	get_tree().create_timer(hold_duration).timeout.connect(func() -> void:
 		if current_token == event_card_token:
 			hide_event_card()
 	)

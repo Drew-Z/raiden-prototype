@@ -21,6 +21,17 @@ const SAMPLE_VARIANT_COUNTS := {
 	"storm_charge": 3,
 	"storm_impact": 3
 }
+const SAMPLE_VARIANT_GAIN_DB := {
+	"enemy_hit": [-0.6, 0.0, -1.6],
+	"enemy_destroy": [-1.4, 1.1, -0.3],
+	"player_hurt": [-2.6, -0.9, 0.2],
+	"boss_hit": [-1.8, -0.5, 0.6],
+	"bomb": [-3.2, -0.8, -4.8],
+	"boss_warning": [-5.4, -3.8, -2.6],
+	"boss_break": [-2.8, -2.1, -2.4],
+	"storm_charge": [-1.0, -2.2, -3.0],
+	"storm_impact": [-4.8, -1.1, 0.9]
+}
 
 var players: Array[AudioStreamPlayer] = []
 var procedural_stream_cache: Dictionary = {}
@@ -58,14 +69,19 @@ func play_event(event_name: String) -> void:
 			return
 
 	last_play_times[event_name] = now_sec
-	var stream: AudioStream = _get_stream_for_event(event_name)
+	var sample_entry := _get_sample_entry_for_event(event_name)
+	var stream: AudioStream = sample_entry.get("stream", null)
+	var sample_gain_db := float(sample_entry.get("gain_db", 0.0))
+	if stream == null:
+		stream = _get_procedural_stream_for_event(event_name)
+		sample_gain_db = 0.0
 	if stream == null:
 		return
 
 	var player: AudioStreamPlayer = _get_available_player()
 	player.stop()
 	player.bus = _get_bus_name(event_name)
-	player.volume_db = _get_volume_db(event_name)
+	player.volume_db = _get_volume_db(event_name) + sample_gain_db
 	player.pitch_scale = _get_pitch_scale(event_name)
 	player.stream = stream
 	var play_id := int(player.get_meta("play_id", 0)) + 1
@@ -86,17 +102,10 @@ func _get_available_player() -> AudioStreamPlayer:
 	return players[0]
 
 
-func _get_stream_for_event(event_name: String) -> AudioStream:
-	var sample_stream: AudioStream = _get_sample_stream_for_event(event_name)
-	if sample_stream != null:
-		return sample_stream
-	return _get_procedural_stream_for_event(event_name)
-
-
-func _get_sample_stream_for_event(event_name: String) -> AudioStream:
+func _get_sample_entry_for_event(event_name: String) -> Dictionary:
 	var bank: Array = _get_sample_bank(event_name)
 	if bank.is_empty():
-		return null
+		return {}
 	return bank[randi() % bank.size()]
 
 
@@ -113,10 +122,21 @@ func _get_sample_bank(event_name: String) -> Array:
 				continue
 			var stream := load(path)
 			if stream is AudioStream:
-				bank.append(stream)
+				bank.append({
+					"stream": stream,
+					"gain_db": _get_sample_gain_db(event_name, variant_index)
+				})
 				break
 	sample_cache[event_name] = bank
 	return bank
+
+
+func _get_sample_gain_db(event_name: String, variant_index: int) -> float:
+	var gains: Array = SAMPLE_VARIANT_GAIN_DB.get(event_name, [])
+	if gains.is_empty():
+		return 0.0
+	var gain_index := clampi(variant_index - 1, 0, gains.size() - 1)
+	return float(gains[gain_index])
 
 
 func _get_cooldown(event_name: String) -> float:

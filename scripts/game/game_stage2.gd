@@ -745,7 +745,7 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 		var popup_color := Color(1.0, 0.84, 0.52) if enemy.is_boss else Color(1.0, 0.88, 0.66)
 		var popup_scale := 1.18 if enemy.is_boss else 0.88
 		_spawn_score_popup(enemy.position + Vector2(0.0, -18.0), popup_text, popup_color, popup_scale)
-		if enemy.can_drop_upgrade and _should_spawn_upgrade(enemy.drop_chance):
+		if enemy.can_drop_upgrade and _should_spawn_upgrade(enemy.drop_chance, enemy.drop_kind):
 			_spawn_pickup(enemy.position, enemy.drop_kind)
 
 	if enemy == active_boss:
@@ -760,12 +760,38 @@ func _on_enemy_escaped(enemy) -> void:
 		active_boss = null
 
 
-func _should_spawn_upgrade(chance: float) -> bool:
+func _should_spawn_upgrade(chance: float, kind: String = "power") -> bool:
 	if chance <= 0.0:
 		return false
 
-	var guaranteed: bool = drop_fail_streak >= 9 or (RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 12)
-	if guaranteed or randf() <= chance:
+	if kind == "bomb":
+		return randf() <= chance
+
+	var progress_ratio := clampf(stage_time / maxf(float(boss_config.get("time", 1.0)), 1.0), 0.0, 1.0)
+	var effective_chance := chance
+	var streak_target := 10
+	var guaranteed_first_upgrade: bool = RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 14 and progress_ratio <= 0.5
+
+	if is_instance_valid(player):
+		if player.fire_level <= 2 and progress_ratio <= 0.45:
+			effective_chance += 0.05
+			streak_target = 7
+		elif player.fire_level >= 4:
+			effective_chance -= 0.08
+			streak_target = 12
+			if progress_ratio >= 0.58:
+				effective_chance -= 0.08
+				streak_target = 14
+			if player.fire_level >= 5 and progress_ratio >= 0.74:
+				effective_chance -= 0.12
+				streak_target = 99
+
+	if RunState.is_chapter_mode() and RunState.current_run.start_fire_level >= 3:
+		effective_chance -= 0.04
+
+	effective_chance = clampf(effective_chance, 0.02, 0.92)
+	var guaranteed: bool = guaranteed_first_upgrade or drop_fail_streak >= streak_target
+	if guaranteed or randf() <= effective_chance:
 		drop_fail_streak = 0
 		return true
 

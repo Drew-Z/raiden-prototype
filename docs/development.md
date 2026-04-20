@@ -39,6 +39,15 @@
 "D:\Development\Godot\Godot_v4.6.1-stable_win64.exe" --path "D:\workspace4Codex\raiden prototype"
 ```
 
+如果本机容易出现 Godot 残留进程、日志目录冲突或 `内存不能为 read` 这类退出异常，优先改用项目内脚本：
+
+```cmd
+tools\clear_godot_processes.cmd
+tools\run_local_debug.cmd
+```
+
+这两个脚本会尽量先清理残留进程，并把 `APPDATA / LOCALAPPDATA` 固定到项目内的 `.godot-user`，避免和全局用户目录互相干扰。
+
 ## Headless 自动验证
 
 项目内置了 `--autoplay` 验证模式，用于快速跑通单关并输出结果统计。
