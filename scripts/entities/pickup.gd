@@ -12,6 +12,7 @@ var screen_rect := Rect2(Vector2.ZERO, Vector2(540, 960))
 var pulse := 0.0
 var pickup_type := "power"
 var collected_flash := 0.0
+var auto_collect := false
 
 
 func _init() -> void:
@@ -45,8 +46,15 @@ func _physics_process(delta: float) -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if is_instance_valid(player):
 		var to_player: Vector2 = player.position - position
-		if to_player.length() < 140.0:
-			velocity += to_player.normalized() * 220.0
+		if player.position.y <= screen_rect.position.y + screen_rect.size.y * 0.3:
+			auto_collect = true
+		if auto_collect:
+			drift = lerpf(drift, 0.0, delta * 6.0)
+			var seek_speed: float = maxf(360.0, minf(760.0, to_player.length() * 3.2))
+			velocity = to_player.normalized() * seek_speed
+		elif to_player.length() < 180.0:
+			var magnet_strength: float = 220.0 + maxf(0.0, 180.0 - to_player.length()) * 1.8
+			velocity += to_player.normalized() * magnet_strength
 	position += velocity * delta
 	queue_redraw()
 

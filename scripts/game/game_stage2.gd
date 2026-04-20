@@ -550,6 +550,7 @@ func _update_hud_status() -> void:
 	var hint_color := Color(0.82, 0.94, 1.0)
 	var danger_strength := 0.0
 	var danger_color := Color(1.0, 0.28, 0.18, 1.0)
+	var bomb_alert_level := 0
 
 	if player.lives <= 1:
 		hint_text = _t("残机告急", "CRITICAL HULL")
@@ -558,9 +559,11 @@ func _update_hud_status() -> void:
 	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 5.5):
 		hint_text = _t("缺少炸弹缓冲", "NO BOMB BUFFER")
 		hint_color = Color(1.0, 0.7, 0.42)
+		bomb_alert_level = 2
 	elif player.bomb_count > 0 and enemy_bullet_count >= (10 if boss_spawned else 14):
 		hint_text = _t("炸弹窗口已开", "BOMB WINDOW OPEN")
 		hint_color = Color(1.0, 0.76, 0.34)
+		bomb_alert_level = 1
 	elif boss_spawned:
 		if active_boss.has_method("is_entry_locked") and active_boss.is_entry_locked():
 			hint_text = _t("Boss 鍏ュ満 // 绋充綇涓嚎", "BOSS ENTERING // HOLD CENTER")
@@ -597,6 +600,7 @@ func _update_hud_status() -> void:
 		hint_color = Color(0.92, 0.9, 1.0)
 
 	hud.set_status_hint(hint_text, hint_color)
+	hud.set_bomb_alert(bomb_alert_level)
 	hud.set_danger_overlay(danger_strength, danger_color)
 
 
@@ -704,13 +708,21 @@ func _on_enemy_damaged(enemy, amount: int, remaining_health: int) -> void:
 	_spawn_impact(enemy.position, scale, color)
 	if enemy.is_boss and amount >= 18:
 		_play_sfx("boss_hit")
-		_trigger_hit_stop(0.024, 0.18)
+		if enemy.has_method("is_core_exposed") and enemy.is_core_exposed():
+			_trigger_hit_stop(0.03, 0.16)
+			_start_shake(5.0, 0.06)
+		else:
+			_trigger_hit_stop(0.024, 0.18)
+			_start_shake(3.5, 0.05)
 	elif amount > 0:
 		_play_sfx("enemy_hit")
+		if _is_large_enemy(enemy) or amount >= 18:
+			_trigger_hit_stop(0.014, 0.42)
+			_start_shake(3.0, 0.05)
 
 
 func _on_enemy_destroyed(enemy, by_player: bool) -> void:
-	_spawn_explosion(enemy.position, 1.45 if enemy.is_boss else 0.92, enemy.is_boss)
+	_spawn_explosion(enemy.position, 1.45 if enemy.is_boss else (1.08 if _is_large_enemy(enemy) else 0.92), enemy.is_boss)
 	if enemy.is_boss:
 		_play_sfx("boss_break")
 		_clear_enemy_projectiles()
@@ -720,8 +732,12 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 		_trigger_hit_stop(0.08, 0.05)
 	else:
 		_play_sfx("enemy_destroy")
-		_start_shake(4.0, 0.08)
-		_trigger_hit_stop(0.018, 0.3)
+		_start_shake(6.0 if _is_large_enemy(enemy) else 4.0, 0.11 if _is_large_enemy(enemy) else 0.08)
+		if _is_large_enemy(enemy):
+			_trigger_hit_stop(0.024, 0.22)
+			hud.pulse_screen(Color(1.0, 0.82, 0.54, 0.08), 0.05)
+		else:
+			_trigger_hit_stop(0.018, 0.3)
 
 	if by_player:
 		RunState.register_enemy_destroyed(enemy.score_value, enemy.is_boss)
@@ -1158,6 +1174,16 @@ func _update_screen_shake(delta: float) -> void:
 		)
 	else:
 		world_layer.position = world_layer.position.lerp(Vector2.ZERO, min(1.0, delta * 18.0))
+
+
+func _is_large_enemy(enemy) -> bool:
+	if not is_instance_valid(enemy):
+		return false
+	if enemy.is_boss:
+		return true
+	if int(enemy.max_health) >= 44 or int(enemy.score_value) >= 220:
+		return true
+	return String(enemy.enemy_role) in ["anchor", "carrier", "screener", "suppressor"]
 
 
 func _t(zh_text: String, en_text: String) -> String:

@@ -38,6 +38,8 @@ var right_warning_token := 0
 var cinematic_top_bar: ColorRect
 var cinematic_bottom_bar: ColorRect
 var narrow_layout := false
+var bomb_alert_level := 0
+var hud_anim_time := 0.0
 
 
 func _ready() -> void:
@@ -54,6 +56,30 @@ func _ready() -> void:
 	_build_clear_panel()
 	_build_edge_warnings()
 	_build_cinematic_bars()
+
+
+func _process(delta: float) -> void:
+	hud_anim_time += delta
+	if not is_instance_valid(bomb_hint_label) or not is_instance_valid(bomb_label):
+		return
+	if bomb_alert_level <= 0:
+		bomb_hint_label.scale = bomb_hint_label.scale.lerp(Vector2.ONE, min(1.0, delta * 10.0))
+		bomb_label.scale = bomb_label.scale.lerp(Vector2.ONE, min(1.0, delta * 10.0))
+		bomb_hint_label.modulate = bomb_hint_label.modulate.lerp(Color(1.0, 1.0, 1.0, 1.0), min(1.0, delta * 10.0))
+		bomb_label.modulate = bomb_label.modulate.lerp(Color(1.0, 1.0, 1.0, 1.0), min(1.0, delta * 10.0))
+		return
+
+	var pulse := 0.5 + 0.5 * sin(hud_anim_time * (7.4 if bomb_alert_level == 1 else 8.6))
+	if bomb_alert_level == 1:
+		bomb_hint_label.modulate = Color(1.0, 0.84, 0.48).lerp(Color(1.0, 1.0, 1.0), pulse * 0.55)
+		bomb_label.modulate = Color(1.0, 0.92, 0.74).lerp(Color(1.0, 1.0, 1.0), pulse * 0.4)
+		bomb_hint_label.scale = Vector2.ONE * (1.0 + pulse * 0.05)
+		bomb_label.scale = Vector2.ONE * (1.0 + pulse * 0.03)
+	else:
+		bomb_hint_label.modulate = Color(1.0, 0.48, 0.42).lerp(Color(1.0, 0.8, 0.72), pulse * 0.45)
+		bomb_label.modulate = Color(1.0, 0.72, 0.62).lerp(Color(1.0, 0.92, 0.86), pulse * 0.3)
+		bomb_hint_label.scale = Vector2.ONE * (1.0 + pulse * 0.07)
+		bomb_label.scale = Vector2.ONE * (1.0 + pulse * 0.04)
 
 
 func _build_status_panel() -> void:
@@ -417,6 +443,10 @@ func set_stage_progress(ratio: float) -> void:
 func set_status_hint(text: String, color: Color = Color(0.88, 0.94, 1.0)) -> void:
 	status_label.text = text
 	status_label.add_theme_color_override("font_color", color)
+
+
+func set_bomb_alert(level: int) -> void:
+	bomb_alert_level = clampi(level, 0, 2)
 
 
 func show_banner(text: String, color: Color = Color(1.0, 1.0, 1.0)) -> void:
