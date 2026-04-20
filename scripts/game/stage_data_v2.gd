@@ -265,7 +265,7 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"time": 29.2,
 		"position": Vector2(playfield_size.x * 0.5, -120.0),
 		"pattern": "boss",
-		"health": 640,
+		"health": 980,
 		"score_value": 3200,
 		"fire_interval": 0.94,
 		"fire_timer": 1.2,
@@ -290,6 +290,8 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"overdrive_detail": "Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.",
 		"zh_overdrive_detail": "Boss 已经提速，先保住站位，再去兑现炸弹或核心爆发窗口。",
 		"bullet_speed": 276.0,
+		"core_damage_multiplier": 1.25,
+		"entry_invulnerable_margin": 20.0,
 		"drop_chance": 0.0,
 		"tint": Color(0.88, 0.18, 0.18, 0.95)
 	}

@@ -312,7 +312,7 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"time": 29.0,
 		"position": Vector2(playfield_size.x * 0.5, -120.0),
 		"pattern": "boss",
-		"health": 760,
+		"health": 1380,
 		"score_value": 4200,
 		"fire_interval": 0.88,
 		"fire_timer": 1.08,
@@ -406,6 +406,8 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 			"card_duration": 1.1
 		},
 		"bullet_speed": 294.0,
+		"core_damage_multiplier": 1.3,
+		"entry_invulnerable_margin": 22.0,
 		"drop_chance": 0.0,
 		"tint": Color(0.84, 0.2, 0.18, 0.95),
 		"overdrive_threshold": 0.22

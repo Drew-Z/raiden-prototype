@@ -36,6 +36,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
+	var viewport_size := get_viewport_rect().size
+	var narrow_layout := viewport_size.x <= 560.0
+
 	var background := ColorRect.new()
 	background.color = Color(0.015, 0.02, 0.05)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -69,16 +72,27 @@ func _build_ui() -> void:
 
 	var frame := MarginContainer.new()
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.add_theme_constant_override("margin_left", 72)
-	frame.add_theme_constant_override("margin_top", 110)
-	frame.add_theme_constant_override("margin_right", 72)
-	frame.add_theme_constant_override("margin_bottom", 110)
+	frame.add_theme_constant_override("margin_left", 16 if narrow_layout else 72)
+	frame.add_theme_constant_override("margin_top", 26 if narrow_layout else 110)
+	frame.add_theme_constant_override("margin_right", 16 if narrow_layout else 72)
+	frame.add_theme_constant_override("margin_bottom", 20 if narrow_layout else 110)
 	add_child(frame)
 
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 18)
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 16 if narrow_layout else 18)
 	frame.add_child(root)
-	var narrow_layout := get_viewport_rect().size.x <= 560.0
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll)
+
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - (32.0 if narrow_layout else 144.0)), 0.0)
+	content.add_theme_constant_override("separation", 16 if narrow_layout else 18)
+	scroll.add_child(content)
 
 	var accent_color := _get_grade_color()
 
@@ -124,31 +138,33 @@ func _build_ui() -> void:
 
 	var hero := VBoxContainer.new()
 	hero.add_theme_constant_override("separation", 6)
-	root.add_child(hero)
+	content.add_child(hero)
 	_register_reveal(hero)
 
 	var banner := Label.new()
 	banner.text = RunState.get_chapter_ending_banner()
 	banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	banner.add_theme_font_size_override("font_size", 18)
+	banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	banner.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	banner.add_theme_color_override("font_color", accent_color)
 	hero.add_child(banner)
 
 	var title := Label.new()
 	title.text = RunState.get_chapter_ending_title()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 42)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 34 if narrow_layout else 42)
 	hero.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = RunState.get_chapter_ending_summary()
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.add_theme_font_size_override("font_size", 20)
+	subtitle.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 	hero.add_child(subtitle)
 
 	route_band = PanelContainer.new()
-	root.add_child(route_band)
+	content.add_child(route_band)
 	_register_reveal(route_band)
 
 	var route_margin := MarginContainer.new()
@@ -159,7 +175,7 @@ func _build_ui() -> void:
 	route_band.add_child(route_margin)
 
 	var route_overlay := Control.new()
-	route_overlay.custom_minimum_size = Vector2(0, 60)
+	route_overlay.custom_minimum_size = Vector2(0, 68 if narrow_layout else 60)
 	route_overlay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	route_margin.add_child(route_overlay)
 
@@ -185,7 +201,7 @@ func _build_ui() -> void:
 	score_row.columns = 1 if narrow_layout else 3
 	score_row.add_theme_constant_override("h_separation", 14)
 	score_row.add_theme_constant_override("v_separation", 14)
-	root.add_child(score_row)
+	content.add_child(score_row)
 	_register_reveal(score_row)
 	score_row.add_child(_build_stat_card(_t("章节评级", "CHAPTER GRADE"), RunState.get_chapter_grade()))
 	score_row.add_child(_build_stat_card(_t("总得分", "TOTAL SCORE"), "%06d" % int(RunState.chapter_state.get("total_score", 0))))
@@ -195,13 +211,13 @@ func _build_ui() -> void:
 	timeline_row.columns = 1 if narrow_layout else 2
 	timeline_row.add_theme_constant_override("h_separation", 12)
 	timeline_row.add_theme_constant_override("v_separation", 12)
-	root.add_child(timeline_row)
+	content.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
 
 	var verdict_panel := PanelContainer.new()
-	root.add_child(verdict_panel)
+	content.add_child(verdict_panel)
 	_register_reveal(verdict_panel)
 
 	var verdict_margin := MarginContainer.new()
@@ -231,13 +247,13 @@ func _build_ui() -> void:
 	review_row.columns = 1 if narrow_layout else 3
 	review_row.add_theme_constant_override("h_separation", 12)
 	review_row.add_theme_constant_override("v_separation", 12)
-	root.add_child(review_row)
+	content.add_child(review_row)
 	_register_reveal(review_row)
 	for card_data in RunState.get_chapter_review_cards():
 		review_row.add_child(_build_review_card(card_data, accent_color))
 
 	final_pass_panel = PanelContainer.new()
-	root.add_child(final_pass_panel)
+	content.add_child(final_pass_panel)
 	_register_reveal(final_pass_panel)
 
 	var final_pass_margin := MarginContainer.new()
@@ -263,23 +279,26 @@ func _build_ui() -> void:
 	final_pass_body.add_theme_font_size_override("font_size", 18)
 	final_pass_column.add_child(final_pass_body)
 
-	var footer_row := HBoxContainer.new()
-	footer_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	footer_row.add_theme_constant_override("separation", 14)
+	var footer_row := GridContainer.new()
+	footer_row.columns = 1 if narrow_layout else 3
+	footer_row.add_theme_constant_override("h_separation", 14)
+	footer_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(footer_row)
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
 	footer.text = _t("回车进入总结    R 重开章节    Esc 主菜单", "Enter Debrief    R Retry Chapter    Esc Main Menu")
-	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 18)
+	footer.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	footer_row.add_child(footer)
 
 	var debrief_button := Button.new()
 	debrief_button.text = _t("总结", "Debrief")
-	debrief_button.custom_minimum_size = Vector2(180, 52)
+	debrief_button.custom_minimum_size = Vector2(0, 52)
+	debrief_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	debrief_button.pressed.connect(func() -> void:
 		RunState.show_chapter_outro()
 	)
@@ -287,7 +306,8 @@ func _build_ui() -> void:
 
 	var retry_button := Button.new()
 	retry_button.text = _t("重开章节", "Retry Chapter")
-	retry_button.custom_minimum_size = Vector2(190, 52)
+	retry_button.custom_minimum_size = Vector2(0, 52)
+	retry_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
 	)

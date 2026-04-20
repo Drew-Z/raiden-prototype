@@ -48,9 +48,10 @@ var hover_amplitude := 18.0
 var release_speed := 170.0
 var core_exposed_timer := 0.0
 var core_exposed_duration := 2.2
-var core_damage_multiplier := 1.65
+var core_damage_multiplier := 1.3
 var overdrive_threshold := 0.18
 var boss_style := "carrier"
+var entry_invulnerable_margin := 18.0
 
 
 func _init() -> void:
@@ -106,9 +107,10 @@ func configure(config: Dictionary):
 	hover_amplitude = config.get("hover_amplitude", 18.0)
 	release_speed = config.get("release_speed", 170.0)
 	core_exposed_duration = config.get("core_exposed_duration", 2.2)
-	core_damage_multiplier = config.get("core_damage_multiplier", 1.65)
+	core_damage_multiplier = config.get("core_damage_multiplier", 1.3)
 	overdrive_threshold = config.get("overdrive_threshold", 0.18)
 	boss_style = config.get("boss_style", "carrier")
+	entry_invulnerable_margin = config.get("entry_invulnerable_margin", 18.0)
 	return self
 
 
@@ -397,8 +399,14 @@ func is_overdrive() -> bool:
 	return is_boss and float(health) / float(max_health) <= overdrive_threshold
 
 
+func is_entry_locked() -> bool:
+	return is_boss and movement_pattern == "boss" and position.y < target_y - entry_invulnerable_margin
+
+
 func apply_damage(amount: int, by_player: bool = true) -> void:
 	if not alive:
+		return
+	if by_player and is_entry_locked():
 		return
 	var applied_amount := amount
 	if is_boss and by_player and is_core_exposed():

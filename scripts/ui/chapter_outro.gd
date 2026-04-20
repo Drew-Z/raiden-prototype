@@ -28,6 +28,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_ui() -> void:
+	var viewport_size := get_viewport_rect().size
+	var narrow_layout := viewport_size.x <= 560.0
+
 	var background := ColorRect.new()
 	background.color = Color(0.02, 0.025, 0.05)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -61,44 +64,60 @@ func _build_ui() -> void:
 
 	var frame := MarginContainer.new()
 	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame.add_theme_constant_override("margin_left", 56)
-	frame.add_theme_constant_override("margin_top", 78)
-	frame.add_theme_constant_override("margin_right", 56)
-	frame.add_theme_constant_override("margin_bottom", 76)
+	frame.add_theme_constant_override("margin_left", 16 if narrow_layout else 56)
+	frame.add_theme_constant_override("margin_top", 24 if narrow_layout else 78)
+	frame.add_theme_constant_override("margin_right", 16 if narrow_layout else 56)
+	frame.add_theme_constant_override("margin_bottom", 20 if narrow_layout else 76)
 	add_child(frame)
 
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 16)
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 14 if narrow_layout else 16)
 	frame.add_child(root)
-	var narrow_layout := get_viewport_rect().size.x <= 560.0
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll)
+
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.custom_minimum_size = Vector2(maxf(0.0, viewport_size.x - (32.0 if narrow_layout else 112.0)), 0.0)
+	content.add_theme_constant_override("separation", 14 if narrow_layout else 16)
+	scroll.add_child(content)
 
 	var hero := VBoxContainer.new()
 	hero.add_theme_constant_override("separation", 4)
-	root.add_child(hero)
+	content.add_child(hero)
 	_register_reveal(hero)
 
 	var status := Label.new()
 	status.text = _t("章节总结 // 路线已完成", "CHAPTER DEBRIEF // ROUTE SECURED")
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status.add_theme_font_size_override("font_size", 18)
 	status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	hero.add_child(status)
 
 	var title := Label.new()
 	title.text = _t("章节完成", "CHAPTER COMPLETE")
-	title.add_theme_font_size_override("font_size", 42)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 34 if narrow_layout else 42)
 	hero.add_child(title)
 
 	var headline := Label.new()
 	headline.text = RunState.get_chapter_outro_headline()
 	headline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	headline.add_theme_font_size_override("font_size", 20)
+	headline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
+	headline.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 	hero.add_child(headline)
 
 	var timeline_row := GridContainer.new()
 	timeline_row.columns = 1 if narrow_layout else 2
 	timeline_row.add_theme_constant_override("h_separation", 12)
 	timeline_row.add_theme_constant_override("v_separation", 12)
-	root.add_child(timeline_row)
+	content.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
@@ -107,7 +126,7 @@ func _build_ui() -> void:
 	summary_row.columns = 1 if narrow_layout else 4
 	summary_row.add_theme_constant_override("h_separation", 12)
 	summary_row.add_theme_constant_override("v_separation", 12)
-	root.add_child(summary_row)
+	content.add_child(summary_row)
 	_register_reveal(summary_row)
 
 	summary_row.add_child(_build_stat_card(_t("章节评级", "CHAPTER GRADE"), RunState.get_chapter_grade()))
@@ -122,14 +141,14 @@ func _build_ui() -> void:
 			RunState.get_chapter_clear_summary()
 		]
 	)
-	root.add_child(route_panel)
+	content.add_child(route_panel)
 	_register_reveal(route_panel)
 
 	var split_row := GridContainer.new()
 	split_row.columns = 1 if narrow_layout else 2
 	split_row.add_theme_constant_override("h_separation", 16)
 	split_row.add_theme_constant_override("v_separation", 16)
-	root.add_child(split_row)
+	content.add_child(split_row)
 	_register_reveal(split_row)
 
 	split_row.add_child(_build_panel(_t("尾声", "EPILOGUE"), RunState.get_chapter_epilogue()))
@@ -139,28 +158,32 @@ func _build_ui() -> void:
 	package_row.columns = 1 if narrow_layout else 2
 	package_row.add_theme_constant_override("h_separation", 16)
 	package_row.add_theme_constant_override("v_separation", 16)
-	root.add_child(package_row)
+	content.add_child(package_row)
 	_register_reveal(package_row)
 
 	package_row.add_child(_build_panel(_t("最终封装", "FINAL PACKAGE"), RunState.get_final_package_summary()))
 	package_row.add_child(_build_panel(_t("下一步", "NEXT STEP"), RunState.get_final_package_next_step()))
 
-	var footer_row := HBoxContainer.new()
-	footer_row.alignment = BoxContainer.ALIGNMENT_END
-	footer_row.add_theme_constant_override("separation", 14)
+	var footer_row := GridContainer.new()
+	footer_row.columns = 1 if narrow_layout else 3
+	footer_row.add_theme_constant_override("h_separation", 14)
+	footer_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(footer_row)
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
 	footer.text = _t("回车主菜单    R 重开章节    Esc 主菜单", "Enter Main Menu    R Retry Chapter    Esc Main Menu")
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if narrow_layout else HORIZONTAL_ALIGNMENT_LEFT
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 18)
+	footer.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
 	footer_row.add_child(footer)
 
 	var retry_button := Button.new()
 	retry_button.text = _t("重开章节", "Retry Chapter")
-	retry_button.custom_minimum_size = Vector2(190, 52)
+	retry_button.custom_minimum_size = Vector2(0, 52)
+	retry_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
 	)
@@ -168,7 +191,8 @@ func _build_ui() -> void:
 
 	var menu_button := Button.new()
 	menu_button.text = _t("主菜单", "Main Menu")
-	menu_button.custom_minimum_size = Vector2(170, 48)
+	menu_button.custom_minimum_size = Vector2(0, 48)
+	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
 	)
@@ -277,6 +301,8 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 
 
 func _build_ending_overlay() -> CanvasItem:
+	var narrow_layout := get_viewport_rect().size.x <= 560.0
+	var overlay_width := maxf(280.0, minf(620.0, get_viewport_rect().size.x - 64.0))
 	var overlay := Control.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 
@@ -291,6 +317,7 @@ func _build_ending_overlay() -> CanvasItem:
 
 	var panel := VBoxContainer.new()
 	panel.add_theme_constant_override("separation", 6)
+	panel.custom_minimum_size = Vector2(overlay_width, 0.0)
 	panel.modulate.a = 0.0
 	center.add_child(panel)
 
@@ -304,15 +331,16 @@ func _build_ending_overlay() -> CanvasItem:
 	var title := Label.new()
 	title.text = _t("章节路线已锁定", "CHAPTER ROUTE LOCKED")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 38)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 32 if narrow_layout else 38)
 	panel.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = RunState.get_chapter_outro_headline()
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.custom_minimum_size = Vector2(620, 0)
-	subtitle.add_theme_font_size_override("font_size", 20)
+	subtitle.custom_minimum_size = Vector2(overlay_width, 0.0)
+	subtitle.add_theme_font_size_override("font_size", 18 if narrow_layout else 20)
 	panel.add_child(subtitle)
 
 	overlay.set_meta("backdrop", backdrop)

@@ -562,7 +562,10 @@ func _update_hud_status() -> void:
 		hint_text = _t("炸弹窗口已开", "BOMB WINDOW OPEN")
 		hint_color = Color(1.0, 0.76, 0.34)
 	elif boss_spawned:
-		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and boss_finish_window_announced:
+		if active_boss.has_method("is_entry_locked") and active_boss.is_entry_locked():
+			hint_text = _t("Boss 鍏ュ満 // 绋充綇涓嚎", "BOSS ENTERING // HOLD CENTER")
+			hint_color = Color(1.0, 0.78, 0.42)
+		elif active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and boss_finish_window_announced:
 			hint_text = _t("终结窗口 // 击穿核心", "FINISH WINDOW // BREAK CORE")
 			hint_color = Color(1.0, 0.88, 0.54)
 			danger_strength = max(danger_strength, 0.12)
@@ -625,7 +628,7 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if enemy.has_method("apply_damage"):
 			if enemy.is_boss:
-				enemy.apply_damage(110, true)
+				enemy.apply_damage(72, true)
 			else:
 				enemy.apply_damage(999, true)
 
