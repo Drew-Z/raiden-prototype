@@ -276,6 +276,14 @@
 - HUD 新增炸弹资源动态提醒，`BOMB WINDOW OPEN / NO BOMB BUFFER` 不再只是静态文字，而会直接带动炸弹区做脉冲强调
 - 普通大敌与 Boss 核心暴露阶段的命中、击破反馈再次分层，重目标现在会带出更明确的轻量 hitstop、震屏和屏幕脉冲
 
+### 阶段 35：采样音效管线与混音分层落地
+
+- 新增 `AudioBusSetup` 全局初始化器，把战斗音频正式拆成 `BGM`、`SFX_Player`、`SFX_Enemy`、`SFX_Boss`、`SFX_UI` 五类总线，不再把所有声音都直接堆在 `Master`
+- `SfxController` 改成“采样优先、程序音回退”的结构：核心事件会优先播放本地 wav 采样，缺失时才退回程序合成，后续替换正式素材时不需要再改调用层
+- 新增 `assets/audio/sfx` 占位采样包和 `tools/generate_audio_samples.ps1` 生成脚本，当前提供 `player_shot`、`enemy_hit`、`enemy_destroy`、`player_hurt`、`boss_break` 等核心事件的多变体采样，占位包已具备后续直接替换为正式录音素材的结构
+- `BgmController` 也接入 `BGM` 总线，音乐与高频战斗音效终于有了基本的层级分离
+- 击毁、受伤、受击和玩家射击重新拉开了音色职责：击毁恢复更厚的爆裂感，玩家受伤不再和敌人爆炸抢同一块听感位置，连续开火时整体也更稳
+
 ### 进入垂直切片前需要确认
 
 - 是继续把现有双关做成更完整的可展示垂直切片

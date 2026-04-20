@@ -1,6 +1,8 @@
 extends Node
 class_name BgmController
 
+const AudioBusSetupScript := preload("res://scripts/autoload/audio_bus_setup.gd")
+
 var loop_player: AudioStreamPlayer
 var sting_player: AudioStreamPlayer
 var stream_cache: Dictionary = {}
@@ -8,13 +10,14 @@ var sample_rate := 22050
 
 
 func _ready() -> void:
+	AudioBusSetupScript.ensure_layout()
 	loop_player = AudioStreamPlayer.new()
-	loop_player.bus = "Master"
+	loop_player.bus = "BGM"
 	loop_player.volume_db = -18.0
 	add_child(loop_player)
 
 	sting_player = AudioStreamPlayer.new()
-	sting_player.bus = "Master"
+	sting_player.bus = "BGM"
 	sting_player.volume_db = -14.0
 	add_child(sting_player)
 

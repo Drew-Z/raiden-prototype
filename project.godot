@@ -10,6 +10,7 @@ config/features=PackedStringArray("4.6")
 
 [autoload]
 
+AudioBusSetup="*res://scripts/autoload/audio_bus_setup.gd"
 RunState="*res://scripts/autoload/run_state.gd"
 
 [display]

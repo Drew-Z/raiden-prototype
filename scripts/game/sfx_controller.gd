@@ -1,16 +1,36 @@
 extends Node
 class_name SfxController
 
+const AudioBusSetupScript := preload("res://scripts/autoload/audio_bus_setup.gd")
+const SAMPLE_BASE_PATH := "res://assets/audio/sfx"
+const SAMPLE_VARIANT_COUNTS := {
+	"player_shot": 3,
+	"enemy_hit": 3,
+	"enemy_destroy": 3,
+	"player_hurt": 3,
+	"player_die": 3,
+	"boss_hit": 3,
+	"power_up": 3,
+	"bomb_pickup": 3,
+	"bomb": 3,
+	"boss_warning": 3,
+	"boss_phase": 3,
+	"boss_break": 3,
+	"stage_clear": 3
+}
+
 var players: Array[AudioStreamPlayer] = []
-var stream_cache: Dictionary = {}
+var procedural_stream_cache: Dictionary = {}
+var sample_cache: Dictionary = {}
 var last_play_times: Dictionary = {}
 var sample_rate := 22050
 
 
 func _ready() -> void:
-	for _index in range(10):
+	AudioBusSetupScript.ensure_layout()
+	for _index in range(14):
 		var player: AudioStreamPlayer = AudioStreamPlayer.new()
-		player.bus = "Master"
+		player.bus = "SFX_UI"
 		add_child(player)
 		players.append(player)
 
@@ -20,7 +40,8 @@ func _exit_tree() -> void:
 		if is_instance_valid(player):
 			player.stop()
 			player.stream = null
-	stream_cache.clear()
+	procedural_stream_cache.clear()
+	sample_cache.clear()
 	last_play_times.clear()
 	players.clear()
 
@@ -33,11 +54,13 @@ func play_event(event_name: String) -> void:
 			return
 
 	last_play_times[event_name] = now_sec
-	var stream: AudioStreamWAV = _get_stream_for_event(event_name)
+	var stream: AudioStream = _get_stream_for_event(event_name)
 	if stream == null:
 		return
 
 	var player: AudioStreamPlayer = _get_available_player()
+	player.stop()
+	player.bus = _get_bus_name(event_name)
 	player.volume_db = _get_volume_db(event_name)
 	player.pitch_scale = _get_pitch_scale(event_name)
 	player.stream = stream
@@ -51,13 +74,46 @@ func _get_available_player() -> AudioStreamPlayer:
 	return players[0]
 
 
+func _get_stream_for_event(event_name: String) -> AudioStream:
+	var sample_stream: AudioStream = _get_sample_stream_for_event(event_name)
+	if sample_stream != null:
+		return sample_stream
+	return _get_procedural_stream_for_event(event_name)
+
+
+func _get_sample_stream_for_event(event_name: String) -> AudioStream:
+	var bank: Array = _get_sample_bank(event_name)
+	if bank.is_empty():
+		return null
+	return bank[randi() % bank.size()]
+
+
+func _get_sample_bank(event_name: String) -> Array:
+	if sample_cache.has(event_name):
+		return sample_cache[event_name]
+
+	var bank: Array = []
+	var variant_count: int = int(SAMPLE_VARIANT_COUNTS.get(event_name, 0))
+	for variant_index in range(1, variant_count + 1):
+		var path: String = "%s/%s_%02d.wav" % [SAMPLE_BASE_PATH, event_name, variant_index]
+		if not ResourceLoader.exists(path):
+			continue
+		var stream := load(path)
+		if stream is AudioStream:
+			bank.append(stream)
+	sample_cache[event_name] = bank
+	return bank
+
+
 func _get_cooldown(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return 0.1
+			return 0.085
 		"enemy_hit":
-			return 0.06
+			return 0.05
 		"enemy_destroy":
+			return 0.04
+		"boss_hit":
 			return 0.05
 		_:
 			return 0.0
@@ -66,121 +122,141 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -13.5
+			return -12.0
 		"enemy_hit":
-			return -14.0
+			return -13.8
 		"enemy_destroy":
-			return -10.5
-		"boss_hit":
-			return -6.5
-		"power_up":
-			return -6.5
-		"bomb_pickup":
-			return -6.0
-		"bomb":
-			return -4.5
-		"boss_warning", "boss_phase":
-			return -4.0
-		"boss_break", "stage_clear":
-			return -2.5
-		_:
+			return -8.8
+		"player_hurt":
+			return -9.8
+		"player_die":
 			return -5.0
+		"boss_hit":
+			return -6.0
+		"power_up", "bomb_pickup":
+			return -5.0
+		"bomb":
+			return -4.0
+		"boss_warning", "boss_phase":
+			return -3.5
+		"boss_break", "stage_clear":
+			return -2.0
+		_:
+			return -5.5
 
 
 func _get_pitch_scale(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return randf_range(0.92, 0.97)
+			return randf_range(0.98, 1.03)
 		"enemy_hit":
-			return randf_range(0.9, 0.96)
+			return randf_range(0.95, 1.0)
 		"enemy_destroy":
-			return randf_range(0.92, 0.98)
+			return randf_range(0.94, 1.0)
+		"boss_hit":
+			return randf_range(0.96, 1.0)
+		"player_hurt":
+			return randf_range(0.98, 1.02)
 		_:
-			return 1.0
+			return randf_range(0.99, 1.01)
 
 
-func _get_stream_for_event(event_name: String) -> AudioStreamWAV:
-	if stream_cache.has(event_name):
-		return stream_cache[event_name]
+func _get_bus_name(event_name: String) -> String:
+	match event_name:
+		"player_shot", "player_hurt", "player_die", "bomb":
+			return "SFX_Player"
+		"enemy_hit", "enemy_destroy":
+			return "SFX_Enemy"
+		"boss_hit", "boss_warning", "boss_phase", "boss_break":
+			return "SFX_Boss"
+		"power_up", "bomb_pickup", "stage_clear":
+			return "SFX_UI"
+		_:
+			return "SFX_UI"
+
+
+func _get_procedural_stream_for_event(event_name: String) -> AudioStreamWAV:
+	if procedural_stream_cache.has(event_name):
+		return procedural_stream_cache[event_name]
 
 	var segments: Array[Dictionary] = []
 	match event_name:
 		"player_shot":
 			segments = [
-				{"freq": 460.0, "duration": 0.014, "volume": 0.06, "wave": "triangle"},
-				{"freq": 320.0, "duration": 0.024, "volume": 0.032, "wave": "sine"}
+				{"freq": 420.0, "duration": 0.016, "volume": 0.058, "wave": "triangle"},
+				{"freq": 300.0, "duration": 0.028, "volume": 0.028, "wave": "sine"}
 			]
 		"enemy_hit":
 			segments = [
-				{"freq": 150.0, "duration": 0.018, "volume": 0.045, "wave": "triangle"},
-				{"freq": 210.0, "duration": 0.018, "volume": 0.024, "wave": "sine"}
+				{"freq": 150.0, "duration": 0.018, "volume": 0.035, "wave": "triangle"},
+				{"freq": 190.0, "duration": 0.018, "volume": 0.02, "wave": "sine"}
 			]
 		"enemy_destroy":
 			segments = [
-				{"freq": 150.0, "duration": 0.032, "volume": 0.08, "wave": "triangle"},
-				{"freq": 110.0, "duration": 0.055, "volume": 0.06, "wave": "sine"},
-				{"freq": 220.0, "duration": 0.014, "volume": 0.014, "wave": "noise"}
+				{"freq": 140.0, "duration": 0.036, "volume": 0.075, "wave": "triangle"},
+				{"freq": 100.0, "duration": 0.058, "volume": 0.062, "wave": "sine"},
+				{"freq": 220.0, "duration": 0.02, "volume": 0.018, "wave": "noise"}
 			]
 		"boss_hit":
 			segments = [
-				{"freq": 190.0, "duration": 0.036, "volume": 0.15, "wave": "triangle"},
-				{"freq": 145.0, "duration": 0.05, "volume": 0.08, "wave": "square"}
+				{"freq": 190.0, "duration": 0.04, "volume": 0.12, "wave": "triangle"},
+				{"freq": 145.0, "duration": 0.052, "volume": 0.068, "wave": "square"}
 			]
 		"player_hurt":
 			segments = [
-				{"freq": 170.0, "duration": 0.08, "volume": 0.24, "wave": "triangle"},
-				{"freq": 120.0, "duration": 0.08, "volume": 0.18, "wave": "square"}
+				{"freq": 170.0, "duration": 0.055, "volume": 0.16, "wave": "triangle"},
+				{"freq": 126.0, "duration": 0.05, "volume": 0.1, "wave": "square"}
 			]
 		"player_die":
 			segments = [
-				{"freq": 210.0, "duration": 0.12, "volume": 0.26, "wave": "triangle"},
-				{"freq": 120.0, "duration": 0.12, "volume": 0.18, "wave": "square"},
+				{"freq": 210.0, "duration": 0.1, "volume": 0.22, "wave": "triangle"},
+				{"freq": 120.0, "duration": 0.12, "volume": 0.16, "wave": "square"},
 				{"freq": 80.0, "duration": 0.16, "volume": 0.12, "wave": "triangle"}
 			]
 		"power_up":
 			segments = [
-				{"freq": 660.0, "duration": 0.03, "volume": 0.16, "wave": "sine"},
-				{"freq": 820.0, "duration": 0.04, "volume": 0.15, "wave": "sine"}
+				{"freq": 620.0, "duration": 0.028, "volume": 0.14, "wave": "sine"},
+				{"freq": 780.0, "duration": 0.04, "volume": 0.13, "wave": "sine"}
 			]
 		"bomb_pickup":
 			segments = [
-				{"freq": 420.0, "duration": 0.04, "volume": 0.18, "wave": "triangle"},
-				{"freq": 620.0, "duration": 0.06, "volume": 0.16, "wave": "square"}
+				{"freq": 360.0, "duration": 0.038, "volume": 0.15, "wave": "triangle"},
+				{"freq": 540.0, "duration": 0.056, "volume": 0.12, "wave": "square"}
 			]
 		"bomb":
 			segments = [
-				{"freq": 180.0, "duration": 0.08, "volume": 0.28, "wave": "square"},
-				{"freq": 130.0, "duration": 0.12, "volume": 0.2, "wave": "triangle"},
-				{"freq": 90.0, "duration": 0.16, "volume": 0.14, "wave": "triangle"}
+				{"freq": 180.0, "duration": 0.08, "volume": 0.24, "wave": "square"},
+				{"freq": 130.0, "duration": 0.12, "volume": 0.18, "wave": "triangle"},
+				{"freq": 90.0, "duration": 0.18, "volume": 0.14, "wave": "triangle"}
 			]
 		"boss_warning":
 			segments = [
-				{"freq": 180.0, "duration": 0.08, "volume": 0.24, "wave": "square"},
-				{"freq": 220.0, "duration": 0.08, "volume": 0.2, "wave": "square"}
+				{"freq": 180.0, "duration": 0.08, "volume": 0.22, "wave": "square"},
+				{"freq": 220.0, "duration": 0.08, "volume": 0.18, "wave": "square"}
 			]
 		"boss_phase":
 			segments = [
-				{"freq": 320.0, "duration": 0.05, "volume": 0.18, "wave": "square"},
-				{"freq": 420.0, "duration": 0.05, "volume": 0.16, "wave": "square"},
-				{"freq": 520.0, "duration": 0.08, "volume": 0.14, "wave": "sine"}
+				{"freq": 320.0, "duration": 0.05, "volume": 0.16, "wave": "square"},
+				{"freq": 420.0, "duration": 0.05, "volume": 0.14, "wave": "square"},
+				{"freq": 520.0, "duration": 0.08, "volume": 0.12, "wave": "sine"}
 			]
 		"boss_break":
 			segments = [
-				{"freq": 240.0, "duration": 0.08, "volume": 0.22, "wave": "square"},
-				{"freq": 180.0, "duration": 0.1, "volume": 0.18, "wave": "triangle"},
-				{"freq": 130.0, "duration": 0.12, "volume": 0.14, "wave": "triangle"}
+				{"freq": 240.0, "duration": 0.08, "volume": 0.2, "wave": "square"},
+				{"freq": 180.0, "duration": 0.1, "volume": 0.16, "wave": "triangle"},
+				{"freq": 130.0, "duration": 0.12, "volume": 0.12, "wave": "triangle"}
 			]
 		"stage_clear":
 			segments = [
-				{"freq": 520.0, "duration": 0.05, "volume": 0.16, "wave": "sine"},
-				{"freq": 660.0, "duration": 0.06, "volume": 0.16, "wave": "sine"},
-				{"freq": 880.0, "duration": 0.1, "volume": 0.14, "wave": "sine"}
+				{"freq": 480.0, "duration": 0.05, "volume": 0.14, "wave": "sine"},
+				{"freq": 620.0, "duration": 0.06, "volume": 0.14, "wave": "sine"},
+				{"freq": 820.0, "duration": 0.1, "volume": 0.12, "wave": "sine"}
 			]
 		_:
 			return null
 
 	var stream: AudioStreamWAV = _build_stream(segments)
-	stream_cache[event_name] = stream
+	procedural_stream_cache[event_name] = stream
 	return stream
 
 
