@@ -16,7 +16,7 @@ const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 const StormStrikeScript := preload("res://scripts/game/storm_strike.gd")
 const StormSweepScript := preload("res://scripts/game/storm_sweep.gd")
-const PLAYFIELD_TOP_MARGIN := 152.0
+const PLAYFIELD_TOP_MARGIN := 136.0
 
 var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960 - PLAYFIELD_TOP_MARGIN))
 var player

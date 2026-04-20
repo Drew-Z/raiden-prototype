@@ -3,7 +3,7 @@ class_name SfxController
 
 const AudioBusSetupScript := preload("res://scripts/autoload/audio_bus_setup.gd")
 const SAMPLE_BASE_PATH := "res://assets/audio/sfx"
-const SAMPLE_EXTENSIONS := ["wav", "ogg"]
+const SAMPLE_EXTENSIONS := ["wav"]
 const SAMPLE_VARIANT_COUNTS := {
 	"player_shot": 3,
 	"enemy_hit": 3,
@@ -180,13 +180,13 @@ func _get_volume_db(event_name: String) -> float:
 		"bomb":
 			return -10.8
 		"boss_warning":
-			return -13.4
+			return -15.2
 		"boss_phase":
-			return -11.4
+			return -12.8
 		"storm_charge":
-			return -11.8
+			return -13.2
 		"storm_impact":
-			return -11.2
+			return -12.2
 		"boss_break", "stage_clear":
 			return -8.2
 		_:
