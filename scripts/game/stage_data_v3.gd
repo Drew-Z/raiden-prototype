@@ -13,7 +13,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 188),
 			"health": 22,
 			"fire_interval": 2.2,
-			"drop_chance": 0.24
+			"drop_chance": 0.12
 		},
 		{
 			"time": 3.4,
@@ -34,7 +34,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 132),
 			"health": 34,
 			"fire_interval": 1.25,
-			"drop_chance": 0.28
+			"drop_chance": 0.14
 		},
 		{
 			"time": 7.4,
@@ -46,7 +46,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(146, 198),
 			"health": 24,
 			"fire_interval": 0.0,
-			"drop_chance": 0.18
+			"drop_chance": 0.08
 		},
 		{
 			"time": 7.8,
@@ -58,7 +58,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(-146, 198),
 			"health": 24,
 			"fire_interval": 0.0,
-			"drop_chance": 0.18
+			"drop_chance": 0.08
 		},
 		{
 			"time": 8.9,
@@ -84,7 +84,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"release_speed": 180.0,
 			"health": 46,
 			"fire_interval": 1.0,
-			"drop_chance": 0.34
+			"drop_chance": 0.16
 		},
 		{
 			"time": 11.5,
@@ -95,7 +95,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 144),
 			"health": 32,
 			"fire_interval": 1.08,
-			"drop_chance": 0.32
+			"drop_chance": 0.14
 		},
 		{
 			"time": 12.6,
@@ -106,7 +106,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 140),
 			"health": 34,
 			"fire_interval": 1.12,
-			"drop_chance": 0.28
+			"drop_chance": 0.12
 		},
 		{
 			"time": 13.8,
@@ -126,7 +126,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 172),
 			"health": 32,
 			"fire_interval": 1.34,
-			"drop_chance": 0.34
+			"drop_chance": 0.16
 		},
 		{
 			"time": 17.0,
@@ -137,7 +137,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 146),
 			"health": 38,
 			"fire_interval": 1.0,
-			"drop_chance": 0.36
+			"drop_chance": 0.18
 		},
 		{
 			"time": 19.2,
@@ -148,7 +148,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 168),
 			"health": 32,
 			"fire_interval": 1.28,
-			"drop_chance": 0.4,
+			"drop_chance": 0.18,
 			"amplitude": 178.0,
 			"frequency": 2.6
 		},
@@ -171,7 +171,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 152),
 			"health": 34,
 			"fire_interval": 0.98,
-			"drop_chance": 0.34
+			"drop_chance": 0.16
 		},
 		{
 			"time": 22.9,
@@ -182,7 +182,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 142),
 			"health": 34,
 			"fire_interval": 1.02,
-			"drop_chance": 0.26
+			"drop_chance": 0.1
 		},
 		{
 			"time": 23.6,
@@ -208,7 +208,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"release_speed": 188.0,
 			"health": 50,
 			"fire_interval": 0.92,
-			"drop_chance": 0.34
+			"drop_chance": 0.14
 		},
 		{
 			"time": 25.6,
@@ -219,7 +219,7 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 154),
 			"health": 38,
 			"fire_interval": 0.96,
-			"drop_chance": 0.26
+			"drop_chance": 0.1
 		},
 		{
 			"time": 26.2,
@@ -230,21 +230,21 @@ static func build_waves(playfield_size: Vector2) -> Array[Dictionary]:
 			"velocity": Vector2(0, 158),
 			"health": 40,
 			"fire_interval": 1.08,
-			"drop_chance": 0.38
+			"drop_chance": 0.14
 		}
 	]
 
 
 static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 	return [
-		{"time": 0.6, "type": "banner", "text": "STORM FRONT", "duration": 1.2, "detail": "Stage 02 leans harder on side pressure and carried resources. Keep the route moving.", "card_duration": 1.45},
-		{"time": 3.2, "type": "banner", "text": "SIDE DASH", "duration": 0.8, "detail": "Fast side entries are opening the route. Read the edges before the board closes.", "card_duration": 1.35},
-		{"time": 5.0, "type": "banner", "text": "SCREEN FIRE", "duration": 0.9, "detail": "Screener units are dropping slow lane bullets. Route around the gaps, not through them.", "card_duration": 1.5, "card_color": Color(0.78, 0.92, 1.0)},
-		{"time": 8.9, "type": "banner", "text": "FORWARD SUPPLY", "duration": 0.95, "detail": "Break the center carrier to stabilize growth before the route locks down.", "card_duration": 1.45, "card_color": Color(0.66, 0.94, 1.0)},
-		{"time": 9.6, "type": "banner", "text": "ANCHOR LINE", "duration": 0.9, "detail": "Anchors are pinning the route. Shift early and preserve a center exit.", "card_duration": 1.45},
-		{"time": 12.5, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Suppressor units spread a wide fan across the board. Pre-position before the cone closes.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
+		{"time": 0.6, "type": "banner", "text": "STORM FRONT", "zh_text": "风暴前线", "duration": 1.2, "detail": "Stage 02 leans harder on side pressure and carried resources. Keep the route moving.", "zh_detail": "第二关会更强调侧向压迫和继承资源，必须一直让路线保持流动。", "card_duration": 1.45},
+		{"time": 3.2, "type": "banner", "text": "SIDE DASH", "zh_text": "侧向突进", "duration": 0.8, "detail": "Fast side entries are opening the route. Read the edges before the board closes.", "zh_detail": "高速侧入正在开启新压力线，必须在场面闭合前先读边缘。", "card_duration": 1.35},
+		{"time": 5.0, "type": "banner", "text": "SCREEN FIRE", "zh_text": "屏障火力", "duration": 0.9, "detail": "Screener units are dropping slow lane bullets. Route around the gaps, not through them.", "zh_detail": "屏障敌机会投下缓慢的大颗粒封线，应该绕着空档走，而不是硬穿。", "card_duration": 1.5, "card_color": Color(0.78, 0.92, 1.0)},
+		{"time": 8.9, "type": "banner", "text": "FORWARD SUPPLY", "zh_text": "前推补给", "duration": 0.95, "detail": "Break the center carrier to stabilize growth before the route locks down.", "zh_detail": "击毁中央运输机，在路线彻底收紧前先把成长稳定下来。", "card_duration": 1.45, "card_color": Color(0.66, 0.94, 1.0)},
+		{"time": 9.6, "type": "banner", "text": "ANCHOR LINE", "zh_text": "锚点列阵", "duration": 0.9, "detail": "Anchors are pinning the route. Shift early and preserve a center exit.", "zh_detail": "锚点敌机正在钉死路线，提前转位并保住中路出口。", "card_duration": 1.45},
+		{"time": 12.5, "type": "banner", "text": "SUPPRESSION FAN", "zh_text": "压制扇面", "duration": 0.85, "detail": "Suppressor units spread a wide fan across the board. Pre-position before the cone closes.", "zh_detail": "压制敌机会用大扇面覆盖战场，必须在扇面闭合前提前预站位。", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
 		{"time": 13.8, "type": "pickup", "pickup_type": "power", "position": Vector2(playfield_size.x * 0.5, -26.0)},
-		{"time": 13.8, "type": "banner", "text": "WEAPON SUPPLY", "duration": 0.9, "detail": "Lock this power route before the mid-board pressure spikes.", "card_duration": 1.4, "card_color": Color(0.62, 0.94, 1.0)},
+		{"time": 13.8, "type": "banner", "text": "WEAPON SUPPLY", "zh_text": "武器补给", "duration": 0.9, "detail": "Lock this power route before the mid-board pressure spikes.", "zh_detail": "在中场压力抬升之前先拿稳这条火力路线。", "card_duration": 1.4, "card_color": Color(0.62, 0.94, 1.0)},
 		{
 			"time": 16.1,
 			"type": "storm_cross",
@@ -253,8 +253,11 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 			"telegraph": 1.0,
 			"active": 0.34,
 			"banner": "STORM CROSS",
+			"zh_banner": "风暴十字",
 			"title": "STORM CROSS",
+			"zh_title": "风暴十字",
 			"detail": "Vertical strikes and a lateral sweep are collapsing together. Commit to the center gap before the cross locks in.",
+			"zh_detail": "纵向打击和横向扫掠会一起收束，在十字完全锁住前就该提前卡进中间空档。",
 			"card_duration": 1.45,
 			"support_delay": 0.24,
 			"support_wave": {
@@ -268,12 +271,12 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 				"drop_chance": 0.0
 			}
 		},
-		{"time": 16.8, "type": "banner", "text": "SCREEN WALL", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
-		{"time": 20.8, "type": "banner", "text": "FINAL PRESSURE", "duration": 1.1, "detail": "Dashers and pincer fire will overlap here. Bomb routing is safer than late recovery.", "card_duration": 1.6, "card_color": Color(1.0, 0.78, 0.44)},
-		{"time": 22.8, "type": "banner", "text": "SNIPER CROSS", "duration": 0.85, "detail": "Late snipers are layering on top of the pincer lane. Clear one side before re-centering.", "card_duration": 1.45, "card_color": Color(1.0, 0.84, 0.52)},
+		{"time": 16.8, "type": "banner", "text": "SCREEN WALL", "zh_text": "屏障封墙", "duration": 0.9, "detail": "Second screener block inbound. Control space before the escorts stack on top.", "zh_detail": "第二波屏障封线马上到，必须在护卫编队压上来前先控制空间。", "card_duration": 1.45, "card_color": Color(0.78, 0.92, 1.0)},
+		{"time": 20.8, "type": "banner", "text": "FINAL PRESSURE", "zh_text": "终盘高压", "duration": 1.1, "detail": "Dashers and pincer fire will overlap here. Bomb routing is safer than late recovery.", "zh_detail": "突进敌机和夹击火力会在这里重叠，提前炸弹比后补恢复更安全。", "card_duration": 1.6, "card_color": Color(1.0, 0.78, 0.44)},
+		{"time": 22.8, "type": "banner", "text": "SNIPER CROSS", "zh_text": "狙击交叉", "duration": 0.85, "detail": "Late snipers are layering on top of the pincer lane. Clear one side before re-centering.", "zh_detail": "后段狙击火力会叠到夹击路线上，先清掉一边再重新回中。", "card_duration": 1.45, "card_color": Color(1.0, 0.84, 0.52)},
 		{"time": 23.6, "type": "pickup", "pickup_type": "bomb", "position": Vector2(playfield_size.x * 0.5, -30.0)},
-		{"time": 23.6, "type": "banner", "text": "BOMB REFIT", "duration": 1.0, "detail": "Final bomb stock before boss entry. Cash it into a phase skip if the lane collapses.", "card_duration": 1.55, "card_color": Color(1.0, 0.72, 0.38)},
-		{"time": 25.6, "type": "banner", "text": "SUPPRESSION FAN", "duration": 0.85, "detail": "Late suppressors are pinning the board before the wall drop. Choose one side and break through.", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
+		{"time": 23.6, "type": "banner", "text": "BOMB REFIT", "zh_text": "炸弹补充", "duration": 1.0, "detail": "Final bomb stock before boss entry. Cash it into a phase skip if the lane collapses.", "zh_detail": "这是 Boss 前最后一次补炸弹，如果路线开始崩塌，就把它换成转段跳过。", "card_duration": 1.55, "card_color": Color(1.0, 0.72, 0.38)},
+		{"time": 25.6, "type": "banner", "text": "SUPPRESSION FAN", "zh_text": "压制扇面", "duration": 0.85, "detail": "Late suppressors are pinning the board before the wall drop. Choose one side and break through.", "zh_detail": "后段压制扇面会在墙式下压前先钉住棋盘，必须选一侧强行打穿。", "card_duration": 1.45, "card_color": Color(1.0, 0.78, 0.42)},
 		{
 			"time": 27.0,
 			"type": "storm_cross",
@@ -282,8 +285,11 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 			"telegraph": 0.96,
 			"active": 0.34,
 			"banner": "FINAL STORM",
+			"zh_banner": "最终风暴",
 			"title": "STORM CROSS",
+			"zh_title": "风暴十字",
 			"detail": "Final crossfire before boss entry. Slide through one clean lane and save the rest of the board for the boss reset.",
+			"zh_detail": "这是 Boss 入场前最后一次十字封路，要从一条干净线路穿过去，把剩余空间留给 Boss 重置段。",
 			"card_duration": 1.5,
 			"support_delay": 0.18,
 			"support_wave": {
@@ -297,7 +303,7 @@ static func build_events(playfield_size: Vector2) -> Array[Dictionary]:
 				"drop_chance": 0.0
 			}
 		},
-		{"time": 28.0, "type": "banner", "text": "BOSS WARNING", "duration": 1.5}
+		{"time": 28.0, "type": "banner", "text": "BOSS WARNING", "zh_text": "Boss 警报", "duration": 1.5}
 	]
 
 
@@ -316,23 +322,35 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 		"boss_anchor_x": playfield_size.x * 0.5,
 		"is_boss": true,
 		"boss_name": "VX-2 STORM GUNSHIP",
+		"zh_boss_name": "VX-2 风暴炮艇",
 		"boss_style": "storm",
 		"boss_intro_banner": "WARNING // VX-2 LOCK",
+		"zh_boss_intro_banner": "警报 // VX-2 锁定",
 		"boss_intro_title": "TARGET // VX-2 STORM GUNSHIP",
+		"zh_boss_intro_title": "目标 // VX-2 风暴炮艇",
 		"boss_intro_detail": "Storm batteries flood the side lanes. Carry one bomb into overdrive or burst through the core window.",
+		"zh_boss_intro_detail": "风暴电池会灌满两侧通路，尽量把一个炸弹带进过载，或在核心窗口里直接爆发。",
 		"core_phase_detail": "Outer batteries are resetting. Cut back through center and burn the exposed storm core.",
+		"zh_core_phase_detail": "外侧电池正在重置，切回中线并灼烧暴露出来的风暴核心。",
 		"final_core_phase_detail": "The final storm core is open. Push hard now before the sweep lines accelerate.",
+		"zh_final_core_phase_detail": "最终风暴核心已经打开，必须在扫线进一步加速前把伤害压进去。",
 		"final_warning_detail": "The route is about to collapse into overdrive. This is the last clean bomb window before the storm locks both sides.",
+		"zh_final_warning_detail": "路线马上会塌进过载状态，这是风暴彻底封死两侧前最后一个干净的炸弹窗口。",
 		"overdrive_detail": "Overdrive is closing the side lanes. Preserve a clean edge, then bomb through the next collapse.",
+		"zh_overdrive_detail": "过载正在封死侧向通路，先守住一条干净边线，再炸弹穿过下一次闭合。",
 		"finish_window_detail": "The storm core is flickering under overload. Break through now while one breach line is still open.",
+		"zh_finish_window_detail": "风暴核心正在过载闪烁，趁最后一条破口仍然打开时立刻打穿。",
 		"phase_2_hazard": {
 			"type": "storm_strike",
 			"lanes": [118.0, 422.0],
 			"telegraph": 0.88,
 			"active": 0.32,
 			"banner": "PHASE SHIFT STORM",
+			"zh_banner": "相位切换风暴",
 			"title": "STORM RELOCK",
+			"zh_title": "风暴重锁",
 			"detail": "Phase shift is relocking the side lanes. Use the core window without giving up the center path.",
+			"zh_detail": "相位切换会重新锁住两侧通路，压核心时也别丢掉中线回转空间。",
 			"card_duration": 1.15
 		},
 		"phase_3_hazard": {
@@ -342,8 +360,11 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 			"telegraph": 0.86,
 			"active": 0.32,
 			"banner": "FINAL CORE STORM",
+			"zh_banner": "最终核心风暴",
 			"title": "CORE WINDOW // STORM CROSS",
+			"zh_title": "核心窗口 // 风暴十字",
 			"detail": "The final core is open, but the storm is still locking one cross-lane. Slide once, then commit hard.",
+			"zh_detail": "最终核心虽然已经打开，但风暴还在封一条十字路。先滑一次位，再果断压上去。",
 			"card_duration": 1.25
 		},
 		"overdrive_hazard": {
@@ -353,8 +374,11 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 			"telegraph": 0.82,
 			"active": 0.32,
 			"banner": "OVERDRIVE STORM",
+			"zh_banner": "过载风暴",
 			"title": "OVERDRIVE // STORM CROSS",
+			"zh_title": "过载 // 风暴十字",
 			"detail": "Overdrive is re-flooding the board. Hold one clean edge and cut back in after the cross collapses.",
+			"zh_detail": "过载会再次淹没棋盘，先保住一条干净边线，再在十字闭合后切回去。",
 			"card_duration": 1.35,
 			"support_delay": 0.16,
 			"support_wave": {
@@ -374,8 +398,11 @@ static func build_boss(playfield_size: Vector2) -> Dictionary:
 			"telegraph": 0.72,
 			"active": 0.26,
 			"banner": "FINAL BREACH",
+			"zh_banner": "最终破口",
 			"title": "FINISH WINDOW // BREACH LINE",
+			"zh_title": "终结窗口 // 破口线",
 			"detail": "The side lanes are collapsing one last time. Center is your final clean cut through the storm core.",
+			"zh_detail": "两侧通路最后一次闭合，中线就是你穿过风暴核心的最后干净切口。",
 			"card_duration": 1.1
 		},
 		"bullet_speed": 294.0,

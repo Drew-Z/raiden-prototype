@@ -79,6 +79,7 @@ func _build_ui() -> void:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 18)
 	frame.add_child(root)
+	var narrow_layout := get_viewport_rect().size.x <= 560.0
 
 	var header := VBoxContainer.new()
 	header.add_theme_constant_override("separation", 4)
@@ -86,52 +87,60 @@ func _build_ui() -> void:
 	_register_reveal(header)
 
 	var status := Label.new()
-	status.text = "TRANSITION LOCKED // LEG 2 READY"
+	status.text = _t("过场已锁定 // 第二段待命", "TRANSITION LOCKED // LEG 2 READY")
 	status.add_theme_font_size_override("font_size", 18)
 	status.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
 	header.add_child(status)
 
 	var title := Label.new()
-	title.text = String(next_meta.get("name", "NEXT STAGE"))
+	title.text = RunState.get_stage_display_name(String(next_meta.get("id", "")))
 	title.add_theme_font_size_override("font_size", 40)
 	header.add_child(title)
 
 	var tagline := Label.new()
-	tagline.text = String(next_meta.get("tagline", "Proceed to the next combat zone."))
+	tagline.text = RunState.get_stage_display_tagline(String(next_meta.get("id", ""))) if not next_meta.is_empty() else _t("准备进入下一战区。", "Proceed to the next combat zone.")
 	tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tagline.add_theme_font_size_override("font_size", 20)
 	header.add_child(tagline)
 
-	var timeline_row := HBoxContainer.new()
-	timeline_row.add_theme_constant_override("separation", 12)
+	var timeline_row := GridContainer.new()
+	timeline_row.columns = 1 if narrow_layout else 2
+	timeline_row.add_theme_constant_override("h_separation", 12)
+	timeline_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
 
-	var focus_row := HBoxContainer.new()
-	focus_row.add_theme_constant_override("separation", 16)
+	var focus_row := GridContainer.new()
+	focus_row.columns = 1 if narrow_layout else 2
+	focus_row.add_theme_constant_override("h_separation", 16)
+	focus_row.add_theme_constant_override("v_separation", 16)
 	root.add_child(focus_row)
 	_register_reveal(focus_row)
 
 	focus_row.add_child(_build_panel(
-		"MISSION FEED",
+		_t("任务简报", "MISSION FEED"),
 		"%s\n\n%s" % [
 			RunState.get_chapter_transition_text(),
 			RunState.get_chapter_transition_brief()
 		]
 	))
 	focus_row.add_child(_build_panel(
-		"CARRY LOADOUT",
+		_t("继承装载", "CARRY LOADOUT"),
 		"%s\n\n%s" % [
 			RunState.get_chapter_carry_summary(),
-			"Stage 01 cleared. Current route is carrying bomb tempo and high-fire continuity into the storm lane."
+			_t("第一关已经通过，当前路线会把炸弹节奏和高火力连续性一起带进风暴段。", "Stage 01 cleared. Current route is carrying bomb tempo and high-fire continuity into the storm lane.")
 		]
 	))
 
 	var timeline_panel := _build_panel(
-		"ROUTE TIMELINE",
-		"%s\n\nDEPLOY DIRECTIVE\nEnter to launch immediately. Esc returns to main menu." % RunState.get_chapter_stage_breakdown_text()
+		_t("路线时间线", "ROUTE TIMELINE"),
+		"%s\n\n%s\n%s" % [
+			RunState.get_chapter_stage_breakdown_text(),
+			_t("出击指令", "DEPLOY DIRECTIVE"),
+			_t("按回车立即出击，按 Esc 返回主菜单。", "Enter to launch immediately. Esc returns to main menu.")
+		]
 	)
 	root.add_child(timeline_panel)
 	_register_reveal(timeline_panel)
@@ -143,14 +152,14 @@ func _build_ui() -> void:
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
-	footer.text = "Enter Deploy    Esc Main Menu"
+	footer.text = _t("回车出击    Esc 主菜单", "Enter Deploy    Esc Main Menu")
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_row.add_child(footer)
 
 	var deploy_button := Button.new()
-	deploy_button.text = "Deploy"
+	deploy_button.text = _t("出击", "Deploy")
 	deploy_button.custom_minimum_size = Vector2(190, 54)
 	deploy_button.pressed.connect(func() -> void:
 		RunState.start_next_chapter_stage()
@@ -158,7 +167,7 @@ func _build_ui() -> void:
 	footer_row.add_child(deploy_button)
 
 	var menu_button := Button.new()
-	menu_button.text = "Main Menu"
+	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(170, 48)
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
@@ -218,13 +227,13 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 
 	var status := Label.new()
 	if bool(card_data.get("completed", false)):
-		status.text = "SECURED"
+		status.text = _t("已完成", "SECURED")
 		status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	elif bool(card_data.get("active", false)):
-		status.text = "DEPLOYING"
+		status.text = _t("出击中", "DEPLOYING")
 		status.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
 	else:
-		status.text = "PENDING"
+		status.text = _t("待开始", "PENDING")
 		status.add_theme_color_override("font_color", Color(0.7, 0.74, 0.8))
 	status.add_theme_font_size_override("font_size", 15)
 	column.add_child(status)
@@ -273,3 +282,7 @@ func _play_reveal_sequence() -> void:
 			var tween := create_tween()
 			tween.tween_property(target, "modulate:a", 1.0, 0.24)
 		)
+
+
+func _t(zh_text: String, en_text: String) -> String:
+	return RunState.loc(zh_text, en_text)

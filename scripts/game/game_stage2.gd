@@ -61,12 +61,12 @@ func _ready() -> void:
 	if RunState.is_chapter_mode():
 		var stage_order := StageCatalogScript.get_stage_order()
 		var current_index := StageCatalogScript.get_stage_index(RunState.get_selected_stage_id()) + 1
-		_queue_banner("CHAPTER RUN %d / %d" % [current_index, stage_order.size()], 1.0, Color(0.9, 0.96, 1.0), false)
+		_queue_banner(_t("章节连打 %d / %d", "CHAPTER RUN %d / %d") % [current_index, stage_order.size()], 1.0, Color(0.9, 0.96, 1.0), false)
 		if RunState.get_selected_stage_id() == "stage_2":
 			hud.show_cinematic_bars(34.0, 0.14)
 			hud.show_event_card_temporarily(
-				"LEG 2 // STORM FRONT",
-				"Carry the Stage 01 route forward. Side pressure rises fast, so spend bombs before recovery space disappears.",
+				_t("第二段 // 风暴前线", "LEG 2 // STORM FRONT"),
+				_t("把第一关建立的路线带进第二关。侧向压力会很快抬高，恢复空间消失前就该把炸弹换掉。", "Carry the Stage 01 route forward. Side pressure rises fast, so spend bombs before recovery space disappears."),
 				1.6,
 				Color(0.82, 0.94, 1.0)
 			)
@@ -76,8 +76,8 @@ func _ready() -> void:
 			)
 		if RunState.current_run.start_fire_level > 1 or RunState.current_run.start_bombs > 2:
 			hud.show_event_card_temporarily(
-				"CARRY LOADOUT",
-				"Start Hull %d   Bomb %d   Fire Lv%d" % [
+				_t("继承装载", "CARRY LOADOUT"),
+				_t("初始生命 %d   炸弹 %d   火力 Lv%d", "Start Hull %d   Bomb %d   Fire Lv%d") % [
 					int(RunState.current_run.start_lives),
 					int(RunState.current_run.start_bombs),
 					int(RunState.current_run.start_fire_level)
@@ -87,9 +87,9 @@ func _ready() -> void:
 			)
 
 	if RunState.is_autoplay():
-		_queue_banner("AUTO PLAY", 1.2, Color(0.8, 0.95, 1.0), false)
+		_queue_banner(_t("自动演示", "AUTO PLAY"), 1.2, Color(0.8, 0.95, 1.0), false)
 	else:
-		_queue_banner("SHOWCASE BUILD", 1.4, Color(1.0, 1.0, 1.0), false)
+		_queue_banner(_t("展示构建", "SHOWCASE BUILD"), 1.4, Color(1.0, 1.0, 1.0), false)
 
 
 func _build_scene() -> void:
@@ -132,9 +132,9 @@ func _build_scene() -> void:
 	hud.restart_requested.connect(_restart_run)
 	hud.menu_requested.connect(_return_to_menu)
 	add_child(hud)
-	hud.set_stage_text(String(stage_meta.get("menu_label", "SCRAMBLE")))
+	hud.set_stage_text(RunState.get_stage_display_label(String(stage_meta.get("id", "stage_1"))))
 	hud.set_stage_progress(0.0)
-	hud.set_status_hint("BUILD FIREPOWER", Color(0.82, 0.94, 1.0))
+	hud.set_status_hint(_t("建立火力", "BUILD FIREPOWER"), Color(0.82, 0.94, 1.0))
 	hud.update_player(3, 1, 2, RunState.current_run.score)
 
 	player = PlayerScript.new().configure(playfield_rect, RunState.is_autoplay(), RunState.get_stage_start_state())
@@ -202,14 +202,14 @@ func _process_stage_events() -> void:
 		match event.type:
 			"banner":
 				if event.text in ["OPENING SWEEP", "MID ASSAULT", "FINAL PUSH"]:
-					hud.set_stage_text(event.text)
+					hud.set_stage_text(_event_text(event, "text", event.text))
 				elif event.text == "BOSS WARNING":
-					hud.set_stage_text("BOSS ENGAGE")
-				_queue_banner(event.text, event.get("duration", 1.0), _get_banner_color(event.text), false)
+					hud.set_stage_text(_t("Boss 交战", "BOSS ENGAGE"))
+				_queue_banner(_event_text(event, "text", event.text), event.get("duration", 1.0), _get_banner_color(event.text), false)
 				if event.has("detail"):
 					hud.show_event_card_temporarily(
-						event.text,
-						event.detail,
+						_event_text(event, "title", event.text),
+						_event_text(event, "detail", event.detail),
 						event.get("card_duration", event.get("duration", 1.0) + 0.45),
 						event.get("card_color", _get_banner_color(event.text))
 					)
@@ -438,21 +438,21 @@ func _warn_wave_entry(wave: Dictionary) -> void:
 
 	match wave.formation:
 		"angled_left":
-			hud.show_edge_warning("left", "SWEEP", 0.7, Color(1.0, 0.72, 0.4))
+			hud.show_edge_warning("left", _t("扫入", "SWEEP"), 0.7, Color(1.0, 0.72, 0.4))
 		"angled_right":
-			hud.show_edge_warning("right", "SWEEP", 0.7, Color(1.0, 0.72, 0.4))
+			hud.show_edge_warning("right", _t("扫入", "SWEEP"), 0.7, Color(1.0, 0.72, 0.4))
 		"dash_pair":
-			hud.show_edge_warning("left", "DASH", 0.75, Color(1.0, 0.64, 0.34))
-			hud.show_edge_warning("right", "DASH", 0.75, Color(1.0, 0.64, 0.34))
+			hud.show_edge_warning("left", _t("突进", "DASH"), 0.75, Color(1.0, 0.64, 0.34))
+			hud.show_edge_warning("right", _t("突进", "DASH"), 0.75, Color(1.0, 0.64, 0.34))
 		"escort":
-			hud.show_edge_warning("left", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
-			hud.show_edge_warning("right", "ESCORT", 0.85, Color(0.82, 0.7, 1.0))
+			hud.show_edge_warning("left", _t("护卫", "ESCORT"), 0.85, Color(0.82, 0.7, 1.0))
+			hud.show_edge_warning("right", _t("护卫", "ESCORT"), 0.85, Color(0.82, 0.7, 1.0))
 		"screener_line":
-			hud.show_edge_warning("left", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
-			hud.show_edge_warning("right", "SCREEN", 0.8, Color(0.72, 0.92, 1.0))
+			hud.show_edge_warning("left", _t("屏障", "SCREEN"), 0.8, Color(0.72, 0.92, 1.0))
+			hud.show_edge_warning("right", _t("屏障", "SCREEN"), 0.8, Color(0.72, 0.92, 1.0))
 		"suppressor_line":
-			hud.show_edge_warning("left", "SUPPRESS", 0.8, Color(1.0, 0.76, 0.4))
-			hud.show_edge_warning("right", "SUPPRESS", 0.8, Color(1.0, 0.76, 0.4))
+			hud.show_edge_warning("left", _t("压制", "SUPPRESS"), 0.8, Color(1.0, 0.76, 0.4))
+			hud.show_edge_warning("right", _t("压制", "SUPPRESS"), 0.8, Color(1.0, 0.76, 0.4))
 
 
 func _spawn_enemy(config: Dictionary) -> void:
@@ -470,6 +470,7 @@ func _spawn_boss() -> void:
 		return
 	boss_spawned = true
 	active_boss = EnemyScript.new().configure(boss_config)
+	active_boss.boss_name = _boss_text("boss_name", active_boss.boss_name)
 	active_boss.spawn_bullet.connect(_on_enemy_bullet_spawned)
 	active_boss.destroyed.connect(_on_enemy_destroyed)
 	active_boss.escaped.connect(_on_enemy_escaped)
@@ -481,8 +482,8 @@ func _spawn_boss() -> void:
 	boss_final_warning_announced = false
 	boss_finish_window_announced = false
 	boss_phase_hazard_fired = {}
-	hud.set_stage_text("BOSS ENGAGE")
-	hud.set_status_hint("BOSS ENTERING", Color(1.0, 0.8, 0.44))
+	hud.set_stage_text(_t("Boss 交战", "BOSS ENGAGE"))
+	hud.set_status_hint(_t("Boss 入场", "BOSS ENTERING"), Color(1.0, 0.8, 0.44))
 	hud.show_cinematic_bars(40.0, 0.16)
 	_play_sfx("boss_warning")
 	if is_instance_valid(bgm):
@@ -493,9 +494,9 @@ func _spawn_boss() -> void:
 	intro_effect.position = Vector2(playfield_rect.size.x * 0.5, 176.0)
 	effects_layer.call_deferred("add_child", intro_effect)
 	_spawn_explosion(active_boss.position + Vector2(0.0, 20.0), 1.7, true)
-	var intro_banner_text := String(boss_config.get("boss_intro_banner", "WARNING // %s" % active_boss.boss_name))
-	var intro_title_text := String(boss_config.get("boss_intro_title", "TARGET // %s" % active_boss.boss_name))
-	var intro_detail_text := String(boss_config.get("boss_intro_detail", "Phase shifts expose the core. Hold one bomb for the late pressure window."))
+	var intro_banner_text := _boss_text("boss_intro_banner", _t("警报 // %s 入场", "WARNING // %s") % active_boss.boss_name)
+	var intro_title_text := _boss_text("boss_intro_title", _t("目标 // %s", "TARGET // %s") % active_boss.boss_name)
+	var intro_detail_text := _boss_text("boss_intro_detail", _t("相位切换会暴露核心，把一个炸弹留到后段高压窗口。", "Phase shifts expose the core. Hold one bomb for the late pressure window."))
 	_queue_banner(intro_banner_text, 1.0, Color(1.0, 0.78, 0.4), false)
 	hud.show_event_card_temporarily(
 		intro_title_text,
@@ -529,11 +530,11 @@ func _update_boss_state() -> void:
 		boss_finish_window_announced = true
 		_handle_boss_finish_window()
 
-	var phase_text := "PHASE %d" % phase_index
+	var phase_text := _t("阶段 %d", "PHASE %d") % phase_index
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
-		phase_text += " // OVERDRIVE"
+		phase_text += _t(" // 过载", " // OVERDRIVE")
 	elif active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
-		phase_text += " // CORE OPEN"
+		phase_text += _t(" // 核心开放", " // CORE OPEN")
 	hud.set_boss_info(active_boss.boss_name, ratio, phase_text)
 
 
@@ -545,51 +546,51 @@ func _update_hud_status() -> void:
 	hud.set_stage_progress(progress_ratio)
 
 	var enemy_bullet_count := get_tree().get_nodes_in_group("enemy_projectiles").size()
-	var hint_text := "BUILD FIREPOWER"
+	var hint_text := _t("建立火力", "BUILD FIREPOWER")
 	var hint_color := Color(0.82, 0.94, 1.0)
 	var danger_strength := 0.0
 	var danger_color := Color(1.0, 0.28, 0.18, 1.0)
 
 	if player.lives <= 1:
-		hint_text = "CRITICAL HULL"
+		hint_text = _t("残机告急", "CRITICAL HULL")
 		hint_color = Color(1.0, 0.56, 0.46)
 		danger_strength = 0.12
 	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 5.5):
-		hint_text = "NO BOMB BUFFER"
+		hint_text = _t("缺少炸弹缓冲", "NO BOMB BUFFER")
 		hint_color = Color(1.0, 0.7, 0.42)
 	elif player.bomb_count > 0 and enemy_bullet_count >= (10 if boss_spawned else 14):
-		hint_text = "BOMB WINDOW OPEN"
+		hint_text = _t("炸弹窗口已开", "BOMB WINDOW OPEN")
 		hint_color = Color(1.0, 0.76, 0.34)
 	elif boss_spawned:
 		if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and boss_finish_window_announced:
-			hint_text = "FINISH WINDOW // BREAK CORE"
+			hint_text = _t("终结窗口 // 击穿核心", "FINISH WINDOW // BREAK CORE")
 			hint_color = Color(1.0, 0.88, 0.54)
 			danger_strength = max(danger_strength, 0.12)
 			danger_color = Color(1.0, 0.42, 0.18, 1.0)
 		elif active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
-			hint_text = "OVERDRIVE // HOLD LINE"
+			hint_text = _t("过载 // 稳住线路", "OVERDRIVE // HOLD LINE")
 			hint_color = Color(1.0, 0.56, 0.32)
 			danger_strength = max(danger_strength, 0.16)
 			danger_color = Color(1.0, 0.3, 0.14, 1.0)
 		elif active_boss.has_method("is_core_exposed") and active_boss.is_core_exposed():
-			hint_text = "CORE EXPOSED // PUSH DAMAGE"
+			hint_text = _t("核心暴露 // 压输出", "CORE EXPOSED // PUSH DAMAGE")
 			hint_color = Color(1.0, 0.88, 0.52)
 		elif boss_phase_seen == 3:
-			hint_text = "FINAL PHASE PRESSURE"
+			hint_text = _t("最终阶段压力", "FINAL PHASE PRESSURE")
 			hint_color = Color(1.0, 0.62, 0.38)
 			danger_strength = max(danger_strength, 0.1)
 			danger_color = Color(1.0, 0.34, 0.18, 1.0)
 		else:
-			hint_text = "BREAK THE CORE"
+			hint_text = _t("击穿核心", "BREAK THE CORE")
 			hint_color = Color(1.0, 0.82, 0.48)
 	elif stage_time >= boss_config.time - 4.0:
-		hint_text = "APPROACHING BOSS"
+		hint_text = _t("即将进入 Boss", "APPROACHING BOSS")
 		hint_color = Color(1.0, 0.82, 0.48)
 	elif player.fire_level < 3 and stage_time < 18.0:
-		hint_text = "BUILD FIREPOWER"
+		hint_text = _t("建立火力", "BUILD FIREPOWER")
 		hint_color = Color(0.82, 0.94, 1.0)
 	elif stage_time >= 18.0:
-		hint_text = "HOLD FORMATION SPACE"
+		hint_text = _t("保持编队空间", "HOLD FORMATION SPACE")
 		hint_color = Color(0.92, 0.9, 1.0)
 
 	hud.set_status_hint(hint_text, hint_color)
@@ -637,9 +638,9 @@ func _on_player_bomb_activated(center: Vector2) -> void:
 	_start_shake(14.0, 0.24)
 	_trigger_hit_stop(0.045, 0.08)
 
-	var label_text := "BOMB DETONATION"
+	var label_text := _t("炸弹引爆", "BOMB DETONATION")
 	if cleared_bullets > 0:
-		label_text = "BOMB BONUS +%d" % int(cleared_bullets * 8)
+		label_text = _t("炸弹奖励 +%d", "BOMB BONUS +%d") % int(cleared_bullets * 8)
 	_queue_banner(label_text, 0.7, Color(1.0, 0.74, 0.34), false)
 
 
@@ -654,7 +655,7 @@ func _on_player_died() -> void:
 	_start_shake(12.0, 0.28)
 	_show_flash(Color(1.0, 0.4, 0.36), 0.28, 0.18)
 	hud.pulse_screen(Color(1.0, 0.42, 0.36, 0.18), 0.12)
-	_queue_banner("MISSION FAILED", 0.9, Color(1.0, 0.55, 0.42), false)
+	_queue_banner(_t("任务失败", "MISSION FAILED"), 0.9, Color(1.0, 0.55, 0.42), false)
 	_finish_after_delay(false, 1.2)
 
 
@@ -664,7 +665,7 @@ func _on_player_hurt(position_value: Vector2, lives_left: int) -> void:
 	_start_shake(7.0, 0.18)
 	_show_flash(Color(1.0, 0.45, 0.38), 0.18, 0.1)
 	if lives_left > 0:
-		_queue_banner("HULL BREACH", 0.35, Color(1.0, 0.66, 0.46), false)
+		_queue_banner(_t("机体受损", "HULL BREACH"), 0.35, Color(1.0, 0.66, 0.46), false)
 
 
 func _on_player_stats_changed(lives: int, bombs: int, fire_level: int) -> void:
@@ -682,12 +683,12 @@ func _on_player_stats_changed(lives: int, bombs: int, fire_level: int) -> void:
 		_show_flash(Color(0.56, 0.94, 1.0), 0.16, 0.08)
 		hud.pulse_screen(Color(0.56, 0.94, 1.0, 0.1), 0.08)
 		_spawn_explosion(player.position + Vector2(0.0, -12.0), 0.8 + fire_level * 0.05, false)
-		_queue_banner("FIRE LEVEL %d" % fire_level, 0.55, Color(0.56, 0.94, 1.0), false)
+		_queue_banner(_t("火力等级 %d", "FIRE LEVEL %d") % fire_level, 0.55, Color(0.56, 0.94, 1.0), false)
 	elif bombs_gained:
 		_play_sfx("bomb_pickup")
 		_show_flash(Color(1.0, 0.7, 0.34), 0.14, 0.08)
 		hud.pulse_screen(Color(1.0, 0.74, 0.36, 0.1), 0.08)
-		_queue_banner("BOMB STOCK +1", 0.55, Color(1.0, 0.66, 0.38), false)
+		_queue_banner(_t("炸弹库存 +1", "BOMB STOCK +1"), 0.55, Color(1.0, 0.66, 0.38), false)
 
 
 func _on_enemy_damaged(enemy, amount: int, remaining_health: int) -> void:
@@ -730,8 +731,8 @@ func _on_enemy_destroyed(enemy, by_player: bool) -> void:
 
 	if enemy == active_boss:
 		active_boss = null
-		hud.set_status_hint("SORTIE COMPLETE", Color(1.0, 0.94, 0.58))
-		_queue_banner("STAGE CLEAR", 1.1, Color(1.0, 0.95, 0.56), false)
+		hud.set_status_hint(_t("本轮完成", "SORTIE COMPLETE"), Color(1.0, 0.94, 0.58))
+		_queue_banner(_t("关卡完成", "STAGE CLEAR"), 1.1, Color(1.0, 0.95, 0.56), false)
 		_play_boss_finish_sequence()
 
 
@@ -744,7 +745,7 @@ func _should_spawn_upgrade(chance: float) -> bool:
 	if chance <= 0.0:
 		return false
 
-	var guaranteed: bool = drop_fail_streak >= 4 or (RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 3)
+	var guaranteed: bool = drop_fail_streak >= 6 or (RunState.current_run.upgrades_collected == 0 and RunState.current_run.enemies_destroyed >= 8)
 	if guaranteed or randf() <= chance:
 		drop_fail_streak = 0
 		return true
@@ -774,12 +775,12 @@ func _trigger_storm_strike(event: Dictionary) -> void:
 	if lanes.is_empty():
 		return
 	hud.show_event_card_temporarily(
-		String(event.get("title", "STORM STRIKE")),
-		String(event.get("detail", "Lane strike incoming. Read the telegraph and rotate early.")),
+		_event_text(event, "title", _t("风暴打击", "STORM STRIKE")),
+		_event_text(event, "detail", _t("打击线路正在形成。提前阅读预警并尽早转位。", "Lane strike incoming. Read the telegraph and rotate early.")),
 		float(event.get("card_duration", 1.2)),
 		Color(0.82, 0.94, 1.0)
 	)
-	_queue_banner(String(event.get("banner", "STORM STRIKE")), 0.75, Color(0.82, 0.94, 1.0), false)
+	_queue_banner(_event_text(event, "banner", _t("风暴打击", "STORM STRIKE")), 0.75, Color(0.82, 0.94, 1.0), false)
 	_spawn_storm_strikes(
 		lanes,
 		float(event.get("telegraph", 0.92)),
@@ -798,12 +799,12 @@ func _trigger_storm_cross(event: Dictionary) -> void:
 		return
 	var effect_color := Color(0.82, 0.94, 1.0)
 	hud.show_event_card_temporarily(
-		String(event.get("title", "STORM CROSS")),
-		String(event.get("detail", "Vertical strikes and lateral sweep are collapsing the route. Commit to the gap early.")),
+		_event_text(event, "title", _t("风暴十字", "STORM CROSS")),
+		_event_text(event, "detail", _t("纵向打击和横向扫掠正在一起封路，要更早下决心进空档。", "Vertical strikes and lateral sweep are collapsing the route. Commit to the gap early.")),
 		float(event.get("card_duration", 1.35)),
 		effect_color
 	)
-	_queue_banner(String(event.get("banner", "STORM CROSS")), 0.82, effect_color, false)
+	_queue_banner(_event_text(event, "banner", _t("风暴十字", "STORM CROSS")), 0.82, effect_color, false)
 	if not lanes.is_empty():
 		_spawn_storm_strikes(
 			lanes,
@@ -861,12 +862,12 @@ func _on_pickup_collected(kind: String) -> void:
 		_play_sfx("bomb_pickup")
 		RunState.register_bomb_pickup()
 		RunState.add_score(300)
-		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "BOMB +300", Color(1.0, 0.74, 0.44), 0.92)
+		_spawn_score_popup(player.position + Vector2(0.0, -34.0), _t("炸弹 +300", "BOMB +300"), Color(1.0, 0.74, 0.44), 0.92)
 	else:
 		_play_sfx("power_up")
 		RunState.register_upgrade_pickup()
 		RunState.add_score(150)
-		_spawn_score_popup(player.position + Vector2(0.0, -34.0), "POWER +150", Color(0.62, 0.94, 1.0), 0.92)
+		_spawn_score_popup(player.position + Vector2(0.0, -34.0), _t("火力 +150", "POWER +150"), Color(0.62, 0.94, 1.0), 0.92)
 
 
 func _pause_run() -> void:
@@ -874,7 +875,7 @@ func _pause_run() -> void:
 		return
 	get_tree().paused = true
 	hud.show_pause_menu()
-	hud.show_banner("PAUSED", Color(1.0, 1.0, 1.0))
+	hud.show_banner(_t("已暂停", "PAUSED"), Color(1.0, 1.0, 1.0))
 
 
 func _resume_run() -> void:
@@ -912,10 +913,10 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	var cleared_bullets := _clear_enemy_projectiles()
 	if cleared_bullets > 0:
 		RunState.add_score(cleared_bullets * 6)
-	var label_text := "CORE OPEN"
+	var label_text := _t("核心开放", "CORE OPEN")
 	var label_color := Color(1.0, 0.78, 0.46)
 	if phase_index == 3:
-		label_text = "FINAL CORE OPEN"
+		label_text = _t("最终核心开放", "FINAL CORE OPEN")
 		label_color = Color(1.0, 0.58, 0.34)
 	var shockwave = BombEffectScript.new().configure(260.0, 0.28, label_color, Color(1.0, 0.92, 0.62))
 	shockwave.position = active_boss.position
@@ -926,9 +927,9 @@ func _handle_boss_phase_shift(phase_index: int) -> void:
 	_queue_banner(label_text, 0.85, label_color, false)
 	hud.set_status_hint(label_text, label_color)
 	hud.pulse_screen(Color(label_color.r, label_color.g, label_color.b, 0.14), 0.08)
-	var phase_detail := String(boss_config.get("core_phase_detail", "The side guns are resetting. Step back in and burn the open core."))
+	var phase_detail := _boss_text("core_phase_detail", _t("两侧炮台正在重置，重新切回中线并压开放的核心。", "The side guns are resetting. Step back in and burn the open core."))
 	if phase_index == 3:
-		phase_detail = String(boss_config.get("final_core_phase_detail", "Final phase has opened the core. Push damage now before overdrive speed ramps up."))
+		phase_detail = _boss_text("final_core_phase_detail", _t("最终阶段已经打开核心，必须在过载提速前把伤害压进去。", "Final phase has opened the core. Push damage now before overdrive speed ramps up."))
 	hud.show_event_card_temporarily(label_text, phase_detail, 1.4, label_color)
 	_play_sfx("boss_phase")
 	_trigger_boss_hazard("phase_%d_hazard" % phase_index)
@@ -942,12 +943,12 @@ func _handle_boss_overdrive() -> void:
 		bgm.play_boss_overdrive_loop()
 	_show_flash(overdrive_color, 0.2, 0.12)
 	_start_shake(12.0, 0.28)
-	_queue_banner("OVERDRIVE", 0.9, overdrive_color, false)
-	hud.set_status_hint("OVERDRIVE // HOLD LINE", overdrive_color)
+	_queue_banner(_t("过载", "OVERDRIVE"), 0.9, overdrive_color, false)
+	hud.set_status_hint(_t("过载 // 稳住线路", "OVERDRIVE // HOLD LINE"), overdrive_color)
 	hud.pulse_screen(Color(overdrive_color.r, overdrive_color.g, overdrive_color.b, 0.16), 0.1)
 	hud.show_event_card_temporarily(
-		"OVERDRIVE",
-		String(boss_config.get("overdrive_detail", "Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.")),
+		_t("过载", "OVERDRIVE"),
+		_boss_text("overdrive_detail", _t("Boss 速度正在上升，先保住站位，再换炸弹或核心爆发窗口。", "Boss speed is up. Preserve spacing first, then cash bomb or core burst windows.")),
 		1.5,
 		overdrive_color
 	)
@@ -959,11 +960,11 @@ func _handle_boss_final_warning() -> void:
 	if not is_instance_valid(active_boss):
 		return
 	var warning_color := Color(1.0, 0.74, 0.42)
-	_queue_banner("LAST SAFE WINDOW", 0.9, warning_color, false)
-	hud.set_status_hint("LAST SAFE WINDOW", warning_color)
+	_queue_banner(_t("最后安全窗口", "LAST SAFE WINDOW"), 0.9, warning_color, false)
+	hud.set_status_hint(_t("最后安全窗口", "LAST SAFE WINDOW"), warning_color)
 	hud.show_event_card_temporarily(
-		"LAST SAFE WINDOW",
-		String(boss_config.get("final_warning_detail", "One last stable lane remains before overdrive. Cash bomb or core damage now, not after the collapse.")),
+		_t("最后安全窗口", "LAST SAFE WINDOW"),
+		_boss_text("final_warning_detail", _t("在过载前还剩最后一条稳定通路，炸弹和核心伤害都该在现在兑现，而不是等封路之后。", "One last stable lane remains before overdrive. Cash bomb or core damage now, not after the collapse.")),
 		1.35,
 		warning_color
 	)
@@ -986,11 +987,11 @@ func _handle_boss_finish_window() -> void:
 	shockwave.position = active_boss.position
 	effects_layer.call_deferred("add_child", shockwave)
 	_spawn_explosion(active_boss.position, 1.2, true)
-	_queue_banner("FINISH WINDOW", 0.95, finish_color, false)
-	hud.set_status_hint("FINISH WINDOW // BREAK CORE", finish_color)
+	_queue_banner(_t("终结窗口", "FINISH WINDOW"), 0.95, finish_color, false)
+	hud.set_status_hint(_t("终结窗口 // 击穿核心", "FINISH WINDOW // BREAK CORE"), finish_color)
 	hud.show_event_card_temporarily(
-		"FINISH WINDOW",
-		String(boss_config.get("finish_window_detail", "Overdrive has opened one final breach line. Cash the route now before the storm fully closes again.")),
+		_t("终结窗口", "FINISH WINDOW"),
+		_boss_text("finish_window_detail", _t("过载状态撕开了最后一道破口，要在风暴重新闭合前把这条路线兑现掉。", "Overdrive has opened one final breach line. Cash the route now before the storm fully closes again.")),
 		1.45,
 		finish_color
 	)
@@ -1049,24 +1050,24 @@ func _play_boss_finish_sequence() -> void:
 		if is_instance_valid(bgm):
 			bgm.stop_all()
 			bgm.play_clear_sting()
-		_queue_banner("CLEAR BONUS", 0.8, Color(1.0, 0.86, 0.46), false)
+		_queue_banner(_t("通关奖励", "CLEAR BONUS"), 0.8, Color(1.0, 0.86, 0.46), false)
 	)
 	get_tree().create_timer(0.42).timeout.connect(func() -> void:
 		if is_instance_valid(hud):
 			var has_chapter_link := RunState.is_chapter_mode() and StageCatalogScript.get_next_stage_id(RunState.get_selected_stage_id()) != ""
 			var is_chapter_final := RunState.is_chapter_mode() and not has_chapter_link
-			var clear_title := "CHAPTER SECURED" if is_chapter_final else ("STAGE LINK SECURED" if has_chapter_link else "AREA SECURED")
+			var clear_title := _t("章节已压制完成", "CHAPTER SECURED") if is_chapter_final else (_t("关卡衔接已建立", "STAGE LINK SECURED") if has_chapter_link else _t("区域已压制", "AREA SECURED"))
 			hud.show_clear_summary(
 				clear_title,
 				(
-					"Battle %06d   Kill %.0f%%   Fire Lv%d" % [
+					_t("战斗 %06d   击破 %.0f%%   火力 Lv%d", "Battle %06d   Kill %.0f%%   Fire Lv%d") % [
 						int(RunState.current_run.score),
 						RunState.get_kill_rate(),
 						int(RunState.current_run.max_fire_level)
 					]
 					if not is_chapter_final
 					else
-					"Chapter finale secured   Battle %06d   Kill %.0f%%   Fire Lv%d" % [
+					_t("章节终盘已完成   战斗 %06d   击破 %.0f%%   火力 Lv%d", "Chapter finale secured   Battle %06d   Kill %.0f%%   Fire Lv%d") % [
 						int(RunState.current_run.score),
 						RunState.get_kill_rate(),
 						int(RunState.current_run.max_fire_level)
@@ -1077,8 +1078,8 @@ func _play_boss_finish_sequence() -> void:
 			hud.pulse_screen(Color(1.0, 0.92, 0.68, 0.12), 0.14)
 			if is_chapter_final:
 				hud.show_event_card_temporarily(
-					"CHAPTER COMPLETE",
-					"Storm Front collapsed. The full two-stage route is secured and ready for final review.",
+					_t("章节完成", "CHAPTER COMPLETE"),
+					_t("风暴前线已经压制完成，完整双关路线已经成立，可以进入最终评审。", "Storm Front collapsed. The full two-stage route is secured and ready for final review."),
 					1.35,
 					Color(1.0, 0.9, 0.62)
 				)
@@ -1154,3 +1155,19 @@ func _update_screen_shake(delta: float) -> void:
 		)
 	else:
 		world_layer.position = world_layer.position.lerp(Vector2.ZERO, min(1.0, delta * 18.0))
+
+
+func _t(zh_text: String, en_text: String) -> String:
+	return RunState.loc(zh_text, en_text)
+
+
+func _event_text(event: Dictionary, key: String, fallback: String) -> String:
+	if RunState.is_english():
+		return String(event.get(key, fallback))
+	return String(event.get("zh_%s" % key, event.get(key, fallback)))
+
+
+func _boss_text(key: String, fallback: String) -> String:
+	if RunState.is_english():
+		return String(boss_config.get(key, fallback))
+	return String(boss_config.get("zh_%s" % key, boss_config.get(key, fallback)))

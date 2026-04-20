@@ -78,12 +78,12 @@ func _build_status_panel() -> void:
 	row.add_child(left_column)
 
 	stage_label = Label.new()
-	stage_label.text = "PHASE 2 DEMO"
+	stage_label.text = _t("第二阶段演示", "PHASE 2 DEMO")
 	stage_label.add_theme_font_size_override("font_size", 20)
 	left_column.add_child(stage_label)
 
 	score_label = Label.new()
-	score_label.text = "SCORE 000000"
+	score_label.text = _t("分数", "SCORE") + " 000000"
 	score_label.add_theme_font_size_override("font_size", 28)
 	left_column.add_child(score_label)
 
@@ -100,11 +100,11 @@ func _build_status_panel() -> void:
 	right_column.add_theme_constant_override("separation", 6)
 	row.add_child(right_column)
 
-	hull_label = _make_label("HULL 3")
-	fire_label = _make_label("FIRE Lv1 / 5")
-	bomb_label = _make_label("BOMBS 2 / 4 [**--]")
-	bomb_hint_label = _make_label("READY TO BOMB")
-	status_label = _make_label("BUILD FIREPOWER")
+	hull_label = _make_label(_t("生命 3", "HULL 3"))
+	fire_label = _make_label(_t("火力 Lv1 / 5", "FIRE Lv1 / 5"))
+	bomb_label = _make_label(_t("炸弹 2 / 4 [**--]", "BOMBS 2 / 4 [**--]"))
+	bomb_hint_label = _make_label(_t("可用炸弹", "READY TO BOMB"))
+	status_label = _make_label(_t("建立火力", "BUILD FIREPOWER"))
 	fire_bar = ProgressBar.new()
 	fire_bar.min_value = 1.0
 	fire_bar.max_value = 5.0
@@ -145,9 +145,9 @@ func _build_boss_panel() -> void:
 	title_row.add_theme_constant_override("separation", 10)
 	column.add_child(title_row)
 
-	boss_name_label = _make_label("BOSS")
+	boss_name_label = _make_label(_t("Boss", "BOSS"))
 	boss_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	boss_phase_label = _make_label("PHASE 1")
+	boss_phase_label = _make_label(_t("阶段 1", "PHASE 1"))
 	title_row.add_child(boss_name_label)
 	title_row.add_child(boss_phase_label)
 
@@ -246,19 +246,19 @@ func _build_pause_panel() -> void:
 	margin.add_child(column)
 
 	var title := Label.new()
-	title.text = "PAUSED"
+	title.text = _t("已暂停", "PAUSED")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 32)
 	column.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "Resume the run, restart instantly,\nor return to the main menu."
+	subtitle.text = _t("继续当前战斗、立刻重开，\n或返回主菜单。", "Resume the run, restart instantly,\nor return to the main menu.")
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 18)
 	column.add_child(subtitle)
 
 	var resume_button := Button.new()
-	resume_button.text = "Resume"
+	resume_button.text = _t("继续", "Resume")
 	resume_button.custom_minimum_size = Vector2(190.0, 46.0)
 	resume_button.pressed.connect(func() -> void:
 		resume_requested.emit()
@@ -266,7 +266,7 @@ func _build_pause_panel() -> void:
 	column.add_child(resume_button)
 
 	var restart_button := Button.new()
-	restart_button.text = "Restart"
+	restart_button.text = _t("重开", "Restart")
 	restart_button.custom_minimum_size = Vector2(190.0, 46.0)
 	restart_button.pressed.connect(func() -> void:
 		restart_requested.emit()
@@ -274,7 +274,7 @@ func _build_pause_panel() -> void:
 	column.add_child(restart_button)
 
 	var menu_button := Button.new()
-	menu_button.text = "Main Menu"
+	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(190.0, 44.0)
 	menu_button.pressed.connect(func() -> void:
 		menu_requested.emit()
@@ -304,7 +304,7 @@ func _build_clear_panel() -> void:
 	margin.add_child(column)
 
 	clear_title_label = Label.new()
-	clear_title_label.text = "AREA SECURED"
+	clear_title_label.text = _t("区域已压制", "AREA SECURED")
 	clear_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clear_title_label.add_theme_font_size_override("font_size", 28)
 	column.add_child(clear_title_label)
@@ -317,7 +317,7 @@ func _build_clear_panel() -> void:
 
 func _build_hint_label() -> void:
 	var hint := Label.new()
-	hint.text = "ESC Pause   R Restart   Space Bomb"
+	hint.text = _t("ESC 暂停   R 重开   Space 炸弹", "ESC Pause   R Restart   Space Bomb")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 16)
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -331,7 +331,7 @@ func _build_hint_label() -> void:
 func _build_edge_warnings() -> void:
 	left_warning_label = Label.new()
 	left_warning_label.visible = false
-	left_warning_label.text = "<< INBOUND"
+	left_warning_label.text = _t("<< 来袭", "<< INBOUND")
 	left_warning_label.rotation = -PI * 0.5
 	left_warning_label.add_theme_font_size_override("font_size", 22)
 	left_warning_label.set_anchors_preset(Control.PRESET_LEFT_WIDE)
@@ -343,7 +343,7 @@ func _build_edge_warnings() -> void:
 
 	right_warning_label = Label.new()
 	right_warning_label.visible = false
-	right_warning_label.text = "INBOUND >>"
+	right_warning_label.text = _t("来袭 >>", "INBOUND >>")
 	right_warning_label.rotation = PI * 0.5
 	right_warning_label.add_theme_font_size_override("font_size", 22)
 	right_warning_label.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
@@ -376,13 +376,13 @@ func _make_label(text: String) -> Label:
 
 
 func update_player(lives: int, fire_level: int, bombs: int, score: int) -> void:
-	score_label.text = "SCORE %06d" % score
-	hull_label.text = "HULL %d / 3" % lives
-	fire_label.text = "FIRE Lv%d / 5" % fire_level
+	score_label.text = "%s %06d" % [_t("分数", "SCORE"), score]
+	hull_label.text = "%s %d / 3" % [_t("生命", "HULL"), lives]
+	fire_label.text = "%s Lv%d / 5" % [_t("火力", "FIRE"), fire_level]
 	fire_bar.value = fire_level
 	fire_bar.modulate = Color(0.58, 0.92, 1.0) if fire_level >= 4 else Color(0.84, 0.88, 1.0)
-	bomb_label.text = "BOMBS %d / 4 [%s]" % [bombs, _build_bomb_string(bombs)]
-	bomb_hint_label.text = "READY TO BOMB" if bombs > 0 else "NO BOMB STOCK"
+	bomb_label.text = "%s %d / 4 [%s]" % [_t("炸弹", "BOMBS"), bombs, _build_bomb_string(bombs)]
+	bomb_hint_label.text = _t("可用炸弹", "READY TO BOMB") if bombs > 0 else _t("炸弹耗尽", "NO BOMB STOCK")
 	bomb_hint_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.34) if bombs > 0 else Color(0.72, 0.72, 0.72))
 	fire_label.add_theme_color_override("font_color", Color(0.5, 0.92, 1.0) if fire_level >= 4 else Color(1.0, 1.0, 1.0))
 	hull_label.add_theme_color_override("font_color", Color(1.0, 0.54, 0.46) if lives <= 1 else Color(1.0, 1.0, 1.0))
@@ -532,3 +532,7 @@ func hide_pause_menu() -> void:
 
 func is_pause_menu_visible() -> bool:
 	return pause_panel.visible
+
+
+func _t(zh_text: String, en_text: String) -> String:
+	return RunState.loc(zh_text, en_text)

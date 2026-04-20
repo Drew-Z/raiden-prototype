@@ -70,6 +70,7 @@ func _build_ui() -> void:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 16)
 	frame.add_child(root)
+	var narrow_layout := get_viewport_rect().size.x <= 560.0
 
 	var hero := VBoxContainer.new()
 	hero.add_theme_constant_override("separation", 4)
@@ -77,13 +78,13 @@ func _build_ui() -> void:
 	_register_reveal(hero)
 
 	var status := Label.new()
-	status.text = "CHAPTER DEBRIEF // ROUTE SECURED"
+	status.text = _t("章节总结 // 路线已完成", "CHAPTER DEBRIEF // ROUTE SECURED")
 	status.add_theme_font_size_override("font_size", 18)
 	status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	hero.add_child(status)
 
 	var title := Label.new()
-	title.text = "CHAPTER COMPLETE"
+	title.text = _t("章节完成", "CHAPTER COMPLETE")
 	title.add_theme_font_size_override("font_size", 42)
 	hero.add_child(title)
 
@@ -93,25 +94,29 @@ func _build_ui() -> void:
 	headline.add_theme_font_size_override("font_size", 20)
 	hero.add_child(headline)
 
-	var timeline_row := HBoxContainer.new()
-	timeline_row.add_theme_constant_override("separation", 12)
+	var timeline_row := GridContainer.new()
+	timeline_row.columns = 1 if narrow_layout else 2
+	timeline_row.add_theme_constant_override("h_separation", 12)
+	timeline_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
 		timeline_row.add_child(_build_stage_card(card_data))
 
-	var summary_row := HBoxContainer.new()
-	summary_row.add_theme_constant_override("separation", 12)
+	var summary_row := GridContainer.new()
+	summary_row.columns = 1 if narrow_layout else 4
+	summary_row.add_theme_constant_override("h_separation", 12)
+	summary_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(summary_row)
 	_register_reveal(summary_row)
 
-	summary_row.add_child(_build_stat_card("CHAPTER GRADE", RunState.get_chapter_grade()))
-	summary_row.add_child(_build_stat_card("TOTAL SCORE", "%06d" % int(RunState.chapter_state.get("total_score", 0))))
-	summary_row.add_child(_build_stat_card("CHAPTER KILL", "%.0f%%" % RunState.get_chapter_kill_rate()))
-	summary_row.add_child(_build_stat_card("HIGH FIRE", "Lv%d" % int(RunState.chapter_state.get("highest_fire", 1))))
+	summary_row.add_child(_build_stat_card(_t("章节评级", "CHAPTER GRADE"), RunState.get_chapter_grade()))
+	summary_row.add_child(_build_stat_card(_t("总得分", "TOTAL SCORE"), "%06d" % int(RunState.chapter_state.get("total_score", 0))))
+	summary_row.add_child(_build_stat_card(_t("章节击破", "CHAPTER KILL"), "%.0f%%" % RunState.get_chapter_kill_rate()))
+	summary_row.add_child(_build_stat_card(_t("最高火力", "HIGH FIRE"), "Lv%d" % int(RunState.chapter_state.get("highest_fire", 1))))
 
 	var route_panel := _build_panel(
-		"ROUTE SUMMARY",
+		_t("路线总结", "ROUTE SUMMARY"),
 		"%s\n\n%s" % [
 			RunState.get_chapter_stage_breakdown_text(),
 			RunState.get_chapter_clear_summary()
@@ -120,21 +125,25 @@ func _build_ui() -> void:
 	root.add_child(route_panel)
 	_register_reveal(route_panel)
 
-	var split_row := HBoxContainer.new()
-	split_row.add_theme_constant_override("separation", 16)
+	var split_row := GridContainer.new()
+	split_row.columns = 1 if narrow_layout else 2
+	split_row.add_theme_constant_override("h_separation", 16)
+	split_row.add_theme_constant_override("v_separation", 16)
 	root.add_child(split_row)
 	_register_reveal(split_row)
 
-	split_row.add_child(_build_panel("EPILOGUE", RunState.get_chapter_epilogue()))
-	split_row.add_child(_build_panel("NEXT DIRECTIVE", RunState.get_chapter_outro_directive()))
+	split_row.add_child(_build_panel(_t("尾声", "EPILOGUE"), RunState.get_chapter_epilogue()))
+	split_row.add_child(_build_panel(_t("下一步指令", "NEXT DIRECTIVE"), RunState.get_chapter_outro_directive()))
 
-	var package_row := HBoxContainer.new()
-	package_row.add_theme_constant_override("separation", 16)
+	var package_row := GridContainer.new()
+	package_row.columns = 1 if narrow_layout else 2
+	package_row.add_theme_constant_override("h_separation", 16)
+	package_row.add_theme_constant_override("v_separation", 16)
 	root.add_child(package_row)
 	_register_reveal(package_row)
 
-	package_row.add_child(_build_panel("FINAL PACKAGE", RunState.get_final_package_summary()))
-	package_row.add_child(_build_panel("NEXT STEP", RunState.get_final_package_next_step()))
+	package_row.add_child(_build_panel(_t("最终封装", "FINAL PACKAGE"), RunState.get_final_package_summary()))
+	package_row.add_child(_build_panel(_t("下一步", "NEXT STEP"), RunState.get_final_package_next_step()))
 
 	var footer_row := HBoxContainer.new()
 	footer_row.alignment = BoxContainer.ALIGNMENT_END
@@ -143,14 +152,14 @@ func _build_ui() -> void:
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
-	footer.text = "Enter Main Menu    R Retry Chapter    Esc Main Menu"
+	footer.text = _t("回车主菜单    R 重开章节    Esc 主菜单", "Enter Main Menu    R Retry Chapter    Esc Main Menu")
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
 	footer_row.add_child(footer)
 
 	var retry_button := Button.new()
-	retry_button.text = "Retry Chapter"
+	retry_button.text = _t("重开章节", "Retry Chapter")
 	retry_button.custom_minimum_size = Vector2(190, 52)
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
@@ -158,7 +167,7 @@ func _build_ui() -> void:
 	footer_row.add_child(retry_button)
 
 	var menu_button := Button.new()
-	menu_button.text = "Main Menu"
+	menu_button.text = _t("主菜单", "Main Menu")
 	menu_button.custom_minimum_size = Vector2(170, 48)
 	menu_button.pressed.connect(func() -> void:
 		RunState.go_to_menu()
@@ -247,13 +256,13 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 
 	var status := Label.new()
 	if bool(card_data.get("completed", false)):
-		status.text = "CLEAR  GRADE %s" % String(card_data.get("grade", "--"))
+		status.text = _t("通关  评级 %s", "CLEAR  GRADE %s") % String(card_data.get("grade", "--"))
 		status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	elif bool(card_data.get("active", false)):
-		status.text = "ACTIVE"
+		status.text = _t("进行中", "ACTIVE")
 		status.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
 	else:
-		status.text = "PENDING"
+		status.text = _t("待开始", "PENDING")
 		status.add_theme_color_override("font_color", Color(0.7, 0.74, 0.8))
 	status.add_theme_font_size_override("font_size", 15)
 	column.add_child(status)
@@ -286,14 +295,14 @@ func _build_ending_overlay() -> CanvasItem:
 	center.add_child(panel)
 
 	var status := Label.new()
-	status.text = "ENDING // STORM FRONT SECURED"
+	status.text = _t("结尾 // 风暴前线已压制", "ENDING // STORM FRONT SECURED")
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status.add_theme_font_size_override("font_size", 20)
 	status.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
 	panel.add_child(status)
 
 	var title := Label.new()
-	title.text = "CHAPTER ROUTE LOCKED"
+	title.text = _t("章节路线已锁定", "CHAPTER ROUTE LOCKED")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 38)
 	panel.add_child(title)
@@ -365,3 +374,7 @@ func _play_reveal_sequence() -> void:
 			var tween := create_tween()
 			tween.tween_property(target, "modulate:a", 1.0, 0.24)
 		)
+
+
+func _t(zh_text: String, en_text: String) -> String:
+	return RunState.loc(zh_text, en_text)

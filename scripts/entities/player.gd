@@ -123,8 +123,8 @@ func _get_input_direction(delta: float) -> Vector2:
 
 func _shoot() -> void:
 	var shots: Array[Dictionary] = []
-	var bullet_radius := 4.5 + fire_level * 0.2
-	var bullet_tint := Color(0.45 + fire_level * 0.04, 0.95, 1.0)
+	var bullet_radius := 4.4 + fire_level * 0.35
+	var bullet_tint := Color(0.42 + fire_level * 0.055, 0.95, 1.0)
 	shot_flash_timer = 0.07
 	match fire_level:
 		1:
@@ -136,26 +136,28 @@ func _shoot() -> void:
 			]
 		3:
 			shots = [
-				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 16},
-				{"offset": Vector2(-16, 0), "dir": Vector2(-0.12, -1), "damage": 13},
-				{"offset": Vector2(16, 0), "dir": Vector2(0.12, -1), "damage": 13}
+				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 18},
+				{"offset": Vector2(-16, 0), "dir": Vector2(-0.12, -1), "damage": 14},
+				{"offset": Vector2(16, 0), "dir": Vector2(0.12, -1), "damage": 14}
 			]
 		4:
 			shots = [
-				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 16},
-				{"offset": Vector2(-18, 0), "dir": Vector2(-0.16, -1), "damage": 13},
-				{"offset": Vector2(18, 0), "dir": Vector2(0.16, -1), "damage": 13},
-				{"offset": Vector2(-8, -8), "dir": Vector2(-0.05, -1), "damage": 12},
-				{"offset": Vector2(8, -8), "dir": Vector2(0.05, -1), "damage": 12}
+				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 20},
+				{"offset": Vector2(-20, 0), "dir": Vector2(-0.16, -1), "damage": 14},
+				{"offset": Vector2(20, 0), "dir": Vector2(0.16, -1), "damage": 14},
+				{"offset": Vector2(-9, -8), "dir": Vector2(-0.05, -1), "damage": 14},
+				{"offset": Vector2(9, -8), "dir": Vector2(0.05, -1), "damage": 14},
+				{"offset": Vector2(0, -12), "dir": Vector2(0, -1), "damage": 16}
 			]
 		_:
 			shots = [
-				{"offset": Vector2.ZERO, "dir": Vector2(0, -1), "damage": 18},
-				{"offset": Vector2(-22, 0), "dir": Vector2(-0.2, -1), "damage": 14},
-				{"offset": Vector2(22, 0), "dir": Vector2(0.2, -1), "damage": 14},
-				{"offset": Vector2(-10, -10), "dir": Vector2(-0.08, -1), "damage": 13},
-				{"offset": Vector2(10, -10), "dir": Vector2(0.08, -1), "damage": 13},
-				{"offset": Vector2(0, -14), "dir": Vector2(0, -1), "damage": 10}
+				{"offset": Vector2(0, -16), "dir": Vector2(0, -1), "damage": 20},
+				{"offset": Vector2(-8, -10), "dir": Vector2(-0.02, -1), "damage": 18},
+				{"offset": Vector2(8, -10), "dir": Vector2(0.02, -1), "damage": 18},
+				{"offset": Vector2(-18, -4), "dir": Vector2(-0.1, -1), "damage": 15},
+				{"offset": Vector2(18, -4), "dir": Vector2(0.1, -1), "damage": 15},
+				{"offset": Vector2(-28, 0), "dir": Vector2(-0.22, -1), "damage": 13},
+				{"offset": Vector2(28, 0), "dir": Vector2(0.22, -1), "damage": 13}
 			]
 
 	for shot in shots:
@@ -164,22 +166,23 @@ func _shoot() -> void:
 
 	if fire_level >= 4:
 		var option_offsets: Array[Vector2] = _get_option_offsets()
-		var option_index := 0
-		for option_offset in option_offsets:
+		var option_count := option_offsets.size()
+		for option_index in range(option_offsets.size()):
+			var option_offset := option_offsets[option_index]
 			var option_dir := Vector2(0.0, -1.0)
 			if fire_level >= 5:
-				option_dir.x = -0.05 if option_index == 0 else 0.05
+				var center_bias := float(option_index) - float(option_count - 1) * 0.5
+				option_dir.x = center_bias * 0.12
 			var option_bullet = BulletScript.new().configure(
 				position + option_offset + Vector2(0.0, -12.0),
-				option_dir.normalized() * 520.0,
-				9 if fire_level >= 5 else 8,
+				option_dir.normalized() * (545.0 if fire_level >= 5 else 520.0),
+				10 if fire_level >= 5 else 8,
 				true,
-				3.6,
-				Color(0.72, 0.98, 1.0, 0.96),
+				4.4 if fire_level >= 5 else 3.6,
+				Color(0.72, 0.98, 1.0, 0.98) if fire_level >= 5 else Color(0.72, 0.98, 1.0, 0.96),
 				screen_rect
 			)
 			spawn_bullet.emit(option_bullet)
-			option_index += 1
 
 
 func trigger_bomb() -> void:
@@ -219,7 +222,17 @@ func add_bomb(amount: int = 1) -> void:
 
 
 func _get_fire_interval() -> float:
-	return max(0.07, fire_interval - float(fire_level - 1) * 0.008)
+	match fire_level:
+		1:
+			return 0.12
+		2:
+			return 0.112
+		3:
+			return 0.102
+		4:
+			return 0.092
+		_:
+			return 0.082
 
 
 func _on_area_entered(area: Area2D) -> void:
@@ -242,6 +255,14 @@ func _on_area_entered(area: Area2D) -> void:
 func _get_option_offsets() -> Array[Vector2]:
 	var offsets: Array[Vector2] = []
 	if fire_level < 4:
+		return offsets
+	if fire_level >= 5:
+		var front_y := -4.0 + sin(option_orbit_phase * 3.6) * 2.4
+		var rear_y := 6.0 - sin(option_orbit_phase * 3.2) * 2.2
+		offsets.append(Vector2(-34.0 + sin(option_orbit_phase * 1.8) * 2.4, rear_y))
+		offsets.append(Vector2(-18.0 + sin(option_orbit_phase * 2.2) * 1.6, front_y))
+		offsets.append(Vector2(18.0 - sin(option_orbit_phase * 2.2) * 1.6, front_y))
+		offsets.append(Vector2(34.0 - sin(option_orbit_phase * 1.8) * 2.4, rear_y))
 		return offsets
 	var hover_y := 2.0 + sin(option_orbit_phase * 3.2) * 3.0
 	offsets.append(Vector2(-24.0 + sin(option_orbit_phase * 2.1) * 2.0, hover_y))

@@ -78,6 +78,7 @@ func _build_ui() -> void:
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 18)
 	frame.add_child(root)
+	var narrow_layout := get_viewport_rect().size.x <= 560.0
 
 	var accent_color := _get_grade_color()
 
@@ -102,21 +103,21 @@ func _build_ui() -> void:
 	seal_margin.add_child(seal_column)
 
 	var seal_title := Label.new()
-	seal_title.text = "ROUTE SEAL"
+	seal_title.text = _t("路线封印", "ROUTE SEAL")
 	seal_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_title.add_theme_font_size_override("font_size", 18)
 	seal_title.add_theme_color_override("font_color", accent_color)
 	seal_column.add_child(seal_title)
 
 	seal_label = Label.new()
-	seal_label.text = "CHAPTER %s" % RunState.get_chapter_grade()
+	seal_label.text = _t("章节 %s", "CHAPTER %s") % RunState.get_chapter_grade()
 	seal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_label.add_theme_font_size_override("font_size", 34)
 	seal_label.add_theme_color_override("font_color", accent_color)
 	seal_column.add_child(seal_label)
 
 	var seal_summary := Label.new()
-	seal_summary.text = "Storm Front secured"
+	seal_summary.text = _t("风暴前线已压制完成", "Storm Front secured")
 	seal_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	seal_summary.add_theme_font_size_override("font_size", 18)
 	seal_column.add_child(seal_summary)
@@ -172,23 +173,28 @@ func _build_ui() -> void:
 	route_overlay.add_child(route_band_fill)
 
 	route_band_text = Label.new()
-	route_band_text.text = "SCRAMBLE SECURED  ->  STORM FRONT COLLAPSED  ->  ROUTE LOCKED"
+	route_band_text.text = _t("第一关已确保通关  ->  第二关风暴已突破  ->  章节路线锁定", "SCRAMBLE SECURED  ->  STORM FRONT COLLAPSED  ->  ROUTE LOCKED")
 	route_band_text.set_anchors_preset(Control.PRESET_FULL_RECT)
 	route_band_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	route_band_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	route_band_text.add_theme_font_size_override("font_size", 20)
+	route_band_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	route_band_text.add_theme_font_size_override("font_size", 17 if narrow_layout else 20)
 	route_overlay.add_child(route_band_text)
 
-	var score_row := HBoxContainer.new()
-	score_row.add_theme_constant_override("separation", 14)
+	var score_row := GridContainer.new()
+	score_row.columns = 1 if narrow_layout else 3
+	score_row.add_theme_constant_override("h_separation", 14)
+	score_row.add_theme_constant_override("v_separation", 14)
 	root.add_child(score_row)
 	_register_reveal(score_row)
-	score_row.add_child(_build_stat_card("CHAPTER GRADE", RunState.get_chapter_grade()))
-	score_row.add_child(_build_stat_card("TOTAL SCORE", "%06d" % int(RunState.chapter_state.get("total_score", 0))))
-	score_row.add_child(_build_stat_card("CHAPTER KILL", "%.0f%%" % RunState.get_chapter_kill_rate()))
+	score_row.add_child(_build_stat_card(_t("章节评级", "CHAPTER GRADE"), RunState.get_chapter_grade()))
+	score_row.add_child(_build_stat_card(_t("总得分", "TOTAL SCORE"), "%06d" % int(RunState.chapter_state.get("total_score", 0))))
+	score_row.add_child(_build_stat_card(_t("章节击破", "CHAPTER KILL"), "%.0f%%" % RunState.get_chapter_kill_rate()))
 
-	var timeline_row := HBoxContainer.new()
-	timeline_row.add_theme_constant_override("separation", 12)
+	var timeline_row := GridContainer.new()
+	timeline_row.columns = 1 if narrow_layout else 2
+	timeline_row.add_theme_constant_override("h_separation", 12)
+	timeline_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(timeline_row)
 	_register_reveal(timeline_row)
 	for card_data in RunState.get_chapter_timeline():
@@ -210,7 +216,7 @@ func _build_ui() -> void:
 	verdict_margin.add_child(verdict_column)
 
 	var verdict_title := Label.new()
-	verdict_title.text = "SLICE VERDICT"
+	verdict_title.text = _t("切片判断", "SLICE VERDICT")
 	verdict_title.add_theme_font_size_override("font_size", 16)
 	verdict_title.add_theme_color_override("font_color", accent_color)
 	verdict_column.add_child(verdict_title)
@@ -221,8 +227,10 @@ func _build_ui() -> void:
 	verdict_body.add_theme_font_size_override("font_size", 18)
 	verdict_column.add_child(verdict_body)
 
-	var review_row := HBoxContainer.new()
-	review_row.add_theme_constant_override("separation", 12)
+	var review_row := GridContainer.new()
+	review_row.columns = 1 if narrow_layout else 3
+	review_row.add_theme_constant_override("h_separation", 12)
+	review_row.add_theme_constant_override("v_separation", 12)
 	root.add_child(review_row)
 	_register_reveal(review_row)
 	for card_data in RunState.get_chapter_review_cards():
@@ -262,7 +270,7 @@ func _build_ui() -> void:
 	_register_reveal(footer_row)
 
 	var footer := Label.new()
-	footer.text = "Enter Debrief    R Retry Chapter    Esc Main Menu"
+	footer.text = _t("回车进入总结    R 重开章节    Esc 主菜单", "Enter Debrief    R Retry Chapter    Esc Main Menu")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -270,7 +278,7 @@ func _build_ui() -> void:
 	footer_row.add_child(footer)
 
 	var debrief_button := Button.new()
-	debrief_button.text = "Debrief"
+	debrief_button.text = _t("总结", "Debrief")
 	debrief_button.custom_minimum_size = Vector2(180, 52)
 	debrief_button.pressed.connect(func() -> void:
 		RunState.show_chapter_outro()
@@ -278,7 +286,7 @@ func _build_ui() -> void:
 	footer_row.add_child(debrief_button)
 
 	var retry_button := Button.new()
-	retry_button.text = "Retry Chapter"
+	retry_button.text = _t("重开章节", "Retry Chapter")
 	retry_button.custom_minimum_size = Vector2(190, 52)
 	retry_button.pressed.connect(func() -> void:
 		RunState.start_chapter()
@@ -337,7 +345,7 @@ func _build_stage_card(card_data: Dictionary) -> Control:
 	column.add_child(title)
 
 	var status := Label.new()
-	status.text = "CLEAR  GRADE %s" % String(card_data.get("grade", "--"))
+	status.text = _t("通关  评级 %s", "CLEAR  GRADE %s") % String(card_data.get("grade", "--"))
 	status.add_theme_font_size_override("font_size", 15)
 	status.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
 	column.add_child(status)
@@ -373,7 +381,7 @@ func _build_review_card(card_data: Dictionary, accent_color: Color) -> Control:
 	column.add_child(title)
 
 	var status := Label.new()
-	status.text = String(card_data.get("status", "READY"))
+	status.text = String(card_data.get("status", _t("就绪", "READY")))
 	status.add_theme_font_size_override("font_size", 22)
 	status.add_theme_color_override("font_color", Color(1.0, 0.9, 0.58))
 	column.add_child(status)
@@ -462,3 +470,7 @@ func _get_grade_color() -> Color:
 			return Color(0.92, 0.84, 0.56)
 		_:
 			return Color(0.84, 0.84, 0.9)
+
+
+func _t(zh_text: String, en_text: String) -> String:
+	return RunState.loc(zh_text, en_text)

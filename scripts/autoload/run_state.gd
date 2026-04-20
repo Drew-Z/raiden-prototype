@@ -409,6 +409,34 @@ func _lang(zh_text: String, en_text: String) -> String:
 	return en_text if is_english() else zh_text
 
 
+func loc(zh_text: String, en_text: String) -> String:
+	return _lang(zh_text, en_text)
+
+
+func get_stage_display_name(stage_id: String = "") -> String:
+	var target_stage_id := selected_stage_id if stage_id == "" else stage_id
+	var meta := StageCatalogScript.get_stage_meta(target_stage_id)
+	return String(meta.get("name" if is_english() else "name_zh", meta.get("name", target_stage_id)))
+
+
+func get_stage_display_label(stage_id: String = "") -> String:
+	var target_stage_id := selected_stage_id if stage_id == "" else stage_id
+	var meta := StageCatalogScript.get_stage_meta(target_stage_id)
+	return String(meta.get("menu_label" if is_english() else "menu_label_zh", meta.get("menu_label", target_stage_id)))
+
+
+func get_stage_display_tagline(stage_id: String = "") -> String:
+	var target_stage_id := selected_stage_id if stage_id == "" else stage_id
+	var meta := StageCatalogScript.get_stage_meta(target_stage_id)
+	return String(meta.get("tagline" if is_english() else "tagline_zh", meta.get("tagline", "")))
+
+
+func get_stage_display_summary(stage_id: String = "") -> String:
+	var target_stage_id := selected_stage_id if stage_id == "" else stage_id
+	var meta := StageCatalogScript.get_stage_meta(target_stage_id)
+	return String(meta.get("summary" if is_english() else "summary_zh", meta.get("summary", "")))
+
+
 func get_kill_rate() -> float:
 	if current_run.enemies_spawned <= 0:
 		return 0.0
@@ -433,13 +461,14 @@ func get_lives_lost() -> int:
 
 
 func get_result_title() -> String:
+	var stage_name := get_stage_display_name(String(current_run.get("stage_id", selected_stage_id)))
 	if is_chapter_transition_pending():
-		return _lang("%s 通关" % String(current_run.stage_name), "%s CLEAR" % String(current_run.stage_name))
+		return _lang("%s 通关" % stage_name, "%s CLEAR" % stage_name)
 	if is_chapter_complete():
 		return _lang("章节完成", "CHAPTER CLEAR")
 	if is_chapter_mode() and not current_run.victory:
 		return _lang("章节失败", "CHAPTER FAILED")
-	return _lang("%s 通关" % String(current_run.stage_name), "%s CLEAR" % String(current_run.stage_name)) if current_run.victory else _lang("任务失败", "MISSION FAILED")
+	return _lang("%s 通关" % stage_name, "%s CLEAR" % stage_name) if current_run.victory else _lang("任务失败", "MISSION FAILED")
 
 
 func get_performance_grade() -> String:
@@ -473,21 +502,27 @@ func get_performance_grade() -> String:
 func get_result_flavor() -> String:
 	if is_chapter_transition_pending():
 		var next_meta := get_next_stage_meta()
-		return "%s secured. Route carries forward into %s with retained resources." % [
-			String(current_run.stage_name),
-			String(next_meta.get("menu_label", "next stage"))
-		]
+		return _lang(
+			"%s 已确保通关，当前资源将被带入 %s。" % [
+				get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))),
+				get_stage_display_label(String(next_meta.get("id", "")))
+			],
+			"%s secured. Route carries forward into %s with retained resources." % [
+				get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))),
+				String(next_meta.get("menu_label", "next stage"))
+			]
+		)
 	if is_chapter_complete():
-		return "Two-stage chapter secured. Growth, bomb routing and boss control all held across the full chain."
+		return _lang("双关章节已完整打通，成长、炸弹路线和 Boss 控场都保持到了最后。", "Two-stage chapter secured. Growth, bomb routing and boss control all held across the full chain.")
 	if is_chapter_mode() and not current_run.victory:
-		return "Chapter pressure broke the route. The handoff into the next segment still needs a safer resource plan."
+		return _lang("章节压力击穿了当前路线，进入下一段前仍需要更稳妥的资源规划。", "Chapter pressure broke the route. The handoff into the next segment still needs a safer resource plan.")
 	if current_run.victory and get_lives_lost() == 0 and current_run.max_fire_level >= 5:
-		return "%s secured with strong tempo and resource control." % String(current_run.stage_name)
+		return _lang("%s 以优秀的节奏和资源控制顺利通关。" % get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))), "%s secured with strong tempo and resource control." % get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))))
 	if current_run.victory:
-		return "%s secured. Pressure curve held to the end." % String(current_run.stage_name)
+		return _lang("%s 顺利通关，整段压力曲线撑到了最后。" % get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))), "%s secured. Pressure curve held to the end." % get_stage_display_name(String(current_run.get("stage_id", selected_stage_id))))
 	if current_run.max_fire_level >= 4:
-		return "Good growth, but the late pressure still broke the run."
-	return "Early survival is stable, but growth and routing need work."
+		return _lang("成长节奏不错，但终盘压力仍然击穿了路线。", "Good growth, but the late pressure still broke the run.")
+	return _lang("前段生存已经稳定，但成长节奏和路线处理还需要继续打磨。", "Early survival is stable, but growth and routing need work.")
 
 
 func get_score_breakdown_text() -> String:
@@ -515,22 +550,22 @@ func get_score_breakdown_text() -> String:
 func get_result_tags() -> Array[String]:
 	var tags: Array[String] = []
 	if is_chapter_transition_pending():
-		tags.append("STAGE ADVANCE")
+		tags.append(_lang("进入下一段", "STAGE ADVANCE"))
 	if is_chapter_complete():
-		tags.append("CHAPTER CLEAR")
-		tags.append("CHAPTER %s" % get_chapter_grade())
+		tags.append(_lang("章节完成", "CHAPTER CLEAR"))
+		tags.append(_lang("章节 %s" % get_chapter_grade(), "CHAPTER %s" % get_chapter_grade()))
 	if current_run.victory:
-		tags.append("CLEAR")
+		tags.append(_lang("通关", "CLEAR"))
 	if get_kill_rate() >= 85.0:
-		tags.append("HIGH KILL")
+		tags.append(_lang("高击破", "HIGH KILL"))
 	if current_run.max_fire_level >= 5:
-		tags.append("MAX FIRE")
+		tags.append(_lang("满火力", "MAX FIRE"))
 	if get_lives_lost() == 0:
-		tags.append("NO MISS")
+		tags.append(_lang("无损机", "NO MISS"))
 	if current_run.bombs_used >= 2:
-		tags.append("BOMB ROUTE")
+		tags.append(_lang("炸弹路线", "BOMB ROUTE"))
 	if tags.is_empty():
-		tags.append("IN PROGRESS")
+		tags.append(_lang("进行中", "IN PROGRESS"))
 	return tags
 
 
@@ -562,62 +597,77 @@ func get_chapter_grade() -> String:
 func get_next_focus() -> String:
 	if is_chapter_transition_pending():
 		var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
-		return "Stage handoff locked. Next start state: Hull %d, Bomb %d, Fire Lv%d." % [
-			int(carry_state.get("lives", 3)),
-			int(carry_state.get("bombs", 2)),
-			int(carry_state.get("fire_level", 1))
-		]
+		return _lang(
+			"关卡交接已锁定。下一关起始状态：生命 %d，炸弹 %d，火力 Lv%d。" % [
+				int(carry_state.get("lives", 3)),
+				int(carry_state.get("bombs", 2)),
+				int(carry_state.get("fire_level", 1))
+			],
+			"Stage handoff locked. Next start state: Hull %d, Bomb %d, Fire Lv%d." % [
+				int(carry_state.get("lives", 3)),
+				int(carry_state.get("bombs", 2)),
+				int(carry_state.get("fire_level", 1))
+			]
+		)
 	if is_chapter_complete():
-		return "Chapter route is stable. The next gains come from cleaning Stage 02 kill pace, tightening suppressor routing and sharpening the final boss break."
+		return _lang("章节路线已经稳定，下一步收益主要来自第二关击破节奏、压制扇面路线和最终 Boss 破口的进一步打磨。", "Chapter route is stable. The next gains come from cleaning Stage 02 kill pace, tightening suppressor routing and sharpening the final boss break.")
 	if not current_run.victory:
 		if current_run.max_fire_level < 4:
-			return "Prioritize early power pickups to hit Lv4 before the final push."
-		return "Hold one bomb for the boss transition and re-enter with stable spacing."
+			return _lang("优先保证前段补给，尽量在终盘前把火力抬到 Lv4。", "Prioritize early power pickups to hit Lv4 before the final push.")
+		return _lang("尽量留一个炸弹给 Boss 转段，并以更稳定的站位重新进入。", "Hold one bomb for the boss transition and re-enter with stable spacing.")
 	if get_kill_rate() < 80.0:
-		return "You can route more side formations for a stronger kill rate."
+		return _lang("你还可以多吃一些侧向编队，把击破率再抬高。", "You can route more side formations for a stronger kill rate.")
 	if current_run.bombs_used == 0:
-		return "Try cashing one bomb during peak pressure for a faster boss break."
-	return "The core loop is stable. Next gains come from cleaner routing and efficiency."
+		return _lang("可以尝试在高压点换掉一个炸弹，提升 Boss 破口效率。", "Try cashing one bomb during peak pressure for a faster boss break.")
+	return _lang("当前核心循环已经稳定，后续提升主要来自更干净的路线与效率。", "The core loop is stable. Next gains come from cleaner routing and efficiency.")
 
 
 func get_offense_summary() -> String:
 	if is_chapter_complete():
-		return "Chapter offense held together. Growth and stage handoff stayed online through both boss segments."
+		return _lang("章节整体输出链路是完整的，成长节奏和关间继承都顺利带进了两个 Boss 段。", "Chapter offense held together. Growth and stage handoff stayed online through both boss segments.")
 	if get_kill_rate() >= 85.0 and current_run.max_fire_level >= 5:
-		return "Offense locked in. Fire route reached max output and held board control."
+		return _lang("输出已经成型，火力路线顺利拉满并保持了战场控制。", "Offense locked in. Fire route reached max output and held board control.")
 	if current_run.max_fire_level < 4:
-		return "Fire growth came online too late. Early pickup routing still matters most."
-	return "Damage pace is stable, but a few side waves are still slipping past the route."
+		return _lang("火力成长启动得太晚了，前段补给路线依然是最关键的问题。", "Fire growth came online too late. Early pickup routing still matters most.")
+	return _lang("伤害节奏已经比较稳定，但还有一些侧向波次会从路线里漏过去。", "Damage pace is stable, but a few side waves are still slipping past the route.")
 
 
 func get_survival_summary() -> String:
 	if get_lives_lost() == 0:
-		return "Hull integrity held all the way through. Spacing and threat reads stayed clean."
+		return _lang("整局生命保持完整，站位与威胁判断都比较干净。", "Hull integrity held all the way through. Spacing and threat reads stayed clean.")
 	if current_run.victory:
-		return "The run survived the peak, but late pressure still forced a recovery line."
-	return "The route breaks under pressure. Re-enter boss space with wider safety margins."
+		return _lang("虽然撑过了最高压段，但终盘仍然被迫走了恢复线。", "The run survived the peak, but late pressure still forced a recovery line.")
+	return _lang("路线会在高压下断掉，重新进入 Boss 空间时需要留更大的安全余量。", "The route breaks under pressure. Re-enter boss space with wider safety margins.")
 
 
 func get_resource_summary() -> String:
 	if is_chapter_transition_pending():
-		return "Chapter carry-over is active. Stage clear granted a one-bomb resupply and preserved your fire route."
+		return _lang("章节继承已生效。当前通关为下一段补了一个炸弹，并保留了你的火力路线。", "Chapter carry-over is active. Stage clear granted a one-bomb resupply and preserved your fire route.")
 	if current_run.bombs_used >= 3:
-		return "Bomb routing is active and intentional. Resources are being spent to hold tempo."
+		return _lang("炸弹路线已经形成，而且使用是有意识的，资源正在被用来维持节奏。", "Bomb routing is active and intentional. Resources are being spent to hold tempo.")
 	if current_run.bombs_used <= 0 and current_run.victory:
-		return "Bomb stock stayed untouched. There is room to convert resources into faster clears."
-	return "Resource usage is conservative. The next gains come from cleaner bomb timing."
+		return _lang("炸弹库存几乎没动，说明还有空间把资源换成更快的通关效率。", "Bomb stock stayed untouched. There is room to convert resources into faster clears.")
+	return _lang("当前资源使用偏保守，下一步收益主要来自更干净的炸弹时机。", "Resource usage is conservative. The next gains come from cleaner bomb timing.")
 
 
 func get_chapter_progress_text() -> String:
 	if not is_chapter_mode():
 		return ""
 	var current_stage_number: int = min(int(chapter_state.get("current_index", 0)) + 1, chapter_state.get("stage_order", []).size())
-	return "Chapter Run %d / %d\nTotal Score %06d    Chapter Kill %.0f%%" % [
-		current_stage_number,
-		chapter_state.get("stage_order", []).size(),
-		int(chapter_state.get("total_score", 0)),
-		get_chapter_kill_rate()
-	]
+	return _lang(
+		"章节连打 %d / %d\n总分 %06d    章节击破 %.0f%%" % [
+			current_stage_number,
+			chapter_state.get("stage_order", []).size(),
+			int(chapter_state.get("total_score", 0)),
+			get_chapter_kill_rate()
+		],
+		"Chapter Run %d / %d\nTotal Score %06d    Chapter Kill %.0f%%" % [
+			current_stage_number,
+			chapter_state.get("stage_order", []).size(),
+			int(chapter_state.get("total_score", 0)),
+			get_chapter_kill_rate()
+		]
+	)
 
 
 func get_chapter_stage_breakdown_text() -> String:
@@ -626,16 +676,27 @@ func get_chapter_stage_breakdown_text() -> String:
 	var lines: Array[String] = []
 	var stage_results: Array = chapter_state.get("stage_results", [])
 	for stage_result in stage_results:
-		lines.append("%s  %s  GRADE %s  %06d  Kill %.0f%%  Fire Lv%d" % [
-			String(stage_result.get("stage_name", "")),
-			"CLEAR" if bool(stage_result.get("victory", false)) else "FAIL",
-			String(stage_result.get("grade", "C")),
-			int(stage_result.get("final_score", 0)),
-			float(stage_result.get("kill_rate", 0.0)),
-			int(stage_result.get("max_fire_level", 1))
-		])
+		var stage_id := String(stage_result.get("stage_id", ""))
+		lines.append(_lang(
+			"%s  %s  评级 %s  %06d  击破 %.0f%%  火力 Lv%d" % [
+				get_stage_display_name(stage_id),
+				"通关" if bool(stage_result.get("victory", false)) else "失败",
+				String(stage_result.get("grade", "C")),
+				int(stage_result.get("final_score", 0)),
+				float(stage_result.get("kill_rate", 0.0)),
+				int(stage_result.get("max_fire_level", 1))
+			],
+			"%s  %s  GRADE %s  %06d  Kill %.0f%%  Fire Lv%d" % [
+				get_stage_display_name(stage_id),
+				"CLEAR" if bool(stage_result.get("victory", false)) else "FAIL",
+				String(stage_result.get("grade", "C")),
+				int(stage_result.get("final_score", 0)),
+				float(stage_result.get("kill_rate", 0.0)),
+				int(stage_result.get("max_fire_level", 1))
+			]
+		))
 	if lines.is_empty():
-		lines.append("Chapter route not started yet.")
+		lines.append(_lang("章节路线尚未开始。", "Chapter route not started yet."))
 	return "\n".join(lines)
 
 
@@ -651,9 +712,9 @@ func get_chapter_timeline() -> Array[Dictionary]:
 		if stage_index < stage_results.size():
 			result = stage_results[stage_index]
 		cards.append({
-			"label": meta.get("menu_label", stage_id),
-			"name": meta.get("name", stage_id),
-			"summary": meta.get("summary", ""),
+			"label": get_stage_display_label(stage_id),
+			"name": get_stage_display_name(stage_id),
+			"summary": get_stage_display_summary(stage_id),
 			"completed": stage_index < stage_results.size(),
 			"victory": bool(result.get("victory", false)),
 			"grade": String(result.get("grade", "--")),
@@ -667,38 +728,52 @@ func get_chapter_carry_summary() -> String:
 	if not is_chapter_transition_pending():
 		return ""
 	var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
-	return "Carry Loadout\nHull %d    Bomb %d    Fire Lv%d" % [
-		int(carry_state.get("lives", 3)),
-		int(carry_state.get("bombs", 2)),
-		int(carry_state.get("fire_level", 1))
-	]
+	return _lang(
+		"继承装载\n生命 %d    炸弹 %d    火力 Lv%d" % [
+			int(carry_state.get("lives", 3)),
+			int(carry_state.get("bombs", 2)),
+			int(carry_state.get("fire_level", 1))
+		],
+		"Carry Loadout\nHull %d    Bomb %d    Fire Lv%d" % [
+			int(carry_state.get("lives", 3)),
+			int(carry_state.get("bombs", 2)),
+			int(carry_state.get("fire_level", 1))
+		]
+	)
 
 
 func get_chapter_transition_brief() -> String:
 	if not is_chapter_transition_pending():
 		return ""
-	var next_meta := get_next_stage_meta()
 	return "%s\n%s" % [
-		String(next_meta.get("tagline", "Next stage incoming.")),
-		String(next_meta.get("summary", ""))
+		get_stage_display_tagline(String(get_next_stage_meta().get("id", ""))) if not get_next_stage_meta().is_empty() else _lang("下一段即将开始。", "Next stage incoming."),
+		get_stage_display_summary(String(get_next_stage_meta().get("id", "")))
 	]
 
 
 func get_chapter_clear_summary() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "Two-stage route secured with grade %s, %06d total score, %.0f%% chapter kill and Lv%d peak fire." % [
-		get_chapter_grade(),
-		int(chapter_state.get("total_score", 0)),
-		get_chapter_kill_rate(),
-		int(chapter_state.get("highest_fire", 1))
-	]
+	return _lang(
+		"双关路线已完成，章节评级 %s，总分 %06d，章节击破 %.0f%%，火力峰值 Lv%d。" % [
+			get_chapter_grade(),
+			int(chapter_state.get("total_score", 0)),
+			get_chapter_kill_rate(),
+			int(chapter_state.get("highest_fire", 1))
+		],
+		"Two-stage route secured with grade %s, %06d total score, %.0f%% chapter kill and Lv%d peak fire." % [
+			get_chapter_grade(),
+			int(chapter_state.get("total_score", 0)),
+			get_chapter_kill_rate(),
+			int(chapter_state.get("highest_fire", 1))
+		]
+	)
 
 
 func get_chapter_epilogue() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "Scramble opened the route, Storm Front closed it. The current build now reads like a full showcase sortie rather than a disconnected test run."
+	return _lang("第一关打开路线，第二关完成收束。当前版本已经更像一段完整展示 sortie，而不再是割裂的测试片段。", "Scramble opened the route, Storm Front closed it. The current build now reads like a full showcase sortie rather than a disconnected test run.")
 
 
 func get_chapter_outro_headline() -> String:
@@ -706,28 +781,28 @@ func get_chapter_outro_headline() -> String:
 		return ""
 	var chapter_grade := get_chapter_grade()
 	if chapter_grade == "S":
-		return "Route dominance confirmed. The full chapter now reads like a showcase strike package."
+		return _lang("路线统治力已经成立，整章现在已经像一套完整展示用出击样片。", "Route dominance confirmed. The full chapter now reads like a showcase strike package.")
 	if chapter_grade == "A":
-		return "Chapter route secured with strong control. The build is now presentation-ready across both legs."
-	return "Chapter secured. The route is stable, with room to sharpen pacing and finale pressure."
+		return _lang("章节路线已经以很强的控制力完成，这个版本在两段内容上都已具备展示状态。", "Chapter route secured with strong control. The build is now presentation-ready across both legs.")
+	return _lang("章节已经完成，路线整体稳定，但节奏和终盘压力还可以继续打磨。", "Chapter secured. The route is stable, with room to sharpen pacing and finale pressure.")
 
 
 func get_chapter_outro_directive() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "Next directive: reinforce Stage 02 spectacle, deepen storm hazard interplay and convert this chapter flow into a true vertical-slice finish."
+	return _lang("下一步指令：继续强化第二关演出、深化风暴机关联动，并把这套章节流程真正推成垂直切片级收束。", "Next directive: reinforce Stage 02 spectacle, deepen storm hazard interplay and convert this chapter flow into a true vertical-slice finish.")
 
 
 func get_chapter_ending_banner() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "ENDING // ROUTE VERIFIED"
+	return _lang("结尾 // 路线验证完成", "ENDING // ROUTE VERIFIED")
 
 
 func get_chapter_ending_title() -> String:
 	if not is_chapter_complete():
 		return ""
-	return "CHAPTER ROUTE LOCKED"
+	return _lang("章节路线已锁定", "CHAPTER ROUTE LOCKED")
 
 
 func get_chapter_ending_summary() -> String:
@@ -744,10 +819,10 @@ func get_chapter_ending_verdict() -> String:
 		return ""
 	var chapter_grade := get_chapter_grade()
 	if chapter_grade == "S":
-		return "Vertical slice candidate confirmed. The dual-stage route now holds up as a showcase build."
+		return _lang("垂直切片候选已经成立，这条双关路线现在足以支撑为展示构建。", "Vertical slice candidate confirmed. The dual-stage route now holds up as a showcase build.")
 	if chapter_grade == "A":
-		return "Vertical slice candidate is stable. One more polish pass should be enough for a stronger review build."
-	return "Route is working, but still needs one more polish pass before it fully reads like a finished slice."
+		return _lang("垂直切片候选已经稳定，再做一轮精修就足以成为更强的评审版本。", "Vertical slice candidate is stable. One more polish pass should be enough for a stronger review build.")
+	return _lang("这条路线已经成立，但在真正像成品切片之前还需要再做一轮精修。", "Route is working, but still needs one more polish pass before it fully reads like a finished slice.")
 
 
 func get_chapter_review_cards() -> Array[Dictionary]:
@@ -760,30 +835,30 @@ func get_chapter_review_cards() -> Array[Dictionary]:
 	var total_bombs := int(chapter_state.get("total_bombs_used", 0))
 
 	cards.append({
-		"title": "FLOW",
-		"status": "LOCKED" if bool(chapter_state.get("chapter_victory", false)) else "UNSTABLE",
-		"detail": "Two-stage route, carry state and endcap scenes now hold together as one complete chapter flow."
+		"title": _lang("流程", "FLOW"),
+		"status": _lang("已锁定", "LOCKED") if bool(chapter_state.get("chapter_victory", false)) else _lang("未稳定", "UNSTABLE"),
+		"detail": _lang("双关路线、继承状态和章节尾场景现在已经能作为一个完整章节流程连在一起。", "Two-stage route, carry state and endcap scenes now hold together as one complete chapter flow.")
 	})
 
 	cards.append({
-		"title": "PRESSURE",
-		"status": "READY" if chapter_kill >= 90.0 and int(chapter_state.get("highest_fire", 1)) >= 5 else "TUNING",
+		"title": _lang("压力", "PRESSURE"),
+		"status": _lang("就绪", "READY") if chapter_kill >= 90.0 and int(chapter_state.get("highest_fire", 1)) >= 5 else _lang("调校中", "TUNING"),
 		"detail": (
-			"Stage 02 climax now lands as enemy, storm hazard and boss pressure converge into one readable finish."
+			_lang("第二关高潮已经能把敌群、风暴机关和 Boss 压力收束成一个可读的终盘。", "Stage 02 climax now lands as enemy, storm hazard and boss pressure converge into one readable finish.")
 			if chapter_kill >= 90.0
 			else
-			"Chapter pressure is stable, but kill pace and final routing still have room for one more polish pass."
+			_lang("章节压力已经稳定，但击破节奏和终盘路线仍值得再做一轮精修。", "Chapter pressure is stable, but kill pace and final routing still have room for one more polish pass.")
 		)
 	})
 
 	cards.append({
-		"title": "REVIEW",
-		"status": "BUILD READY" if chapter_grade in ["S", "A"] and total_bombs <= 5 else "POLISH",
+		"title": _lang("评审", "REVIEW"),
+		"status": _lang("构建可评审", "BUILD READY") if chapter_grade in ["S", "A"] and total_bombs <= 5 else _lang("需精修", "POLISH"),
 		"detail": (
-			"The current build reads like a vertical-slice candidate and is ready for external review framing."
+			_lang("当前版本已经像一个垂直切片候选，可以进入对外评审语境。", "The current build reads like a vertical-slice candidate and is ready for external review framing.")
 			if chapter_grade in ["S", "A"] and total_bombs <= 5
 			else
-			"The route is presentable, but still benefits from one more round of pacing and presentation cleanup."
+			_lang("这条路线已经具备展示性，但仍然值得再做一轮节奏和包装清理。", "The route is presentable, but still benefits from one more round of pacing and presentation cleanup.")
 		)
 	})
 
@@ -795,10 +870,10 @@ func get_chapter_final_pass_title() -> String:
 		return ""
 	var chapter_grade := get_chapter_grade()
 	if chapter_grade == "S":
-		return "FINAL PASS // REVIEW READY"
+		return _lang("最终判断 // 可评审", "FINAL PASS // REVIEW READY")
 	if chapter_grade == "A":
-		return "FINAL PASS // STRONG CANDIDATE"
-	return "FINAL PASS // ONE MORE POLISH"
+		return _lang("最终判断 // 强候选版", "FINAL PASS // STRONG CANDIDATE")
+	return _lang("最终判断 // 还需一轮精修", "FINAL PASS // ONE MORE POLISH")
 
 
 func get_chapter_final_pass_detail() -> String:
@@ -806,10 +881,10 @@ func get_chapter_final_pass_detail() -> String:
 		return ""
 	var chapter_grade := get_chapter_grade()
 	if chapter_grade == "S":
-		return "This build is strong enough to present as a dual-stage vertical-slice candidate right now. Further work should focus on final packaging, not new systems."
+		return _lang("这个版本已经足够作为双关垂直切片候选直接展示，后续工作应聚焦最终包装，而不是新增系统。", "This build is strong enough to present as a dual-stage vertical-slice candidate right now. Further work should focus on final packaging, not new systems.")
 	if chapter_grade == "A":
-		return "The route is stable and presentation-ready in structure. One last polish pass on pacing and ending presentation should be enough for a stronger review build."
-	return "The chapter already reads as one coherent slice, but it still benefits from another polish pass before it should be framed as a finished review build."
+		return _lang("当前路线在结构上已经稳定且可展示，再做一轮节奏和结尾包装精修，就足以成为更强的评审版本。", "The route is stable and presentation-ready in structure. One last polish pass on pacing and ending presentation should be enough for a stronger review build.")
+	return _lang("这个章节已经能看作一段连贯切片，但在被当作完成评审版本之前，仍然值得再做一轮精修。", "The chapter already reads as one coherent slice, but it still benefits from another polish pass before it should be framed as a finished review build.")
 
 
 func get_build_badge() -> String:
@@ -836,19 +911,19 @@ func get_build_summary() -> String:
 
 func get_final_package_summary() -> String:
 	if not is_chapter_complete():
-		return "Package target: finish a clean two-stage run, verify the chapter handoff and review the ending scenes as one connected presentation chain."
-	return "Package target met: the current build now reads like a compact dual-stage vertical-slice candidate, with full chapter start, handoff, climax, ending and debrief flow."
+		return _lang("封装目标：完成一条干净的双关通关路线，验证章节交接，并把结尾场景作为一条完整展示链路来检查。", "Package target: finish a clean two-stage run, verify the chapter handoff and review the ending scenes as one connected presentation chain.")
+	return _lang("封装目标已达成：当前版本已经具备紧凑的双关垂直切片候选形态，包含完整的章节开始、交接、高潮、结尾与总结流程。", "Package target met: the current build now reads like a compact dual-stage vertical-slice candidate, with full chapter start, handoff, climax, ending and debrief flow.")
 
 
 func get_final_package_next_step() -> String:
 	if not is_chapter_complete():
-		return "Next step: clear the full chapter route and confirm the ending chain holds together under review conditions."
+		return _lang("下一步：完整通关章节路线，并确认结尾链路在评审场景下也能稳定成立。", "Next step: clear the full chapter route and confirm the ending chain holds together under review conditions.")
 	var chapter_grade := get_chapter_grade()
 	if chapter_grade == "S":
-		return "Next step: freeze scope, clean presentation details and prepare a formal final summary for review."
+		return _lang("下一步：冻结范围，清理展示细节，并为评审准备正式的最终总结。", "Next step: freeze scope, clean presentation details and prepare a formal final summary for review.")
 	if chapter_grade == "A":
-		return "Next step: run one more polish pass on pacing and ending presentation before freezing scope."
-	return "Next step: keep scope frozen and spend one last pass on pacing cleanup before calling the slice review-ready."
+		return _lang("下一步：在冻结范围前，再做一轮节奏和结尾包装的精修。", "Next step: run one more polish pass on pacing and ending presentation before freezing scope.")
+	return _lang("下一步：保持范围冻结，再做最后一轮节奏清理，再决定是否进入评审就绪状态。", "Next step: keep scope frozen and spend one last pass on pacing cleanup before calling the slice review-ready.")
 
 
 func get_demo_route_summary() -> String:
@@ -890,12 +965,20 @@ func get_chapter_transition_text() -> String:
 		return ""
 	var next_meta := get_next_stage_meta()
 	var carry_state: Dictionary = chapter_state.get("next_stage_start_state", _get_default_start_state())
-	return "Next: %s\nStart Hull %d    Start Bomb %d    Start Fire Lv%d" % [
-		String(next_meta.get("name", "NEXT STAGE")),
-		int(carry_state.get("lives", 3)),
-		int(carry_state.get("bombs", 2)),
-		int(carry_state.get("fire_level", 1))
-	]
+	return _lang(
+		"下一段：%s\n初始生命 %d    初始炸弹 %d    初始火力 Lv%d" % [
+			get_stage_display_name(String(next_meta.get("id", ""))),
+			int(carry_state.get("lives", 3)),
+			int(carry_state.get("bombs", 2)),
+			int(carry_state.get("fire_level", 1))
+		],
+		"Next: %s\nStart Hull %d    Start Bomb %d    Start Fire Lv%d" % [
+			get_stage_display_name(String(next_meta.get("id", ""))),
+			int(carry_state.get("lives", 3)),
+			int(carry_state.get("bombs", 2)),
+			int(carry_state.get("fire_level", 1))
+		]
+	)
 
 
 func is_autoplay() -> bool:
