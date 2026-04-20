@@ -6,16 +6,19 @@ const RESULTS_SCENE := "res://scenes/ui/ResultsScreen.tscn"
 const CHAPTER_BRIEFING_SCENE := "res://scenes/ui/ChapterBriefing.tscn"
 const CHAPTER_ENDING_SCENE := "res://scenes/ui/ChapterEnding.tscn"
 const CHAPTER_OUTRO_SCENE := "res://scenes/ui/ChapterOutro.tscn"
+const SETTINGS_PATH := "user://settings.cfg"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
 var chapter_state: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 var selected_stage_id := "stage_1"
+var language_code := "zh_CN"
 
 
 func _ready() -> void:
 	rng.randomize()
+	_load_settings()
 	_ensure_input_actions()
 	_reset_chapter_state()
 	reset_run()
@@ -369,6 +372,43 @@ func _change_scene(scene_path: String) -> void:
 		get_tree().change_scene_to_file(scene_path)
 
 
+func _load_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load(SETTINGS_PATH) != OK:
+		language_code = "zh_CN"
+		return
+	language_code = String(config.get_value("general", "language", "zh_CN"))
+	if language_code not in ["zh_CN", "en"]:
+		language_code = "zh_CN"
+
+
+func _save_settings() -> void:
+	var config := ConfigFile.new()
+	config.set_value("general", "language", language_code)
+	config.save(SETTINGS_PATH)
+
+
+func get_language_code() -> String:
+	return language_code
+
+
+func is_english() -> bool:
+	return language_code == "en"
+
+
+func set_language_code(next_language_code: String) -> void:
+	if next_language_code not in ["zh_CN", "en"]:
+		return
+	if language_code == next_language_code:
+		return
+	language_code = next_language_code
+	_save_settings()
+
+
+func _lang(zh_text: String, en_text: String) -> String:
+	return en_text if is_english() else zh_text
+
+
 func get_kill_rate() -> float:
 	if current_run.enemies_spawned <= 0:
 		return 0.0
@@ -394,12 +434,12 @@ func get_lives_lost() -> int:
 
 func get_result_title() -> String:
 	if is_chapter_transition_pending():
-		return "%s CLEAR" % String(current_run.stage_name)
+		return _lang("%s 通关" % String(current_run.stage_name), "%s CLEAR" % String(current_run.stage_name))
 	if is_chapter_complete():
-		return "CHAPTER CLEAR"
+		return _lang("章节完成", "CHAPTER CLEAR")
 	if is_chapter_mode() and not current_run.victory:
-		return "CHAPTER FAILED"
-	return "%s CLEAR" % String(current_run.stage_name) if current_run.victory else "MISSION FAILED"
+		return _lang("章节失败", "CHAPTER FAILED")
+	return _lang("%s 通关" % String(current_run.stage_name), "%s CLEAR" % String(current_run.stage_name)) if current_run.victory else _lang("任务失败", "MISSION FAILED")
 
 
 func get_performance_grade() -> String:
@@ -452,8 +492,17 @@ func get_result_flavor() -> String:
 
 func get_score_breakdown_text() -> String:
 	if not current_run.victory:
-		return "Battle Score: %06d" % int(current_run.final_score)
-	return "Battle: %06d\nClear Bonus: %04d\nSurvival Bonus: %04d\nBomb Stock Bonus: %04d\nEfficiency Bonus: %04d\nFinal Score: %06d" % [
+		return _lang("战斗得分：%06d", "Battle Score: %06d") % int(current_run.final_score)
+	if is_english():
+		return "Battle: %06d\nClear Bonus: %04d\nSurvival Bonus: %04d\nBomb Stock Bonus: %04d\nEfficiency Bonus: %04d\nFinal Score: %06d" % [
+			int(current_run.score_before_bonus),
+			int(current_run.clear_bonus),
+			int(current_run.survival_bonus),
+			int(current_run.bomb_stock_bonus),
+			int(current_run.efficiency_bonus),
+			int(current_run.final_score)
+		]
+	return "战斗分：%06d\n通关奖励：%04d\n生存奖励：%04d\n炸弹库存奖励：%04d\n效率奖励：%04d\n最终分数：%06d" % [
 		int(current_run.score_before_bonus),
 		int(current_run.clear_bonus),
 		int(current_run.survival_bonus),
@@ -767,16 +816,22 @@ func get_build_badge() -> String:
 	if is_chapter_complete():
 		var chapter_grade := get_chapter_grade()
 		if chapter_grade == "S":
-			return "BUILD STATUS // REVIEW READY"
+			return _lang("当前构建 // 可评审", "BUILD STATUS // REVIEW READY")
 		if chapter_grade == "A":
-			return "BUILD STATUS // STRONG CANDIDATE"
-	return "BUILD STATUS // DUAL-STAGE SLICE CANDIDATE"
+			return _lang("当前构建 // 强候选版", "BUILD STATUS // STRONG CANDIDATE")
+	return _lang("当前构建 // 双关切片候选", "BUILD STATUS // DUAL-STAGE SLICE CANDIDATE")
 
 
 func get_build_summary() -> String:
 	if is_chapter_complete():
-		return "Current build includes a full two-stage route, carry-state handoff, independent chapter scenes and a readable final boss climax."
-	return "Current build focuses on a polished two-stage showcase route with chapter handoff, ending and debrief flow."
+		return _lang(
+			"当前版本已包含完整双关路线、继承交接、独立章节场景，以及一个可读的最终 Boss 收束。",
+			"Current build includes a full two-stage route, carry-state handoff, independent chapter scenes and a readable final boss climax."
+		)
+	return _lang(
+		"当前版本聚焦于一条经过打磨的双关展示路线，并带有章节交接、结尾与总结流程。",
+		"Current build focuses on a polished two-stage showcase route with chapter handoff, ending and debrief flow."
+	)
 
 
 func get_final_package_summary() -> String:
@@ -798,24 +853,36 @@ func get_final_package_next_step() -> String:
 
 func get_demo_route_summary() -> String:
 	if is_chapter_complete():
-		return "Recommended Demo Route\nChapter Run -> Briefing -> Stage 02 storm climax -> ChapterEnding -> ChapterOutro"
-	return "Recommended Demo Route\nChapter Run -> Stage 01 growth -> Briefing -> Stage 02 storm boss -> Ending / Debrief"
+		return _lang(
+			"推荐演示路线\n章节连打 -> 简报 -> 第二关风暴高潮 -> 章节结尾 -> 章节总结",
+			"Recommended Demo Route\nChapter Run -> Briefing -> Stage 02 storm climax -> ChapterEnding -> ChapterOutro"
+		)
+	return _lang(
+		"推荐演示路线\n章节连打 -> 第一关成长 -> 简报 -> 第二关风暴 Boss -> 结尾 / 总结",
+		"Recommended Demo Route\nChapter Run -> Stage 01 growth -> Briefing -> Stage 02 storm boss -> Ending / Debrief"
+	)
 
 
 func get_demo_checklist_text() -> String:
 	if is_chapter_complete():
-		return "Demo Checklist\n- Start from Chapter Run\n- Show carry-state handoff in Briefing\n- Reach Stage 02 storm boss and final breach\n- Let Ending and Debrief play through as final package"
-	return "Demo Checklist\n- Prefer Chapter Run over single-stage entry\n- Highlight Stage 01 growth and bomb routing\n- Show Stage 02 storm hazards and boss climax\n- Finish on Ending / Debrief for the full package"
+		return _lang(
+			"演示检查表\n- 从章节连打开始\n- 在简报里展示继承状态\n- 打到第二关风暴 Boss 与最终破口\n- 让结尾与总结完整播放，作为最终包装",
+			"Demo Checklist\n- Start from Chapter Run\n- Show carry-state handoff in Briefing\n- Reach Stage 02 storm boss and final breach\n- Let Ending and Debrief play through as final package"
+		)
+	return _lang(
+		"演示检查表\n- 优先展示章节连打，而不是单关入口\n- 突出第一关成长与炸弹路线\n- 展示第二关风暴机关与 Boss 高潮\n- 最后落到结尾 / 总结，形成完整包装",
+		"Demo Checklist\n- Prefer Chapter Run over single-stage entry\n- Highlight Stage 01 growth and bomb routing\n- Show Stage 02 storm hazards and boss climax\n- Finish on Ending / Debrief for the full package"
+	)
 
 
 func get_release_candidate_label() -> String:
 	if is_chapter_complete():
 		var chapter_grade := get_chapter_grade()
 		if chapter_grade == "S":
-			return "CURRENT RC // REVIEW READY"
+			return _lang("当前 RC // 可评审", "CURRENT RC // REVIEW READY")
 		if chapter_grade == "A":
-			return "CURRENT RC // STRONG CANDIDATE"
-	return "CURRENT RC // CHAPTER RUN RECOMMENDED"
+			return _lang("当前 RC // 强候选版", "CURRENT RC // STRONG CANDIDATE")
+	return _lang("当前 RC // 推荐章节连打", "CURRENT RC // CHAPTER RUN RECOMMENDED")
 
 
 func get_chapter_transition_text() -> String:

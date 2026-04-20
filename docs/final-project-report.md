@@ -17,6 +17,7 @@
 - `Chapter Run`：已经形成 `ChapterBriefing -> Stage 02 -> ChapterEnding -> ChapterOutro` 的完整章节链路
 - Boss 终盘：已经具备 `LAST SAFE WINDOW -> OVERDRIVE -> FINISH WINDOW -> FINAL BREACH` 的清楚节拍
 - 外层展示：主菜单、结果页、章节 ending、章节 outro、封版总结和演示检查清单都已经补齐
+- 可用性补强：主菜单已支持中英文切换，并修正了启动时主内容区过窄和不居中的展示问题
 
 ## 当前版本的亮点
 
