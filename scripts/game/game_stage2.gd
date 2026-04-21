@@ -16,12 +16,13 @@ const ScorePopupScript := preload("res://scripts/game/score_popup.gd")
 const SfxControllerScript := preload("res://scripts/game/sfx_controller.gd")
 const StormStrikeScript := preload("res://scripts/game/storm_strike.gd")
 const StormSweepScript := preload("res://scripts/game/storm_sweep.gd")
-const PLAYFIELD_TOP_MARGIN := 136.0
+const PLAYFIELD_TOP_MARGIN := 118.0
 
-var playfield_rect := Rect2(Vector2.ZERO, Vector2(540, 960 - PLAYFIELD_TOP_MARGIN))
+var playfield_rect := Rect2(Vector2.ZERO, Vector2(540.0, 960.0 - PLAYFIELD_TOP_MARGIN))
 var player
 var hud
 var world_layer: Node2D
+var world_layer_base_position := Vector2(0.0, PLAYFIELD_TOP_MARGIN)
 var bullet_layer: Node2D
 var enemy_layer: Node2D
 var pickup_layer: Node2D
@@ -98,7 +99,7 @@ func _build_scene() -> void:
 	add_child(starfield)
 
 	world_layer = Node2D.new()
-	world_layer.position = Vector2(0.0, PLAYFIELD_TOP_MARGIN)
+	world_layer.position = world_layer_base_position
 	add_child(world_layer)
 
 	bullet_layer = Node2D.new()
@@ -140,7 +141,7 @@ func _build_scene() -> void:
 	hud.update_player(3, 1, 2, RunState.current_run.score)
 
 	player = PlayerScript.new().configure(playfield_rect, RunState.is_autoplay(), RunState.get_stage_start_state())
-	player.position = Vector2(playfield_rect.size.x * 0.5, playfield_rect.size.y - 120.0)
+	player.position = Vector2(playfield_rect.size.x * 0.5, playfield_rect.end.y - 120.0)
 	player.spawn_bullet.connect(_on_player_bullet_spawned)
 	player.bomb_activated.connect(_on_player_bomb_activated)
 	player.died.connect(_on_player_died)
@@ -563,7 +564,7 @@ func _update_hud_status() -> void:
 		hint_text = _t("缺少炸弹缓冲", "NO BOMB BUFFER")
 		hint_color = Color(1.0, 0.7, 0.42)
 		bomb_alert_level = 2
-	elif player.bomb_count > 0 and enemy_bullet_count >= (10 if boss_spawned else 14):
+	elif player.bomb_count > 0 and enemy_bullet_count >= (9 if boss_spawned else 13):
 		hint_text = _t("炸弹窗口已开", "BOMB WINDOW OPEN")
 		hint_color = Color(1.0, 0.76, 0.34)
 		bomb_alert_level = 1
@@ -777,20 +778,20 @@ func _should_spawn_upgrade(chance: float, kind: String = "power") -> bool:
 
 	if is_instance_valid(player):
 		if player.fire_level <= 2 and progress_ratio <= 0.45:
-			effective_chance += 0.05
-			streak_target = 7
+			effective_chance += 0.03
+			streak_target = 8
 		elif player.fire_level >= 4:
-			effective_chance -= 0.08
-			streak_target = 12
+			effective_chance -= 0.10
+			streak_target = 13
 			if progress_ratio >= 0.58:
-				effective_chance -= 0.08
-				streak_target = 14
+				effective_chance -= 0.10
+				streak_target = 15
 			if player.fire_level >= 5 and progress_ratio >= 0.74:
 				effective_chance -= 0.12
 				streak_target = 99
 
 	if RunState.is_chapter_mode() and RunState.current_run.start_fire_level >= 3:
-		effective_chance -= 0.04
+		effective_chance -= 0.06
 
 	effective_chance = clampf(effective_chance, 0.02, 0.92)
 	var guaranteed: bool = guaranteed_first_upgrade or drop_fail_streak >= streak_target
@@ -1208,12 +1209,12 @@ func _update_screen_shake(delta: float) -> void:
 	if shake_timer > 0.0:
 		shake_timer = max(shake_timer - delta, 0.0)
 		shake_strength = max(shake_strength - delta * 36.0, 0.0)
-		world_layer.position = Vector2(
+		world_layer.position = world_layer_base_position + Vector2(
 			randf_range(-shake_strength, shake_strength),
 			randf_range(-shake_strength, shake_strength)
 		)
 	else:
-		world_layer.position = world_layer.position.lerp(Vector2.ZERO, min(1.0, delta * 18.0))
+		world_layer.position = world_layer.position.lerp(world_layer_base_position, min(1.0, delta * 18.0))
 
 
 func _is_large_enemy(enemy) -> bool:

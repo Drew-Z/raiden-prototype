@@ -277,30 +277,20 @@ func _build_ui() -> void:
 	breakdown_column.add_child(score_breakdown)
 
 	var detail := Label.new()
-	if RunState.is_english():
-		detail.text = "Start Hull: %d    Start Bomb: %d    Start Fire: Lv%d\nBombs Used: %d    Bombs Picked: %d\nPower Pickups: %d    Lives Lost: %d\nBoss Defeated: %s    Run Time: %.1f sec" % [
-			RunState.current_run.start_lives,
-			RunState.current_run.start_bombs,
-			RunState.current_run.start_fire_level,
-			RunState.current_run.bombs_used,
-			RunState.current_run.bombs_collected,
-			RunState.current_run.upgrades_collected,
-			RunState.get_lives_lost(),
-			"Yes" if RunState.current_run.boss_defeated else "No",
-			RunState.current_run.duration_sec
-		]
-	else:
-		detail.text = "起始生命：%d    起始炸弹：%d    起始火力：Lv%d\n使用炸弹：%d    拾取炸弹：%d\n火力补给：%d    损失生命：%d\nBoss 击破：%s    用时：%.1f 秒" % [
-			RunState.current_run.start_lives,
-			RunState.current_run.start_bombs,
-			RunState.current_run.start_fire_level,
-			RunState.current_run.bombs_used,
-			RunState.current_run.bombs_collected,
-			RunState.current_run.upgrades_collected,
-			RunState.get_lives_lost(),
-			"是" if RunState.current_run.boss_defeated else "否",
-			RunState.current_run.duration_sec
-		]
+	detail.text = _t(
+		"起始生命：%d    起始炸弹：%d    起始火力：Lv%d\n使用炸弹：%d    拾取炸弹：%d\n火力补给：%d    损失生命：%d\nBoss 击破：%s    用时：%.1f 秒",
+		"Start Hull: %d    Start Bomb: %d    Start Fire: Lv%d\nBombs Used: %d    Bombs Picked: %d\nPower Pickups: %d    Lives Lost: %d\nBoss Defeated: %s    Run Time: %.1f sec"
+	) % [
+		RunState.current_run.start_lives,
+		RunState.current_run.start_bombs,
+		RunState.current_run.start_fire_level,
+		RunState.current_run.bombs_used,
+		RunState.current_run.bombs_collected,
+		RunState.current_run.upgrades_collected,
+		RunState.get_lives_lost(),
+		(_t("是", "Yes") if RunState.current_run.boss_defeated else _t("否", "No")),
+		RunState.current_run.duration_sec
+	]
 	detail.add_theme_font_size_override("font_size", 18)
 	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_mark_read_only(breakdown_panel)

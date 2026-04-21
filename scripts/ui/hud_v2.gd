@@ -1,4 +1,4 @@
-extends CanvasLayer
+﻿extends CanvasLayer
 class_name BattleHUDV2
 
 const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
@@ -89,10 +89,10 @@ func _build_status_panel() -> void:
 	var top_panel := PanelContainer.new()
 	top_panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	top_panel.offset_left = 10.0 if narrow_layout else 14.0
-	top_panel.offset_top = 10.0 if narrow_layout else 14.0
+	top_panel.offset_top = 10.0 if narrow_layout else 12.0
 	top_panel.offset_right = -10.0 if narrow_layout else -14.0
-	top_panel.offset_bottom = 72.0 if narrow_layout else 78.0
-	top_panel.modulate = Color(1.0, 1.0, 1.0, 0.88)
+	top_panel.offset_bottom = 64.0 if narrow_layout else 68.0
+	top_panel.modulate = Color(1.0, 1.0, 1.0, 0.64)
 	add_child(top_panel)
 
 	var margin := MarginContainer.new()
@@ -103,22 +103,29 @@ func _build_status_panel() -> void:
 	top_panel.add_child(margin)
 
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8 if narrow_layout else 10)
+	row.add_theme_constant_override("separation", 12 if narrow_layout else 16)
 	margin.add_child(row)
 
 	var left_column := VBoxContainer.new()
 	left_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_column.add_theme_constant_override("separation", 2)
+	left_column.add_theme_constant_override("separation", 4)
 	row.add_child(left_column)
 
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	left_column.add_child(title_row)
+
 	stage_label = Label.new()
+	stage_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage_label.text = _t("第二阶段演示", "PHASE 2 DEMO")
-	stage_label.add_theme_font_size_override("font_size", 13 if narrow_layout else 14)
-	left_column.add_child(stage_label)
+	stage_label.add_theme_font_size_override("font_size", 11 if narrow_layout else 12)
+	stage_label.add_theme_color_override("font_color", Color(0.72, 0.82, 0.94, 0.9))
+	title_row.add_child(stage_label)
 
 	score_label = Label.new()
 	score_label.text = _t("分数", "SCORE") + " 000000"
-	score_label.add_theme_font_size_override("font_size", 18 if narrow_layout else 22)
+	score_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	score_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.96))
 	left_column.add_child(score_label)
 
 	stage_bar = ProgressBar.new()
@@ -126,43 +133,58 @@ func _build_status_panel() -> void:
 	stage_bar.max_value = 1.0
 	stage_bar.value = 0.0
 	stage_bar.show_percentage = false
-	stage_bar.custom_minimum_size = Vector2(0.0, 4.0 if narrow_layout else 5.0)
+	stage_bar.custom_minimum_size = Vector2(0.0, 4.0)
 	left_column.add_child(stage_bar)
 
+	status_label = Label.new()
+	status_label.text = _t("建立火力", "BUILD FIREPOWER")
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	status_label.add_theme_font_size_override("font_size", 10 if narrow_layout else 11)
+	status_label.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0))
+	left_column.add_child(status_label)
+
 	var right_column := VBoxContainer.new()
-	right_column.custom_minimum_size = Vector2(132.0 if narrow_layout else 146.0, 0.0)
-	right_column.add_theme_constant_override("separation", 1 if narrow_layout else 2)
+	right_column.custom_minimum_size = Vector2(162.0 if narrow_layout else 188.0, 0.0)
+	right_column.add_theme_constant_override("separation", 4)
 	row.add_child(right_column)
 
+	var stat_grid := GridContainer.new()
+	stat_grid.columns = 2
+	stat_grid.add_theme_constant_override("h_separation", 8 if narrow_layout else 12)
+	stat_grid.add_theme_constant_override("v_separation", 2 if narrow_layout else 3)
+	right_column.add_child(stat_grid)
+
 	hull_label = _make_label(_t("生命 3", "HULL 3"))
-	fire_label = _make_label(_t("火力 Lv1 / 5", "FIRE Lv1 / 5"))
-	bomb_label = _make_label(_t("炸弹 2 / 4 [**--]", "BOMBS 2 / 4 [**--]"))
-	bomb_hint_label = _make_label(_t("可用炸弹", "READY TO BOMB"))
-	status_label = _make_label(_t("建立火力", "BUILD FIREPOWER"))
+	fire_label = _make_label(_t("火力 Lv1", "FIRE Lv1"))
+	bomb_label = _make_label(_t("炸弹 2 / 4", "BOMBS 2 / 4"))
+	bomb_hint_label = _make_label(_t("可用", "READY"))
 	fire_bar = ProgressBar.new()
 	fire_bar.min_value = 1.0
 	fire_bar.max_value = 5.0
 	fire_bar.value = 1.0
 	fire_bar.show_percentage = false
-	fire_bar.custom_minimum_size = Vector2(0.0, 7.0 if narrow_layout else 8.0)
+	fire_bar.custom_minimum_size = Vector2(0.0, 6.0 if narrow_layout else 7.0)
 
-	right_column.add_child(hull_label)
-	right_column.add_child(fire_label)
+	hull_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	fire_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bomb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	bomb_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	bomb_hint_label.add_theme_font_size_override("font_size", 10 if narrow_layout else 11)
+
+	stat_grid.add_child(hull_label)
+	stat_grid.add_child(fire_label)
+	stat_grid.add_child(bomb_label)
+	stat_grid.add_child(bomb_hint_label)
 	right_column.add_child(fire_bar)
-	right_column.add_child(bomb_label)
-	right_column.add_child(bomb_hint_label)
-	right_column.add_child(status_label)
-
-
 func _build_boss_panel() -> void:
 	boss_panel = PanelContainer.new()
 	boss_panel.visible = false
 	boss_panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	boss_panel.offset_left = 10.0 if narrow_layout else 14.0
-	boss_panel.offset_top = 74.0 if narrow_layout else 80.0
+	boss_panel.offset_top = 70.0 if narrow_layout else 74.0
 	boss_panel.offset_right = -10.0 if narrow_layout else -14.0
-	boss_panel.offset_bottom = 108.0 if narrow_layout else 116.0
-	boss_panel.modulate = Color(1.0, 1.0, 1.0, 0.9)
+	boss_panel.offset_bottom = 92.0 if narrow_layout else 96.0
+	boss_panel.modulate = Color(1.0, 1.0, 1.0, 0.74)
 	add_child(boss_panel)
 
 	var margin := MarginContainer.new()
@@ -182,8 +204,12 @@ func _build_boss_panel() -> void:
 
 	boss_name_label = _make_label(_t("Boss", "BOSS"))
 	boss_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	boss_name_label.add_theme_font_size_override("font_size", 11 if narrow_layout else 12)
+	boss_name_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.38))
 	boss_phase_label = _make_label(_t("阶段 1", "PHASE 1"))
 	title_row.add_child(boss_name_label)
+	boss_phase_label.add_theme_font_size_override("font_size", 10 if narrow_layout else 11)
+	boss_phase_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.62))
 	title_row.add_child(boss_phase_label)
 
 	boss_bar = ProgressBar.new()
@@ -191,20 +217,20 @@ func _build_boss_panel() -> void:
 	boss_bar.max_value = 1.0
 	boss_bar.value = 1.0
 	boss_bar.show_percentage = false
-	boss_bar.custom_minimum_size = Vector2(0.0, 8.0 if narrow_layout else 10.0)
+	boss_bar.custom_minimum_size = Vector2(0.0, 6.0 if narrow_layout else 8.0)
 	column.add_child(boss_bar)
 
 
 func _build_banner() -> void:
 	banner_label = Label.new()
 	banner_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	banner_label.offset_top = 108.0 if narrow_layout else 116.0
+	banner_label.offset_top = 84.0 if narrow_layout else 88.0
 	banner_label.offset_left = -148.0 if narrow_layout else -168.0
 	banner_label.offset_right = 148.0 if narrow_layout else 168.0
-	banner_label.offset_bottom = 126.0 if narrow_layout else 134.0
+	banner_label.offset_bottom = 98.0 if narrow_layout else 102.0
 	banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	banner_label.add_theme_font_size_override("font_size", 14 if narrow_layout else 15)
+	banner_label.add_theme_font_size_override("font_size", 13 if narrow_layout else 14)
 	banner_label.visible = false
 	add_child(banner_label)
 
@@ -214,10 +240,10 @@ func _build_event_panel() -> void:
 	event_panel.visible = false
 	event_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	event_panel.offset_left = -156.0 if narrow_layout else -180.0
-	event_panel.offset_top = 108.0 if narrow_layout else 114.0
+	event_panel.offset_top = 80.0 if narrow_layout else 82.0
 	event_panel.offset_right = 156.0 if narrow_layout else 180.0
-	event_panel.offset_bottom = 134.0 if narrow_layout else 140.0
-	event_panel.modulate = Color(1.0, 1.0, 1.0, 0.9)
+	event_panel.offset_bottom = 104.0 if narrow_layout else 106.0
+	event_panel.modulate = Color(1.0, 1.0, 1.0, 0.8)
 	add_child(event_panel)
 
 	var margin := MarginContainer.new()
@@ -233,14 +259,14 @@ func _build_event_panel() -> void:
 
 	event_title_label = Label.new()
 	event_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	event_title_label.add_theme_font_size_override("font_size", 12 if narrow_layout else 13)
+	event_title_label.add_theme_font_size_override("font_size", 10 if narrow_layout else 11)
 	column.add_child(event_title_label)
 
 	event_detail_label = Label.new()
 	event_detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	event_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	event_detail_label.max_lines_visible = 1
-	event_detail_label.add_theme_font_size_override("font_size", 11 if narrow_layout else 12)
+	event_detail_label.add_theme_font_size_override("font_size", 9 if narrow_layout else 10)
 	column.add_child(event_detail_label)
 
 
@@ -289,7 +315,7 @@ func _build_pause_panel() -> void:
 	column.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = _t("继续当前战斗、立刻重开，\n或返回主菜单。", "Resume the run, restart instantly,\nor return to the main menu.")
+	subtitle.text = _t("继续当前战斗、立即重开，\n或返回主菜单。", "Resume the run, restart instantly,\nor return to the main menu.")
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 18)
 	column.add_child(subtitle)
@@ -387,19 +413,20 @@ func _build_hint_label() -> void:
 	var hint := Label.new()
 	hint.text = _t("ESC 暂停   R 重开   Space 炸弹", "ESC Pause   R Restart   Space Bomb")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 14 if narrow_layout else 16)
+	hint.add_theme_font_size_override("font_size", 12 if narrow_layout else 14)
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	hint.offset_left = 12.0
 	hint.offset_right = -12.0
-	hint.offset_top = -30.0
-	hint.offset_bottom = -6.0
+	hint.offset_top = -24.0
+	hint.offset_bottom = -4.0
+	hint.modulate = Color(1.0, 1.0, 1.0, 0.68)
 	add_child(hint)
 
 
 func _build_edge_warnings() -> void:
 	left_warning_label = Label.new()
 	left_warning_label.visible = false
-	left_warning_label.text = _t("<< 来袭", "<< INBOUND")
+	left_warning_label.text = _t("<< 鏉ヨ", "<< INBOUND")
 	left_warning_label.rotation = -PI * 0.5
 	left_warning_label.add_theme_font_size_override("font_size", 22)
 	left_warning_label.set_anchors_preset(Control.PRESET_LEFT_WIDE)
@@ -411,7 +438,7 @@ func _build_edge_warnings() -> void:
 
 	right_warning_label = Label.new()
 	right_warning_label.visible = false
-	right_warning_label.text = _t("来袭 >>", "INBOUND >>")
+	right_warning_label.text = _t("鏉ヨ >>", "INBOUND >>")
 	right_warning_label.rotation = PI * 0.5
 	right_warning_label.add_theme_font_size_override("font_size", 22)
 	right_warning_label.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
@@ -439,27 +466,27 @@ func _build_cinematic_bars() -> void:
 func _make_label(text: String) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 12 if narrow_layout else 14)
+	label.add_theme_font_size_override("font_size", 11 if narrow_layout else 12)
 	return label
 
 
 func _build_top_backdrop() -> void:
 	top_backdrop = ColorRect.new()
 	top_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	top_backdrop.color = Color(0.03, 0.04, 0.08, 0.96)
+	top_backdrop.color = Color(0.05, 0.08, 0.14, 0.12)
 	top_backdrop.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	top_backdrop.offset_bottom = 136.0 if narrow_layout else 140.0
+	top_backdrop.offset_bottom = 88.0 if narrow_layout else 92.0
 	add_child(top_backdrop)
 
 
 func update_player(lives: int, fire_level: int, bombs: int, score: int) -> void:
 	score_label.text = "%s %06d" % [_t("分数", "SCORE"), score]
 	hull_label.text = "%s %d / 3" % [_t("生命", "HULL"), lives]
-	fire_label.text = "%s Lv%d / 5" % [_t("火力", "FIRE"), fire_level]
+	fire_label.text = "%s Lv%d" % [_t("火力", "FIRE"), fire_level]
+	bomb_label.text = "%s %d / 4" % [_t("炸弹", "BOMBS"), bombs]
+	bomb_hint_label.text = _t("可用", "READY") if bombs > 0 else _t("耗尽", "EMPTY")
 	fire_bar.value = fire_level
 	fire_bar.modulate = Color(0.58, 0.92, 1.0) if fire_level >= 4 else Color(0.84, 0.88, 1.0)
-	bomb_label.text = "%s %d / 4 [%s]" % [_t("炸弹", "BOMBS"), bombs, _build_bomb_string(bombs)]
-	bomb_hint_label.text = _t("可用炸弹", "READY TO BOMB") if bombs > 0 else _t("炸弹耗尽", "NO BOMB STOCK")
 	bomb_hint_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.34) if bombs > 0 else Color(0.72, 0.72, 0.72))
 	fire_label.add_theme_color_override("font_color", Color(0.5, 0.92, 1.0) if fire_level >= 4 else Color(1.0, 1.0, 1.0))
 	hull_label.add_theme_color_override("font_color", Color(1.0, 0.54, 0.46) if lives <= 1 else Color(1.0, 1.0, 1.0))
@@ -528,7 +555,9 @@ func set_boss_info(name: String, ratio: float, phase_text: String = "") -> void:
 	boss_name_label.text = name
 	boss_phase_label.text = phase_text
 	boss_bar.value = clamp(ratio, 0.0, 1.0)
-	boss_bar.modulate = Color(1.0, 0.56, 0.34) if ratio <= 0.33 else Color(1.0, 0.74, 0.4)
+	boss_name_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.34) if ratio <= 0.33 else Color(1.0, 0.8, 0.46))
+	boss_phase_label.add_theme_color_override("font_color", Color(1.0, 0.76, 0.56) if ratio <= 0.33 else Color(1.0, 0.9, 0.72))
+	boss_bar.modulate = Color(1.0, 0.48, 0.24) if ratio <= 0.33 else Color(1.0, 0.74, 0.38)
 
 
 func pulse_screen(color: Color, duration: float = 0.08) -> void:
@@ -661,3 +690,4 @@ func _build_pause_audio_slider(title_text: String, initial_value: float, on_chan
 
 func _t(zh_text: String, en_text: String) -> String:
 	return RunState.loc(zh_text, en_text)
+
