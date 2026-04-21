@@ -366,6 +366,15 @@
 - 新增 `tools/prepare_playtest_packet.cmd`，会先跑 Demo 就绪检查，再把最新 Demo zip 与试玩文档整理到一个 `dist/playtest-packet-rc-0.4-*` 资料夹
 - `README` 和 `docs/external-playtest-plan.md` 已同步外部试玩资料夹流程，下一步可以开始组织 5 到 10 人小范围试玩
 
+### 阶段 42：Demo 4 公开包准备
+
+- 新增 `docs/public-demo-release-note.md`，作为公开 Demo 候选包的对外说明
+- 新增 `docs/public-demo-known-issues.md`，明确当前限制、技术提示和暂不处理项
+- 新增 `docs/capture-checklist.md`，整理 3 到 5 张截图和 30 到 60 秒短视频的采集建议
+- 新增 `docs/asset-license-checklist.md`，把 Kenney、Shapeforms、Sonniss 和程序化资源的授权复核事项集中记录
+- 新增 `docs/public-demo-package-checklist.md`，定义公开 Demo 包应包含和不应包含的内容
+- 新增 `tools/prepare_public_demo_packet.cmd`，会先生成试玩资料夹，再整理公开 Demo 候选资料夹
+
 ### 进入垂直切片前需要确认
 
 - 是继续把现有双关做成更完整的可展示垂直切片

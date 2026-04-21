@@ -27,6 +27,10 @@
 - `tools/run_local_debug.cmd`
 - `tools/run_showcase_verification.cmd`
 - `tools/prepare_showcase_package.cmd`
+- `tools/prepare_public_demo_packet.cmd`
+- `docs/public-demo-release-note.md`
+- `docs/public-demo-known-issues.md`
+- `docs/asset-license-checklist.md`
 
 ## 不建议打包的内容
 

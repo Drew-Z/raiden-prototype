@@ -103,6 +103,12 @@ tools\run_demo_readiness_check.cmd
 tools\prepare_playtest_packet.cmd
 ```
 
+准备公开 Demo 候选资料夹：
+
+```cmd
+tools\prepare_public_demo_packet.cmd
+```
+
 可选打包脚本：
 
 ```cmd
@@ -161,3 +167,8 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [试玩反馈表](D:/workspace4Codex/raiden prototype/docs/playtest-feedback-form.md)
 - [试玩场次记录模板](D:/workspace4Codex/raiden prototype/docs/playtest-session-notes.md)
 - [试玩反馈决策矩阵](D:/workspace4Codex/raiden prototype/docs/playtest-decision-matrix.md)
+- [公开 Demo 发布说明](D:/workspace4Codex/raiden prototype/docs/public-demo-release-note.md)
+- [公开 Demo 已知问题](D:/workspace4Codex/raiden prototype/docs/public-demo-known-issues.md)
+- [公开 Demo 包检查清单](D:/workspace4Codex/raiden prototype/docs/public-demo-package-checklist.md)
+- [素材授权检查清单](D:/workspace4Codex/raiden prototype/docs/asset-license-checklist.md)
+- [截图与短视频采集清单](D:/workspace4Codex/raiden prototype/docs/capture-checklist.md)
