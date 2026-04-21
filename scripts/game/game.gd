@@ -285,10 +285,15 @@ func _spawn_pickup(position_value: Vector2) -> void:
 	pickup_layer.call_deferred("add_child", pickup)
 
 
-func _on_pickup_collected() -> void:
-	RunState.register_upgrade_pickup()
-	RunState.add_score(150)
-	hud.show_banner("POWER UP")
+func _on_pickup_collected(kind: String = "power") -> void:
+	if kind == "bomb":
+		RunState.register_bomb_pickup()
+		RunState.add_score(300)
+		hud.show_banner("BOMB STOCK")
+	else:
+		RunState.register_upgrade_pickup()
+		RunState.add_score(150)
+		hud.show_banner("POWER UP")
 	get_tree().create_timer(0.5).timeout.connect(func() -> void:
 		if is_instance_valid(hud) and not run_finished and not is_instance_valid(active_boss):
 			hud.hide_banner()
