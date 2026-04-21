@@ -54,8 +54,6 @@ func _build_ui() -> void:
 	column.add_theme_constant_override("separation", 18)
 	content_box.add_child(column)
 
-	column.add_child(_build_settings_panel(narrow_layout))
-
 	var title := Label.new()
 	title.text = "RAIDEN PROTOTYPE"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -64,7 +62,7 @@ func _build_ui() -> void:
 	column.add_child(title)
 
 	var tag := Label.new()
-	tag.text = _t("稳定展示候选 // RC-0.4", "STABLE SHOWCASE CANDIDATE // RC-0.4")
+	tag.text = _t("公开 Demo 准备版 // RC-0.4", "PUBLIC DEMO PREP // RC-0.4")
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tag.add_theme_font_size_override("font_size", 19 if narrow_layout else 24)
@@ -72,54 +70,55 @@ func _build_ui() -> void:
 
 	var summary := Label.new()
 	summary.text = _t(
-		"推荐从 Chapter Run 进入完整双关展示。\nStage 01 建立成长，Stage 02 兑现风暴机关、Boss 压迫和章节收束。",
-		"Start from Chapter Run for the full two-stage showcase.\nStage 01 builds growth; Stage 02 cashes storm hazards, boss pressure and chapter closure."
+		"推荐直接点击黄色按钮开始完整双关试玩。\n一局会经历成长、炸弹救场、风暴机关、Boss 高潮和结算总结。",
+		"Press the yellow button for the full two-stage demo.\nOne run covers growth, bomb saves, storm hazards, boss climax and debrief."
 	)
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_font_size_override("font_size", 17 if narrow_layout else 22)
 	column.add_child(summary)
 
-	var build_panel := PanelContainer.new()
-	column.add_child(build_panel)
-
-	var build_margin := MarginContainer.new()
-	build_margin.add_theme_constant_override("margin_left", 12)
-	build_margin.add_theme_constant_override("margin_top", 10)
-	build_margin.add_theme_constant_override("margin_right", 12)
-	build_margin.add_theme_constant_override("margin_bottom", 10)
-	build_panel.add_child(build_margin)
-
-	var build_column := VBoxContainer.new()
-	build_column.add_theme_constant_override("separation", 4)
-	build_margin.add_child(build_column)
-
-	var build_title := Label.new()
-	build_title.text = RunState.get_build_badge()
-	build_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	build_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	build_title.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
-	build_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.56))
-	build_column.add_child(build_title)
-
-	var build_summary := Label.new()
-	build_summary.text = RunState.get_build_summary()
-	build_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	build_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	build_summary.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
-	build_column.add_child(build_summary)
-
 	var chapter_button := Button.new()
 	chapter_button.text = "%s\n%s\nStage 01 -> Stage 02\n%s" % [
-		_t("章节连打", "Chapter Run"),
-		_t("推荐演示入口", "Recommended Demo Route"),
+		_t("开始完整 Demo", "Start Full Demo"),
+		_t("推荐入口：章节连打", "Recommended Route: Chapter Run"),
 		RunState.get_release_candidate_label()
 	]
-	chapter_button.custom_minimum_size = Vector2(0, 96)
+	chapter_button.custom_minimum_size = Vector2(0, 112 if narrow_layout else 120)
 	chapter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	UiButtonStyle.apply(chapter_button, Color(0.96, 0.76, 0.34), true)
 	chapter_button.pressed.connect(RunState.start_chapter)
 	column.add_child(chapter_button)
+
+	var first_time_panel := PanelContainer.new()
+	column.add_child(first_time_panel)
+
+	var first_time_margin := MarginContainer.new()
+	first_time_margin.add_theme_constant_override("margin_left", 14)
+	first_time_margin.add_theme_constant_override("margin_top", 10)
+	first_time_margin.add_theme_constant_override("margin_right", 14)
+	first_time_margin.add_theme_constant_override("margin_bottom", 10)
+	first_time_panel.add_child(first_time_margin)
+
+	var first_time_label := Label.new()
+	first_time_label.text = _t(
+		"首次试玩提示\n- 自动射击，只需要专心移动和躲弹\n- 炸弹：Space / Shift / X，用来清屏和救场\n- 失败或通关后可按 R 重开，Esc 返回主菜单",
+		"First Run Tips\n- Shooting is automatic; focus on movement and dodging\n- Bomb: Space / Shift / X for screen clears and saves\n- Press R to retry or Esc to return after a run"
+	)
+	first_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	first_time_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	first_time_label.add_theme_font_size_override("font_size", 15 if narrow_layout else 18)
+	first_time_margin.add_child(first_time_label)
+
+	column.add_child(_build_settings_panel(narrow_layout))
+
+	var practice_label := Label.new()
+	practice_label.text = _t("练习入口（可选）", "Practice Routes (Optional)")
+	practice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	practice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	practice_label.add_theme_font_size_override("font_size", 16 if narrow_layout else 18)
+	practice_label.add_theme_color_override("font_color", Color(0.78, 0.88, 1.0))
+	column.add_child(practice_label)
 
 	var stage_button_row := GridContainer.new()
 	stage_button_row.columns = 1 if narrow_layout else 2
@@ -142,8 +141,8 @@ func _build_ui() -> void:
 
 	var features := Label.new()
 	features.text = _t(
-		"当前版本状态：\n- Stage 01：负责成长、炸弹时机和章节交接\n- Stage 02：负责风暴机关、Boss 压迫和终盘收束\n- Chapter Run：已具备 Briefing、Ending、Debrief 的稳定展示链路",
-		"Current build status:\n- Stage 01: showcase opener with clean growth and chapter handoff\n- Stage 02: enemy, environment and boss hazards now sync into one storm route\n- Chapter Run: includes Briefing, Ending and Debrief as a stable presentation chain"
+		"版本状态：\n- Chapter Run 是当前推荐试玩路线\n- Stage 01 负责成长和炸弹节奏\n- Stage 02 负责风暴机关、Boss 压迫和章节收束",
+		"Build Status:\n- Chapter Run is the recommended demo route\n- Stage 01 builds growth and bomb routing\n- Stage 02 delivers storm hazards, boss pressure and chapter closure"
 	)
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -152,8 +151,8 @@ func _build_ui() -> void:
 
 	var assessment := Label.new()
 	assessment.text = _t(
-		"判断：\n- 当前版本已经进入稳定展示候选状态\n- 后续更适合做发布包装、资源替换和少量试玩微调，而不是继续默认扩系统",
-		"Assessment:\n- This build is now a stable showcase candidate\n- Best next step is release packaging, asset replacement and light playtest polish rather than default system expansion"
+		"Demo 准备判断：\n- 当前版本已经适合小范围外部试玩\n- 后续优先观察新玩家是否看得懂、打得爽、愿意重开",
+		"Demo Prep Assessment:\n- This build is ready for small external playtests\n- Next priority is whether new players understand it, enjoy it and retry"
 	)
 	assessment.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	assessment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -200,8 +199,8 @@ func _build_ui() -> void:
 
 	var hint := Label.new()
 	hint.text = _t(
-		"移动：WASD / 方向键\n炸弹：Space / Shift / X\n暂停：Esc / P    重开：R",
-		"Move: WASD / Arrows\nBomb: Space / Shift / X\nPause: Esc / P    Restart: R"
+		"移动：WASD / 方向键    炸弹：Space / Shift / X    暂停：Esc / P    重开：R",
+		"Move: WASD / Arrows    Bomb: Space / Shift / X    Pause: Esc / P    Retry: R"
 	)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
