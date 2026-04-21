@@ -29,12 +29,12 @@ const SAMPLE_VARIANT_GAIN_DB := {
 	"boss_hit": [-1.8, -0.5, 0.6],
 	"power_up": [-4.2, -3.2, -4.8],
 	"bomb_pickup": [-5.0, -4.2, -4.6],
-	"bomb": [-3.2, -0.8, -4.8],
-	"boss_warning": [-5.4, -3.8, -2.6],
+	"bomb": [-4.6, -2.2, -5.8],
+	"boss_warning": [-7.2, -5.6, -4.4],
 	"boss_break": [-2.8, -2.1, -2.4],
 	"stage_clear": [-3.8, -6.2, -5.4],
-	"storm_charge": [-1.0, -2.2, -3.0],
-	"storm_impact": [-4.8, -1.1, 0.9]
+	"storm_charge": [-3.6, -4.2, -4.8],
+	"storm_impact": [-7.6, -4.2, -2.6]
 }
 
 var players: Array[AudioStreamPlayer] = []
@@ -164,11 +164,11 @@ func _get_cooldown(event_name: String) -> float:
 func _get_volume_db(event_name: String) -> float:
 	match event_name:
 		"player_shot":
-			return -22.5
+			return -23.4
 		"enemy_hit":
 			return -17.0
 		"enemy_destroy":
-			return -5.8
+			return -6.4
 		"player_hurt":
 			return -17.5
 		"player_die":
@@ -176,17 +176,17 @@ func _get_volume_db(event_name: String) -> float:
 		"boss_hit":
 			return -9.2
 		"power_up", "bomb_pickup":
-			return -10.0
-		"bomb":
-			return -10.8
-		"boss_warning":
-			return -15.2
-		"boss_phase":
-			return -12.8
-		"storm_charge":
-			return -13.2
-		"storm_impact":
 			return -12.2
+		"bomb":
+			return -13.6
+		"boss_warning":
+			return -20.2
+		"boss_phase":
+			return -15.6
+		"storm_charge":
+			return -17.2
+		"storm_impact":
+			return -16.0
 		"boss_break", "stage_clear":
 			return -8.2
 		_:

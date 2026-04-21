@@ -2,6 +2,7 @@ extends Control
 
 const StageCatalog := preload("res://scripts/game/stage_catalog.gd")
 const UiButtonStyle := preload("res://scripts/ui/ui_button_style.gd")
+const MenuBackdropScript := preload("res://scripts/ui/menu_backdrop.gd")
 
 
 func _ready() -> void:
@@ -14,13 +15,12 @@ func _build_ui() -> void:
 	var viewport_size := get_viewport_rect().size
 	var narrow_layout := viewport_size.x <= 560.0
 
-	var background := ColorRect.new()
-	background.color = Color(0.03, 0.04, 0.1)
+	var background = MenuBackdropScript.new()
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
 	var stripe := ColorRect.new()
-	stripe.color = Color(0.08, 0.16, 0.28, 0.92)
+	stripe.color = Color(0.08, 0.16, 0.28, 0.42)
 	stripe.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	stripe.offset_top = 90.0
 	stripe.offset_bottom = 290.0
@@ -70,7 +70,7 @@ func _build_ui() -> void:
 
 	var summary := Label.new()
 	summary.text = _t(
-		"推荐直接点击黄色按钮开始完整双关试玩。\n一局会经历成长、炸弹救场、风暴机关、Boss 高潮和结算总结。",
+		"直接点击黄色按钮开始完整双关 Demo。\n一局会经历成长、炸弹救场、风暴机关、Boss 高潮和结算总结。",
 		"Press the yellow button for the full two-stage demo.\nOne run covers growth, bomb saves, storm hazards, boss climax and debrief."
 	)
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

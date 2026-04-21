@@ -4,15 +4,11 @@ setlocal
 set "PROJECT_DIR=%~dp0.."
 for %%I in ("%PROJECT_DIR%") do set "PROJECT_DIR=%%~fI"
 set "DIST_DIR=%PROJECT_DIR%\dist"
-set "PACKAGE_DIR=%DIST_DIR%\raiden-prototype-showcase-rc-0.4"
-set "PACKAGE_ZIP=%DIST_DIR%\raiden-prototype-showcase-rc-0.4.zip"
+set "PACKAGE_SUFFIX=%RANDOM%-%RANDOM%"
+set "PACKAGE_DIR=%DIST_DIR%\raiden-prototype-showcase-rc-0.4-%PACKAGE_SUFFIX%"
+set "PACKAGE_ZIP=%DIST_DIR%\raiden-prototype-showcase-rc-0.4-%PACKAGE_SUFFIX%.zip"
 
 if not exist "%DIST_DIR%" mkdir "%DIST_DIR%"
-if exist "%PACKAGE_DIR%" attrib -R -S -H "%PACKAGE_DIR%\*" /S /D
-if exist "%PACKAGE_DIR%" attrib -R -S -H "%PACKAGE_DIR%" /D
-if exist "%PACKAGE_DIR%" rmdir /S /Q "%PACKAGE_DIR%"
-if exist "%PACKAGE_ZIP%" attrib -R -S -H "%PACKAGE_ZIP%"
-if exist "%PACKAGE_ZIP%" del /F /Q "%PACKAGE_ZIP%"
 
 mkdir "%PACKAGE_DIR%"
 

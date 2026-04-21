@@ -282,6 +282,9 @@ func _draw() -> void:
 	if hit_flash_timer > 0.0:
 		draw_circle(Vector2.ZERO, 24.0 + hit_flash_timer * 18.0, Color(1.0, 0.38, 0.34, 0.22))
 
+	var body_glow := 0.14 + clampf(float(fire_level - 1) * 0.035, 0.0, 0.16) + shot_flash_timer * 0.8
+	draw_circle(Vector2(0, 1), 24.0 + float(fire_level) * 2.0, Color(0.32, 0.78, 1.0, body_glow))
+
 	var body := PackedVector2Array([
 		Vector2(0, -24),
 		Vector2(15, 18),
@@ -296,8 +299,17 @@ func _draw() -> void:
 		Vector2(22, 10),
 		Vector2(0, 22)
 	])
-	draw_colored_polygon(body, Color(0.25, 0.92, 1.0, 0.95))
-	draw_colored_polygon(wings, Color(0.11, 0.54, 0.95, 0.85))
+	draw_colored_polygon(wings, Color(0.08, 0.32, 0.78, 0.88))
+	draw_colored_polygon(body, Color(0.25, 0.92, 1.0, 0.96))
+	draw_line(Vector2(-22, 10), Vector2(0, 22), Color(0.9, 0.98, 1.0, 0.48), 1.4)
+	draw_line(Vector2(22, 10), Vector2(0, 22), Color(0.9, 0.98, 1.0, 0.48), 1.4)
+	draw_line(Vector2(0, -24), Vector2(0, 12), Color(0.94, 1.0, 1.0, 0.52), 1.5)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(0, -16),
+		Vector2(6, -2),
+		Vector2(0, 5),
+		Vector2(-6, -2)
+	]), Color(0.9, 1.0, 1.0, 0.58))
 	for option_offset in _get_option_offsets():
 		draw_circle(option_offset, 6.0, Color(0.62, 0.94, 1.0, 0.92))
 		draw_circle(option_offset, 3.0, Color(1.0, 0.98, 0.84, 0.94))
@@ -307,6 +319,9 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 20.0, PI * 0.15, PI * 0.85, 18, Color(1.0, 0.56, 0.4, 0.24), 2.0)
 	if shot_flash_timer > 0.0:
 		draw_circle(Vector2(0, -26), 6.0 + shot_flash_timer * 22.0, Color(1.0, 0.96, 0.76, 0.18))
+	if fire_level >= 5:
+		draw_line(Vector2(-14, -26), Vector2(-14, -42), Color(0.72, 0.98, 1.0, 0.26 + shot_flash_timer * 0.8), 2.0)
+		draw_line(Vector2(14, -26), Vector2(14, -42), Color(0.72, 0.98, 1.0, 0.26 + shot_flash_timer * 0.8), 2.0)
 	var engine_flame := PackedVector2Array([
 		Vector2(-5, 18),
 		Vector2(0, 28 + sin(flash_phase * 30.0) * 2.0),

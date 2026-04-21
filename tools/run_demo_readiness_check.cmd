@@ -13,8 +13,8 @@ call "%PROJECT_DIR%\tools\prepare_showcase_package.cmd"
 if errorlevel 1 goto :fail
 
 echo Demo readiness check completed.
-echo Package:
-echo %PROJECT_DIR%\dist\raiden-prototype-showcase-rc-0.4.zip
+echo Package output directory:
+echo %PROJECT_DIR%\dist
 goto :eof
 
 :fail

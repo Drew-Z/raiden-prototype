@@ -17,6 +17,7 @@
 
 ## 推荐交付内容
 
+- `dist\raiden-prototype-showcase-rc-0.4-*.zip`
 - Godot 项目完整目录
 - `README.md`
 - `docs/stable-showcase-release.md`
@@ -36,6 +37,10 @@
 - `_audio_extract`
 - `_audio_pick`
 - 临时验证日志
+
+## 打包说明
+
+`tools/prepare_showcase_package.cmd` 会在 `dist` 下生成带随机后缀的 zip 包，避免旧包被 Windows 权限或杀毒软件短暂锁住时影响下一次 Demo 就绪检查。
 
 ## 对外说明口径
 

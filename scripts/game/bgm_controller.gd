@@ -13,12 +13,12 @@ func _ready() -> void:
 	AudioBusSetupScript.ensure_layout()
 	loop_player = AudioStreamPlayer.new()
 	loop_player.bus = "BGM"
-	loop_player.volume_db = -18.0
+	loop_player.volume_db = -19.4
 	add_child(loop_player)
 
 	sting_player = AudioStreamPlayer.new()
 	sting_player.bus = "BGM"
-	sting_player.volume_db = -14.0
+	sting_player.volume_db = -15.0
 	add_child(sting_player)
 
 

@@ -15,6 +15,7 @@
 - 进入公开 Demo 准备阶段，优先补首屏体验、外部试玩、发布包和素材授权清单
 - 暂时不继续横向堆系统，先确认真实玩家是否认可当前双关节奏
 - 当前主菜单已按 Demo 试玩重排：优先显示完整 Demo 入口，单关入口作为可选练习路线保留
+- 当前已启动视听第一印象打磨：主菜单动态背景、玩家机轮廓、爆炸层次和混音疲劳度进入 Demo 2 调整范围
 
 ## 当前可玩内容
 
@@ -101,6 +102,8 @@ tools\run_demo_readiness_check.cmd
 ```cmd
 tools\prepare_showcase_package.cmd
 ```
+
+打包脚本会在 `dist` 下生成带随机后缀的 `raiden-prototype-showcase-rc-0.4-*.zip`，方便反复验证时避开旧包权限残留。
 
 Headless 单关验证示例：
 
