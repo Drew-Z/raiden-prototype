@@ -9,6 +9,14 @@
 - 推荐入口：`Chapter Run`
 - 推荐验证：`tools/run_showcase_verification.cmd`
 
+## 仓库结构说明
+
+- 当前开发工作目录：`D:\workspace4Codex\raiden prototype`
+- 当前实际同步仓库：本目录 `D:\workspace4Codex\raiden prototype\.publish-final`
+- 作品站展示信息以开发目录为主，远端发布记录以本仓库 `main -> origin/main` 为准
+- `.publish-repo` 保留为早期发布整理目录，当前不作为主同步入口
+- 如果要确认远端是否同步成功，优先在本目录执行 `git status -sb`
+
 ## 当前阶段目标
 
 - 保留 `RC-0.4` 作为稳定展示基线
