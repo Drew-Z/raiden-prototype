@@ -357,6 +357,15 @@
 - 主菜单 `_t()` 文案调用补回完整中英参数，并新增主菜单 headless 启动检查作为本轮验证重点
 - 打包脚本改为每次生成带随机后缀的展示包，避免 Windows 旧 `dist` 权限残留导致 Demo 就绪检查失败
 
+### 阶段 41：Demo 3 外部试玩回收准备
+
+- 新增 `docs/playtest-quick-start.md`，作为发给试玩者的简短玩法说明和操作说明
+- 新增 `docs/playtest-feedback-form.md`，用于记录单名玩家的行为、评分和开放反馈
+- 新增 `docs/playtest-session-notes.md`，用于观察者按场次记录共性问题和下一版优先级
+- 新增 `docs/playtest-decision-matrix.md`，把试玩反馈转成 P0 / P1 / P2 / 暂不处理的开发判断
+- 新增 `tools/prepare_playtest_packet.cmd`，会先跑 Demo 就绪检查，再把最新 Demo zip 与试玩文档整理到一个 `dist/playtest-packet-rc-0.4-*` 资料夹
+- `README` 和 `docs/external-playtest-plan.md` 已同步外部试玩资料夹流程，下一步可以开始组织 5 到 10 人小范围试玩
+
 ### 进入垂直切片前需要确认
 
 - 是继续把现有双关做成更完整的可展示垂直切片

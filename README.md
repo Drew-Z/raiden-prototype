@@ -97,6 +97,12 @@ tools\run_showcase_verification.cmd
 tools\run_demo_readiness_check.cmd
 ```
 
+准备外部试玩资料夹：
+
+```cmd
+tools\prepare_playtest_packet.cmd
+```
+
 可选打包脚本：
 
 ```cmd
@@ -151,3 +157,7 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [公开 Demo 准备路线](D:/workspace4Codex/raiden prototype/docs/public-demo-roadmap.md)
 - [商业成品差距分析](D:/workspace4Codex/raiden prototype/docs/commercial-gap-analysis.md)
 - [外部试玩计划](D:/workspace4Codex/raiden prototype/docs/external-playtest-plan.md)
+- [试玩者快速说明](D:/workspace4Codex/raiden prototype/docs/playtest-quick-start.md)
+- [试玩反馈表](D:/workspace4Codex/raiden prototype/docs/playtest-feedback-form.md)
+- [试玩场次记录模板](D:/workspace4Codex/raiden prototype/docs/playtest-session-notes.md)
+- [试玩反馈决策矩阵](D:/workspace4Codex/raiden prototype/docs/playtest-decision-matrix.md)

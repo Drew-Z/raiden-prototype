@@ -15,6 +15,7 @@
 ## 试玩前准备
 
 - 使用 `tools/run_demo_readiness_check.cmd` 生成并验证 Demo 包。
+- 使用 `tools/prepare_playtest_packet.cmd` 生成试玩资料夹，里面会包含最新 Demo zip 和反馈文档。
 - 试玩入口统一推荐 `Chapter Run`。
 - 不提前解释太多系统，只告诉玩家移动、自动射击、炸弹和重开。
 - 记录玩家是否主动发现火力升级、炸弹窗口、Boss 弱点和结果页总结。
@@ -61,3 +62,10 @@
 - 如果玩家看不懂，就优先改引导和 UI。
 - 如果玩家觉得无聊，再改敌群节奏和 Boss 压迫。
 - 如果玩家觉得刺耳或累，再改音效和视觉闪烁。
+
+## 配套文档
+
+- `docs/playtest-quick-start.md`：发给试玩者的简短说明。
+- `docs/playtest-feedback-form.md`：单名玩家反馈表。
+- `docs/playtest-session-notes.md`：观察者按场次记录用。
+- `docs/playtest-decision-matrix.md`：把反馈转成开发优先级。
