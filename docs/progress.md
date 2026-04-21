@@ -331,6 +331,15 @@
 - 展示候选版本标识已统一为 `RC-0.4`，主菜单、README 和稳定展示版说明现在都围绕这个候选版本进行表达
 - 新增 `docs/release-package-checklist.md` 与 `tools/prepare_showcase_package.cmd`，后续可以按固定清单准备对外试玩包
 
+### 阶段 38：公开 Demo 准备开局
+
+- 当前推进方向从“继续扩展示原型”切换为“公开 Demo 准备”，`RC-0.4` 保留为稳定展示基线
+- 新增 `docs/public-demo-roadmap.md`，明确 Demo 目标、非目标、推荐里程碑和验收标准
+- 新增 `docs/commercial-gap-analysis.md`，把距离商业成品的主要差距拆成内容量、美术、音频、系统、关卡、技术发布和市场包装
+- 新增 `docs/external-playtest-plan.md`，用于指导 5 到 10 人小范围外部试玩和反馈记录
+- 新增 `tools/run_demo_readiness_check.cmd`，把展示版自动验证和展示包生成串成一次 Demo 就绪检查
+- README 已更新为公开 Demo 准备阶段入口，后续推进会优先围绕试玩、打包、授权和首屏体验，而不是继续默认横向堆系统
+
 ### 进入垂直切片前需要确认
 
 - 是继续把现有双关做成更完整的可展示垂直切片

@@ -11,9 +11,9 @@
 
 ## 当前阶段目标
 
-- 把短局原型推进成更适合展示的街机射击案例
-- 让单关展示提升为双关章节展示，并补齐章节交接与章节尾声
-- 在不做大规模资源替换的前提下，持续强化可读性、反馈和演出完成度
+- 保留 `RC-0.4` 作为稳定展示基线
+- 进入公开 Demo 准备阶段，优先补首屏体验、外部试玩、发布包和素材授权清单
+- 暂时不继续横向堆系统，先确认真实玩家是否认可当前双关节奏
 
 ## 当前可玩内容
 
@@ -89,6 +89,12 @@ tools\run_local_debug.cmd
 tools\run_showcase_verification.cmd
 ```
 
+推荐 Demo 就绪检查：
+
+```cmd
+tools\run_demo_readiness_check.cmd
+```
+
 可选打包脚本：
 
 ```cmd
@@ -138,3 +144,6 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [稳定展示版说明](D:/workspace4Codex/raiden prototype/docs/stable-showcase-release.md)
 - [展示版 QA 记录](D:/workspace4Codex/raiden prototype/docs/showcase-qa-report.md)
 - [展示候选打包清单](D:/workspace4Codex/raiden prototype/docs/release-package-checklist.md)
+- [公开 Demo 准备路线](D:/workspace4Codex/raiden prototype/docs/public-demo-roadmap.md)
+- [商业成品差距分析](D:/workspace4Codex/raiden prototype/docs/commercial-gap-analysis.md)
+- [外部试玩计划](D:/workspace4Codex/raiden prototype/docs/external-playtest-plan.md)
