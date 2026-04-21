@@ -258,6 +258,9 @@ func _fire_storm_boss_pattern() -> void:
 		if ratio <= overdrive_threshold:
 			for aim_offset in [-0.42, -0.16, 0.16, 0.42]:
 				_spawn_targeted_bullet(aim_offset, 5.4, Color(1.0, 0.98, 0.76), 1.48)
+			if volley_index % 2 == 0:
+				for offset in [-0.14, 0.14]:
+					_spawn_boss_bullet(offset + sweep * 0.25, 6.2, Color(1.0, 0.82, 0.38), 1.46)
 
 
 func _fire_standard_pattern() -> void:
@@ -380,8 +383,8 @@ func _get_fire_delay() -> float:
 	if ratio > 0.66:
 		return fire_interval
 	if ratio > 0.33:
-		return max(0.64, fire_interval - 0.18)
-	return max(0.5, fire_interval - 0.28)
+		return max(0.6, fire_interval - 0.2)
+	return max(0.46, fire_interval - 0.32)
 
 
 func expose_core(duration: float = -1.0) -> void:

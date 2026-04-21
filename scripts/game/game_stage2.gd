@@ -524,13 +524,13 @@ func _update_boss_state() -> void:
 	if phase_index != boss_phase_seen:
 		boss_phase_seen = phase_index
 		_handle_boss_phase_shift(phase_index)
-	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.28 and not boss_final_warning_announced and not (active_boss.has_method("is_overdrive") and active_boss.is_overdrive()):
+	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.34 and not boss_final_warning_announced and not (active_boss.has_method("is_overdrive") and active_boss.is_overdrive()):
 		boss_final_warning_announced = true
 		_handle_boss_final_warning()
 	if active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and not boss_overdrive_announced:
 		boss_overdrive_announced = true
 		_handle_boss_overdrive()
-	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.1 and not boss_finish_window_announced and active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
+	if String(stage_meta.get("id", "")) == "stage_2" and ratio <= 0.14 and not boss_finish_window_announced and active_boss.has_method("is_overdrive") and active_boss.is_overdrive():
 		boss_finish_window_announced = true
 		_handle_boss_finish_window()
 
@@ -560,11 +560,11 @@ func _update_hud_status() -> void:
 		hint_text = _t("残机告急", "CRITICAL HULL")
 		hint_color = Color(1.0, 0.56, 0.46)
 		danger_strength = 0.12
-	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 5.5):
+	elif player.bomb_count <= 0 and (boss_spawned or stage_time > boss_config.time - 6.6):
 		hint_text = _t("缺少炸弹缓冲", "NO BOMB BUFFER")
 		hint_color = Color(1.0, 0.7, 0.42)
 		bomb_alert_level = 2
-	elif player.bomb_count > 0 and enemy_bullet_count >= (9 if boss_spawned else 13):
+	elif player.bomb_count > 0 and enemy_bullet_count >= (8 if boss_spawned else 12):
 		hint_text = _t("炸弹窗口已开", "BOMB WINDOW OPEN")
 		hint_color = Color(1.0, 0.76, 0.34)
 		bomb_alert_level = 1
@@ -778,20 +778,20 @@ func _should_spawn_upgrade(chance: float, kind: String = "power") -> bool:
 
 	if is_instance_valid(player):
 		if player.fire_level <= 2 and progress_ratio <= 0.45:
-			effective_chance += 0.03
+			effective_chance += 0.02
 			streak_target = 8
 		elif player.fire_level >= 4:
-			effective_chance -= 0.10
+			effective_chance -= 0.12
 			streak_target = 13
 			if progress_ratio >= 0.58:
-				effective_chance -= 0.10
-				streak_target = 15
-			if player.fire_level >= 5 and progress_ratio >= 0.74:
 				effective_chance -= 0.12
+				streak_target = 16
+			if player.fire_level >= 5 and progress_ratio >= 0.74:
+				effective_chance -= 0.14
 				streak_target = 99
 
 	if RunState.is_chapter_mode() and RunState.current_run.start_fire_level >= 3:
-		effective_chance -= 0.06
+		effective_chance -= 0.08
 
 	effective_chance = clampf(effective_chance, 0.02, 0.92)
 	var guaranteed: bool = guaranteed_first_upgrade or drop_fail_streak >= streak_target

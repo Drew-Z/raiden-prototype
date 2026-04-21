@@ -151,11 +151,11 @@ func _shoot() -> void:
 			]
 		_:
 			shots = [
-				{"offset": Vector2(0, -16), "dir": Vector2(0, -1), "damage": 20},
-				{"offset": Vector2(-8, -10), "dir": Vector2(-0.02, -1), "damage": 18},
-				{"offset": Vector2(8, -10), "dir": Vector2(0.02, -1), "damage": 18},
-				{"offset": Vector2(-18, -4), "dir": Vector2(-0.1, -1), "damage": 15},
-				{"offset": Vector2(18, -4), "dir": Vector2(0.1, -1), "damage": 15},
+				{"offset": Vector2(0, -18), "dir": Vector2(0, -1), "damage": 22},
+				{"offset": Vector2(-8, -10), "dir": Vector2(-0.02, -1), "damage": 19},
+				{"offset": Vector2(8, -10), "dir": Vector2(0.02, -1), "damage": 19},
+				{"offset": Vector2(-18, -4), "dir": Vector2(-0.1, -1), "damage": 16},
+				{"offset": Vector2(18, -4), "dir": Vector2(0.1, -1), "damage": 16},
 				{"offset": Vector2(-28, 0), "dir": Vector2(-0.22, -1), "damage": 13},
 				{"offset": Vector2(28, 0), "dir": Vector2(0.22, -1), "damage": 13}
 			]
@@ -176,7 +176,7 @@ func _shoot() -> void:
 			var option_bullet = BulletScript.new().configure(
 				position + option_offset + Vector2(0.0, -12.0),
 				option_dir.normalized() * (545.0 if fire_level >= 5 else 520.0),
-				10 if fire_level >= 5 else 8,
+				11 if fire_level >= 5 else 8,
 				true,
 				4.4 if fire_level >= 5 else 3.6,
 				Color(0.72, 0.98, 1.0, 0.98) if fire_level >= 5 else Color(0.72, 0.98, 1.0, 0.96),
@@ -230,9 +230,9 @@ func _get_fire_interval() -> float:
 		3:
 			return 0.102
 		4:
-			return 0.092
+			return 0.094
 		_:
-			return 0.082
+			return 0.078
 
 
 func _on_area_entered(area: Area2D) -> void:

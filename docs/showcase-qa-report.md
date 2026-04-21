@@ -20,16 +20,16 @@
 - 模式：`--autoplay --stage2`
 - 结果：通过
 - 输出：
-  - `RUN_RESULT victory=true score=27511 kill_rate=97.50 max_fire=5 route=Lv3 -> Lv4 -> Lv5 bombs_used=6 lives=2`
+  - `RUN_RESULT victory=true score=26685 kill_rate=97.50 max_fire=5 route=Lv3 -> Lv4 -> Lv5 bombs_used=6 lives=3`
 
 ### 3. 双关章节自动流程验证
 
 - 模式：`--autoplay --chapter`
 - 结果：通过
 - 输出：
-  - `RUN_RESULT victory=true score=22268 kill_rate=83.33 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=4 lives=3`
-  - `RUN_RESULT victory=true score=27317 kill_rate=100.00 max_fire=5 route=Lv5 bombs_used=4 lives=3`
-  - `CHAPTER_RESULT victory=true total_score=49585 kill_rate=91.46 stages=2 highest_fire=5`
+  - `RUN_RESULT victory=true score=22230 kill_rate=86.90 max_fire=5 route=Lv1 -> Lv2 -> Lv3 -> Lv4 -> Lv5 bombs_used=4 lives=3`
+  - `RUN_RESULT victory=true score=27047 kill_rate=100.00 max_fire=5 route=Lv5 bombs_used=4 lives=3`
+  - `CHAPTER_RESULT victory=true total_score=49277 kill_rate=93.29 stages=2 highest_fire=5`
 
 ### 4. 发布仓库展示版自检
 
@@ -44,6 +44,7 @@
 - HUD 顶部结构已经从“信息堆叠”收紧为“常驻层 / Boss 警戒层 / 短时提示层”
 - 第二关与 Boss 段压力比之前更合理，但仍保持可展示与可通关
 - 发布仓库与当前工作区的展示链路已重新同步，发布版验证结果与当前工作区一致
+- 最新一轮试玩反馈打磨后，`Lv5` 的成长辨识度更高，Boss 后段压迫和炸弹窗口也更贴近展示目标
 
 ## 当前已知非阻塞项
 
