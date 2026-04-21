@@ -7,6 +7,7 @@ const CHAPTER_BRIEFING_SCENE := "res://scenes/ui/ChapterBriefing.tscn"
 const CHAPTER_ENDING_SCENE := "res://scenes/ui/ChapterEnding.tscn"
 const CHAPTER_OUTRO_SCENE := "res://scenes/ui/ChapterOutro.tscn"
 const SETTINGS_PATH := "user://settings.cfg"
+const BUILD_VERSION_LABEL := "RC-0.4"
 const StageCatalogScript := preload("res://scripts/game/stage_catalog.gd")
 
 var current_run: Dictionary = {}
@@ -928,10 +929,10 @@ func get_build_badge() -> String:
 	if is_chapter_complete():
 		var chapter_grade := get_chapter_grade()
 		if chapter_grade == "S":
-			return _lang("当前构建 // 可评审", "BUILD STATUS // REVIEW READY")
+			return _lang("当前构建 %s // 可评审" % BUILD_VERSION_LABEL, "BUILD %s // REVIEW READY" % BUILD_VERSION_LABEL)
 		if chapter_grade == "A":
-			return _lang("当前构建 // 强候选版", "BUILD STATUS // STRONG CANDIDATE")
-	return _lang("当前构建 // 双关切片候选", "BUILD STATUS // DUAL-STAGE SLICE CANDIDATE")
+			return _lang("当前构建 %s // 强候选版" % BUILD_VERSION_LABEL, "BUILD %s // STRONG CANDIDATE" % BUILD_VERSION_LABEL)
+	return _lang("当前构建 %s // 双关切片候选" % BUILD_VERSION_LABEL, "BUILD %s // DUAL-STAGE SLICE CANDIDATE" % BUILD_VERSION_LABEL)
 
 
 func get_build_summary() -> String:
@@ -991,10 +992,10 @@ func get_release_candidate_label() -> String:
 	if is_chapter_complete():
 		var chapter_grade := get_chapter_grade()
 		if chapter_grade == "S":
-			return _lang("当前 RC // 可评审", "CURRENT RC // REVIEW READY")
+			return _lang("当前 RC %s // 可评审" % BUILD_VERSION_LABEL, "CURRENT RC %s // REVIEW READY" % BUILD_VERSION_LABEL)
 		if chapter_grade == "A":
-			return _lang("当前 RC // 强候选版", "CURRENT RC // STRONG CANDIDATE")
-	return _lang("当前 RC // 推荐章节连打", "CURRENT RC // CHAPTER RUN RECOMMENDED")
+			return _lang("当前 RC %s // 强候选版" % BUILD_VERSION_LABEL, "CURRENT RC %s // STRONG CANDIDATE" % BUILD_VERSION_LABEL)
+	return _lang("当前 RC %s // 推荐章节连打" % BUILD_VERSION_LABEL, "CURRENT RC %s // CHAPTER RUN RECOMMENDED" % BUILD_VERSION_LABEL)
 
 
 func get_chapter_transition_text() -> String:

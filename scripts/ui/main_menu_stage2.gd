@@ -64,7 +64,7 @@ func _build_ui() -> void:
 	column.add_child(title)
 
 	var tag := Label.new()
-	tag.text = _t("双关纵版切片候选", "DUAL-STAGE VERTICAL SLICE CANDIDATE")
+	tag.text = _t("稳定展示候选 // RC-0.4", "STABLE SHOWCASE CANDIDATE // RC-0.4")
 	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	tag.add_theme_font_size_override("font_size", 19 if narrow_layout else 24)
@@ -72,8 +72,8 @@ func _build_ui() -> void:
 
 	var summary := Label.new()
 	summary.text = _t(
-		"Stage 01 是当前更完整的开场展示关。\nStage 02 已经把风暴机关、Boss 路线和章节收束接成一条完整链路。",
-		"Stage 01 is the polished opener.\nStage 02 now carries storm hazards through the boss route and chapter ending flow."
+		"推荐从 Chapter Run 进入完整双关展示。\nStage 01 建立成长，Stage 02 兑现风暴机关、Boss 压迫和章节收束。",
+		"Start from Chapter Run for the full two-stage showcase.\nStage 01 builds growth; Stage 02 cashes storm hazards, boss pressure and chapter closure."
 	)
 	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -142,8 +142,8 @@ func _build_ui() -> void:
 
 	var features := Label.new()
 	features.text = _t(
-		"当前版本状态：\n- Stage 01：负责成长、炸弹时机和章节交接\n- Stage 02：负责风暴机关、Boss 压迫和终盘收束\n- Chapter Run：已具备 Briefing、Ending、Debrief 的完整双关展示链路",
-		"Current build status:\n- Stage 01: showcase opener with clean growth and chapter handoff\n- Stage 02: enemy, environment and boss hazards now sync into one storm route\n- Chapter Run: includes Briefing, Ending and Debrief as a full two-stage presentation chain"
+		"当前版本状态：\n- Stage 01：负责成长、炸弹时机和章节交接\n- Stage 02：负责风暴机关、Boss 压迫和终盘收束\n- Chapter Run：已具备 Briefing、Ending、Debrief 的稳定展示链路",
+		"Current build status:\n- Stage 01: showcase opener with clean growth and chapter handoff\n- Stage 02: enemy, environment and boss hazards now sync into one storm route\n- Chapter Run: includes Briefing, Ending and Debrief as a stable presentation chain"
 	)
 	features.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	features.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -152,8 +152,8 @@ func _build_ui() -> void:
 
 	var assessment := Label.new()
 	assessment.text = _t(
-		"判断：\n- 当前版本已经接近双关垂直切片候选\n- 更适合做最终包装与资源替换，而不是继续默认扩系统",
-		"Assessment:\n- This build now behaves like a dual-stage vertical-slice candidate\n- Best next step is final polish, asset replacement and packaging rather than default system expansion"
+		"判断：\n- 当前版本已经进入稳定展示候选状态\n- 后续更适合做发布包装、资源替换和少量试玩微调，而不是继续默认扩系统",
+		"Assessment:\n- This build is now a stable showcase candidate\n- Best next step is release packaging, asset replacement and light playtest polish rather than default system expansion"
 	)
 	assessment.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	assessment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

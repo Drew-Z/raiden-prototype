@@ -2,6 +2,13 @@
 
 一个基于 Godot 4.6.1 的纵版射击展示原型，用来验证并展示短局街机射击的节奏、成长、资源决策、Boss 收束，以及双关章节串联是否成立。
 
+## 当前版本
+
+- 版本标识：`RC-0.4`
+- 当前定位：稳定展示候选版
+- 推荐入口：`Chapter Run`
+- 推荐验证：`tools/run_showcase_verification.cmd`
+
 ## 当前阶段目标
 
 - 把短局原型推进成更适合展示的街机射击案例
@@ -49,9 +56,9 @@
 
 ## 当前版本定位
 
-- 当前状态：双关可展示原型
-- 所处阶段：已经完成最小可玩闭环，正在向双关垂直切片早期推进
-- 当前重点：按路线 A 持续把双关 build 往“可交付垂直切片”方向收口
+- 当前状态：稳定展示候选版
+- 所处阶段：双关垂直切片已经完成展示候选收口
+- 当前重点：发布包装、人工试玩微调和正式资源替换，而不是继续默认扩系统
 
 ## 操作说明
 
@@ -68,6 +75,24 @@
 
 ```bash
 "D:/Development/Godot/Godot_v4.6.1-stable_win64.exe" --path "D:/workspace4Codex/raiden prototype"
+```
+
+推荐本地试玩：
+
+```cmd
+tools\run_local_debug.cmd
+```
+
+推荐展示版自检：
+
+```cmd
+tools\run_showcase_verification.cmd
+```
+
+可选打包脚本：
+
+```cmd
+tools\prepare_showcase_package.cmd
 ```
 
 Headless 单关验证示例：
@@ -110,3 +135,6 @@ set LOCALAPPDATA=D:\workspace4Codex\raiden prototype\.godot-user
 - [最终封版清单](D:/workspace4Codex/raiden prototype/docs/final-freeze-checklist.md)
 - [人工演示步骤说明](D:/workspace4Codex/raiden prototype/docs/manual-demo-guide.md)
 - [当前封版公告](D:/workspace4Codex/raiden prototype/docs/final-release-announcement.md)
+- [稳定展示版说明](D:/workspace4Codex/raiden prototype/docs/stable-showcase-release.md)
+- [展示版 QA 记录](D:/workspace4Codex/raiden prototype/docs/showcase-qa-report.md)
+- [展示候选打包清单](D:/workspace4Codex/raiden prototype/docs/release-package-checklist.md)

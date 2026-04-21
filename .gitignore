@@ -1,8 +1,10 @@
 .godot/
 .godot-user/
 .publish-*/
+dist/
 *.import
 *.uid
+*.log
 smoke*.log
 stage2_smoke*.log
 stage3_smoke*.log

@@ -570,7 +570,7 @@ func _update_hud_status() -> void:
 		bomb_alert_level = 1
 	elif boss_spawned:
 		if active_boss.has_method("is_entry_locked") and active_boss.is_entry_locked():
-			hint_text = _t("Boss 鍏ュ満 // 绋充綇涓嚎", "BOSS ENTERING // HOLD CENTER")
+			hint_text = _t("Boss 入场 // 稳住中线", "BOSS ENTERING // HOLD CENTER")
 			hint_color = Color(1.0, 0.78, 0.42)
 		elif active_boss.has_method("is_overdrive") and active_boss.is_overdrive() and boss_finish_window_announced:
 			hint_text = _t("终结窗口 // 击穿核心", "FINISH WINDOW // BREAK CORE")
