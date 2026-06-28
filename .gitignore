@@ -1,0 +1,13 @@
+.godot/
+.godot-user/
+.publish-*/
+dist/
+*.import
+*.uid
+*.log
+smoke*.log
+stage2_smoke*.log
+stage3_smoke*.log
+_audio_extract/
+_audio_pick/
+_downloads/
